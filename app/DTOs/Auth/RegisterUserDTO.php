@@ -1,11 +1,11 @@
 <?php
 
-namespace App\DTOs\User;
+namespace App\DTOs\Auth;
 
 use App\Enums\UserRole;
 use Illuminate\Http\Request;
 
-final readonly class CreateUserDTO
+final readonly class RegisterUserDTO
 {
     public function __construct(
         public string $name,
@@ -22,18 +22,6 @@ final readonly class CreateUserDTO
             email: $request->validated('email'),
             password: $request->validated('password'),
             role: UserRole::tryFrom($request->validated('role', 'user')) ?? UserRole::User,
-        );
-    }
-
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            name: $data['name'],
-            email: $data['email'],
-            password: $data['password'],
-            role: isset($data['role'])
-            ? (is_string($data['role']) ? UserRole::tryFrom($data['role']) ?? UserRole::User : $data['role'])
-            : UserRole::User,
         );
     }
 }

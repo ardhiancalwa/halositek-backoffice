@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Actions\User;
+namespace App\Actions\Auth;
 
-use App\DTOs\User\CreateUserDTO;
+use App\DTOs\Auth\RegisterUserDTO;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-final class CreateUserAction
+final class RegisterUserAction
 {
-    public function execute(CreateUserDTO $dto): User
+    public function execute(RegisterUserDTO $dto): User
     {
         return User::create([
             'name' => $dto->name,

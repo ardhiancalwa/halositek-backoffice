@@ -17,9 +17,22 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        User::factory()->admin()->create([
+            'name' => 'Admin User',
+            'email' => 'admin@halositek.com',
+            'password' => bcrypt('Password123!'),
+        ]);
+
+        User::factory()->architect()->create([
+            'name' => 'Architect User',
+            'email' => 'architect@halositek.com',
+            'password' => bcrypt('Password123!'),
+        ]);
+
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Regular User',
+            'email' => 'user@halositek.com',
+            'password' => bcrypt('Password123!'),
         ]);
     }
 }

@@ -32,7 +32,7 @@ php artisan key:generate
 
 # Configure MongoDB in .env
 # DB_CONNECTION=mongodb
-# DB_DATABASE=halositek_backoffice
+# DB_DATABASE=halositek_db
 
 # Install Filament assets
 php artisan filament:assets

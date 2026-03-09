@@ -6,6 +6,7 @@ use App\Actions\User\CreateUserAction;
 use App\DTOs\User\CreateUserDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreUserRequest;
+use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
@@ -15,7 +16,7 @@ class UserController extends Controller
     {
         $users = User::latest()->paginate(15);
 
-        return response()->json($users);
+        return ApiResponse::paginated($users, 'Users retrieved successfully.');
     }
 
     public function store(StoreUserRequest $request, CreateUserAction $action): JsonResponse
@@ -23,9 +24,8 @@ class UserController extends Controller
         $dto = CreateUserDTO::fromRequest($request);
         $user = $action->execute($dto);
 
-        return response()->json([
-            'message' => 'User created successfully.',
+        return ApiResponse::created([
             'user' => $user,
-        ], 201);
+        ], 'User created successfully.');
     }
 }

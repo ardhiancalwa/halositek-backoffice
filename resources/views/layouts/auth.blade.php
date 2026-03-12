@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', config('app.name', 'HaloSitek'))</title>
+
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="h-screen bg-white font-sans antialiased overflow-hidden">
+    <div class="flex h-screen">
+        <div class="hidden lg:flex lg:w-1/2 relative">
+            <div class="absolute inset-0 bg-slate-800">
+                <img src="{{ asset('images/auth-bg.jpg') }}" alt="" class="h-full w-full object-cover opacity-80" onerror="this.style.display='none'">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-slate-900/30"></div>
+            </div>
+
+            <div class="relative z-10 flex flex-col justify-end p-12 text-white">
+                <div class="flex items-center gap-2 mb-6">
+                    <img src="{{ asset('images/vector.png') }}" alt="HaloSitek" class="h-8 w-auto">
+                    <span class="text-[#E8820C] font-bold text-2xl">HaloSitek</span>
+                </div>
+                <h2 class="text-3xl font-bold leading-tight mb-3">
+                    Elevating architectural<br>
+                    vision through digital<br>
+                    consultation.
+                </h2>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Join a community of elite architects and homeowners<br>
+                    designing the future together.
+                </p>
+            </div>
+        </div>
+
+        <div class="w-full lg:w-1/2 flex items-center justify-center px-6 py-12">
+            <div class="w-full max-w-md">
+                <div class="flex justify-center mb-8">
+                    <img src="{{ asset('images/brand.png') }}" alt="HaloSitek" class="h-16">
+                </div>
+
+                @yield('content')
+            </div>
+        </div>
+    </div>
+</body>
+</html>

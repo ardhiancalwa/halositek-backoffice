@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 // 1. Validation Error
                 if ($e instanceof \Illuminate\Validation\ValidationException) {
-                    return ApiResponse::validationError($e->errors(), $e->getMessage());
+                    return ApiResponse::validationError($e->errors(), 'Validasi gagal.');
                 }
 
                 // 2. Authentication Error (Not logged in / invalid token)
@@ -40,19 +40,29 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
 
                 // 3. Authorization Error (Forbidden / Gates)
-                if (
-                    $e instanceof \Illuminate\Auth\Access\AuthorizationException ||
-                    $e instanceof \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException
-                ) {
+                if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                    return ApiResponse::forbidden('Kamu tidak memiliki akses untuk melakukan tindakan ini.');
+                }
+                
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException) {
                     return ApiResponse::forbidden($e->getMessage());
                 }
 
                 // 4. Model/Route Not Found
-                if (
-                    $e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException ||
-                    $e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-                ) {
+                if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                    return ApiResponse::notFound('Data tidak ditemukan.');
+                }
+
+                if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
                     return ApiResponse::notFound('Endpoint or resource not found.');
+                }
+
+                // 4.5. Query Exception (Mongodb duplicate keys, etc)
+                if ($e instanceof \Illuminate\Database\QueryException || $e instanceof \MongoDB\Driver\Exception\BulkWriteException) {
+                    $msg = $e->getMessage();
+                    if (str_contains($msg, '1062') || str_contains($msg, 'E11000')) {
+                        return ApiResponse::error('Aksi sudah pernah dilakukan sebelumnya.', \App\Enums\ApiStatus::CONFLICT);
+                    }
                 }
 
                 // 5. General HTTP Exceptions (e.g. 405 Method Not Allowed)

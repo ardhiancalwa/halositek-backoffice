@@ -15,24 +15,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->admin()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@halositek.com',
-            'password' => bcrypt('Password123!'),
+            'name' => env('SEED_ADMIN_NAME', 'Admin User'),
+            'email' => env('SEED_ADMIN_EMAIL', 'admin@halositek.com'),
+            'password' => bcrypt(env('SEED_ADMIN_PASSWORD', 'Password123!')),
         ]);
 
         User::factory()->architect()->create([
-            'name' => 'Architect User',
-            'email' => 'architect@halositek.com',
-            'password' => bcrypt('Password123!'),
+            'name' => env('SEED_ARCHITECT_NAME', 'Architect User'),
+            'email' => env('SEED_ARCHITECT_EMAIL', 'architect@halositek.com'),
+            'password' => bcrypt(env('SEED_ARCHITECT_PASSWORD', 'Password123!')),
         ]);
 
         User::factory()->create([
-            'name' => 'Regular User',
-            'email' => 'user@halositek.com',
-            'password' => bcrypt('Password123!'),
+            'name' => env('SEED_USER_NAME', 'Regular User'),
+            'email' => env('SEED_USER_EMAIL', 'user@halositek.com'),
+            'password' => bcrypt(env('SEED_USER_PASSWORD', 'Password123!')),
         ]);
     }
 }

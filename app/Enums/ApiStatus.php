@@ -13,6 +13,7 @@ enum ApiStatus: int
     case FORBIDDEN = 403;
     case NOT_FOUND = 404;
     case METHOD_NOT_ALLOWED = 405;
+    case CONFLICT = 409;
     case UNPROCESSABLE_ENTITY = 422;
     case SERVER_ERROR = 500;
     case SERVICE_UNAVAILABLE = 503;
@@ -37,6 +38,7 @@ enum ApiStatus: int
             self::FORBIDDEN => 'Forbidden access.',
             self::NOT_FOUND => 'Resource not found.',
             self::METHOD_NOT_ALLOWED => 'Method not allowed.',
+            self::CONFLICT => 'Resource conflict.',
             self::UNPROCESSABLE_ENTITY => 'Validation failed.',
             self::SERVER_ERROR => 'Internal server error.',
             self::SERVICE_UNAVAILABLE => 'Service unavailable.',

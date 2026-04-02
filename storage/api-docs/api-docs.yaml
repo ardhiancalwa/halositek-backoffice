@@ -1,0 +1,1508 @@
+openapi: 3.0.3
+info:
+  title: HaloSitek Core API
+  description: RESTful API untuk platform HaloSitek. Meliputi manajemen pengguna (User, Arsitek, Admin), katalog arsitektur, sesi konsultasi, chatbot AI, dan transaksi pembayaran.
+  version: 1.2.0
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local Development Server
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Auth
+    description: Autentikasi dan Manajemen Sesi
+  - name: Users
+    description: Manajemen Profil Pengguna
+  - name: Architects
+    description: Eksplorasi Arsitek dan Wishlist Arsitek
+  - name: Catalog
+    description: Eksplorasi dan Manajemen Katalog Desain (CRUD & Wishlist)
+  - name: Consultation
+    description: Sesi Chat Konsultasi Arsitek & User
+  - name: Chatbot
+    description: Interaksi dengan Asisten Virtual AI
+  - name: Transaction
+    description: Checkout dan Webhook Payment Gateway
+  - name: Analytics
+    description: Monitoring Growth dan Engagement Platform
+  - name: FAQ
+    description: Manajemen Frequently Asked Questions
+
+paths:
+  /auth/login:
+    post:
+      summary: Login Pengguna
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@halositek.com
+                password:
+                  type: string
+                  example: securepassword123
+      responses:
+        "200":
+          description: Berhasil login
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Login berhasil."
+                      data:
+                        $ref: "#/components/schemas/AuthResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/register:
+    post:
+      summary: Registrasi Pengguna Baru (User)
+      description: Endpoint untuk registrasi pengguna biasa.
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Budi Santoso"
+                email:
+                  type: string
+                  format: email
+                  example: "budi_santoso@gmail.com"
+                password:
+                  type: string
+                  format: password
+                  example: "password123"
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: "password123"
+                role:
+                  type: string
+                  example: "user"
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+      responses:
+        "201":
+          description: Berhasil registrasi
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Registrasi akun berhasil."
+                      data:
+                        $ref: "#/components/schemas/AuthResponse"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/register-architect:
+    post:
+      summary: Registrasi Arsitek
+      description: Endpoint untuk pendaftaran arsitek. Memerlukan upload file katalog dan awards. Status akan otomatis 'pending' hingga di-approve Admin.
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Arsitek Budi"
+                email:
+                  type: string
+                  format: email
+                  example: "arsitek@gmail.com"
+                password:
+                  type: string
+                  format: password
+                  example: "password123"
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: "password123"
+                headline:
+                  type: string
+                  example: "Ahli Desain Tropis Modern"
+                bio:
+                  type: string
+                  example: "Arsitek berpengalaman merancang hunian ramah lingkungan."
+                location:
+                  type: string
+                  example: "Bandung, Jawa Barat"
+                specialization:
+                  type: string
+                  example: "Residential, Minimalist, Tropical"
+                catalogs:
+                  type: string
+                  format: binary
+                  description: File portofolio katalog desain yang pernah dikerjakan (PDF/ZIP/Image).
+                awards:
+                  type: string
+                  format: binary
+                  description: File bukti penghargaan (PDF/Image).
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+                - catalogs
+                - awards
+      responses:
+        "201":
+          description: Berhasil registrasi arsitek
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Registrasi arsitek berhasil, mohon tunggu approval Admin."
+                      data:
+                        $ref: "#/components/schemas/AuthResponse"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/logout:
+    post:
+      summary: Logout Pengguna
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        "200":
+          description: Berhasil logout
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Logout berhasil."
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth/refresh-token:
+    post:
+      summary: Refresh Access Token
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        "200":
+          description: Berhasil mendapatkan token baru
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Token berhasil diperbarui."
+                      data:
+                        type: object
+                        properties:
+                          access_token:
+                            type: string
+                          refresh_token:
+                            type: string
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /users/me:
+    get:
+      summary: Dapatkan Profil Pengguna Saat Ini
+      description: Mengambil data profil user yang sedang login. Jika role adalah architect, data akan berisi skema ArchitectProfile.
+      tags: [Users]
+      responses:
+        "200":
+          description: Data profil berhasil diambil
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /architects:
+    get:
+      summary: Mendapatkan daftar Arsitek
+      tags: [Architects]
+      security: []
+      responses:
+        "200":
+          description: Daftar arsitek berhasil dimuat
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ArchitectProfile"
+
+  /architects/wishlist:
+    get:
+      summary: Mendapatkan daftar Arsitek yang disimpan (Wishlist)
+      tags: [Architects]
+      responses:
+        "200":
+          description: Daftar arsitek di wishlist berhasil dimuat
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ArchitectProfile"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /architects/{id}/verify:
+    put:
+      summary: Konfirmasi / Verifikasi Arsitek (Admin)
+      description: Mengubah status registrasi arsitek menjadi approved atau rejected.
+      tags: [Architects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [approved, rejected]
+              required:
+                - status
+      responses:
+        "200":
+          description: Status arsitek berhasil diubah
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Status arsitek berhasil diperbarui."
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /architects/{id}/save:
+    post:
+      summary: Menyimpan (Wishlist) Arsitek
+      tags: [Architects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Arsitek berhasil disimpan ke wishlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    delete:
+      summary: Menghapus Arsitek dari Wishlist
+      tags: [Architects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Arsitek berhasil dihapus dari wishlist
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /catalogs:
+    get:
+      summary: Mendapatkan daftar katalog arsitektur
+      description: Menampilkan galeri referensi desain, dapat difilter berdasarkan gaya bangunan.
+      tags: [Catalog]
+      security: []
+      parameters:
+        - name: style
+          in: query
+          schema:
+            type: string
+            enum: [Traditional, modern, minimalist, futuristik, industrial]
+          description: Filter berdasarkan gaya desain bangunan
+        - name: title
+          in: query
+          schema:
+            type: string
+          description: Filter pencarian berdasarkan judul dari desain (title)
+      responses:
+        "200":
+          description: Daftar katalog berhasil dimuat
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Daftar katalog berhasil diambil."
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CatalogItem"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    
+    post:
+      summary: Menambahkan katalog arsitektur baru (Admin/Arsitek)
+      tags: [Catalog]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CatalogInput"
+      responses:
+        "201":
+          description: Katalog berhasil dibuat
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Katalog arsitektur berhasil ditambahkan."
+                      data:
+                        $ref: "#/components/schemas/CatalogItem"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /catalogs/{id}:
+    get:
+      summary: Mendapatkan detail katalog
+      tags: [Catalog]
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Detail katalog berhasil dimuat
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        $ref: "#/components/schemas/CatalogItem"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    put:
+      summary: Mengubah data katalog (Admin/Arsitek)
+      tags: [Catalog]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CatalogInput"
+      responses:
+        "200":
+          description: Katalog berhasil diubah
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    delete:
+      summary: Menghapus katalog (Admin/Arsitek)
+      tags: [Catalog]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Katalog berhasil dihapus
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /catalogs/{id}/verify:
+    put:
+      summary: Verifikasi Katalog (Persetujuan Admin)
+      description: Mengubah status katalog menjadi approved atau rejected.
+      tags: [Catalog]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [approved, rejected]
+              required:
+                - status
+      responses:
+        "200":
+          description: Status katalog berhasil diperbarui
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Status katalog berhasil diperbarui."
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+
+  /catalogs/{id}/like:
+    post:
+      summary: Menyukai (Like) Katalog
+      description: Setiap pengguna hanya bisa 1x like postingan yang sama.
+      tags: [Catalog]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil like katalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    delete:
+      summary: Membatalkan Like (Unlike) Katalog
+      tags: [Catalog]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil unlike katalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+  /consultations:
+    get:
+      summary: Mendapatkan daftar sesi konsultasi
+      description: Menampilkan riwayat sesi konsultasi yang dimiliki oleh User atau Arsitek.
+      tags: [Consultation]
+      responses:
+        "200":
+          description: Riwayat konsultasi berhasil dimuat
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PaginatedResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ConsultationSession"
+
+  /consultations/start:
+    post:
+      summary: Memulai sesi konsultasi baru
+      tags: [Consultation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                architect_id:
+                  type: string
+                topic:
+                  type: string
+      responses:
+        "201":
+          description: Sesi konsultasi dibuat
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+
+  /consultations/{id}/messages:
+    get:
+      summary: Mengambil riwayat chat dalam sesi konsultasi
+      tags: [Consultation]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil memuat pesan
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ChatMessage"
+    post:
+      summary: Mengirim pesan dalam sesi konsultasi
+      tags: [Consultation]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Halo, saya ingin bertanya tentang desain denah lantai 1."
+                attachment_url:
+                  type: string
+                  nullable: true
+                  example: "https://storage.halositek.com/images/denah_kasar.png"
+      responses:
+        "201":
+          description: Pesan berhasil dikirim
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        $ref: "#/components/schemas/ChatMessage"
+
+  /chatbot/ask:
+    post:
+      summary: Mengirim pertanyaan ke Chatbot AI
+      description: Endpoint untuk berinteraksi dengan asisten virtual terintegrasi LLM. Mendukung riwayat percakapan (history) untuk menjaga konteks, dan membalas dengan teks atau hasil generasi gambar.
+      tags: [Chatbot]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, message]
+              properties:
+                user_id:
+                  type: string
+                  example: "6601abc123def456"
+                message:
+                  type: string
+                  example: "Apa itu pondasi cakar ayam?"
+                history:
+                  type: array
+                  description: "Riwayat percakapan sebelumnya untuk menjaga konteks"
+                  default: []
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        enum: [user, assistant]
+                      content:
+                        type: string
+                  example:
+                    - role: "user"
+                      content: "Halo"
+                    - role: "assistant"
+                      content: "Halo! Ada yang bisa saya bantu?"
+      responses:
+        "200":
+          description: Respons dari Chatbot
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      message:
+                        type: string
+                        example: "Jawaban bot berhasil dimuat."
+                      data:
+                        oneOf:
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                example: "text"
+                              content:
+                                type: string
+                                example: "Pondasi cakar ayam adalah jenis pondasi dangkal yang..."
+                              prompt_used:
+                                type: string
+                                nullable: true
+                                example: null
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                example: "image"
+                              content:
+                                type: string
+                                description: "Gambar yang dikembalikan berupa Base64 PNG"
+                                example: "iVBORw0KGgoAAAANSUhEUg...(base64 PNG)"
+                              prompt_used:
+                                type: string
+                                example: "A minimalist 2-story house floor plan, top-down view, 4K"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /payments:
+    post:
+      summary: Membuat transaksi pembayaran
+      description: Menginisiasi pembayaran melalui Midtrans Snap API. Endpoint ini akan mengembalikan token dan URL pembayaran.
+      tags: [Transaction]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [consultation_package_id, amount, customer_name, customer_email]
+              properties:
+                consultation_package_id:
+                  type: string
+                  example: "pkg_001"
+                amount:
+                  type: integer
+                  description: "Total harga konsultasi (gross_amount)"
+                  example: 150000
+                customer_name:
+                  type: string
+                  example: "Budi Santoso"
+                customer_email:
+                  type: string
+                  format: email
+                  example: "budi@example.com"
+      responses:
+        "200":
+          description: Berhasil membuat transaksi, mengembalikan Snap Token dan Redirect URL
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          order_id:
+                            type: string
+                            example: "HALO-TRX-1710735821"
+                          snap_token:
+                            type: string
+                            example: "4841fbca-1c25-47eb-baad-05d676ed99b7"
+                          redirect_url:
+                            type: string
+                            example: "https://app.sandbox.midtrans.com/snap/v2/vtweb/4841fbca-1c25-47eb-baad-05d676ed99b7"
+
+  /webhook/payments:
+    post:
+      summary: Webhook Payment Gateway (Midtrans)
+      description: Endpoint yang akan dipanggil oleh peladen Midtrans saat ada pembaruan status transaksi.
+      tags: [Transaction]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transaction_time:
+                  type: string
+                  example: "2026-03-18 11:30:00"
+                transaction_status:
+                  type: string
+                  enum: [pending, capture, settlement, deny, cancel, expire]
+                  example: "settlement"
+                transaction_id:
+                  type: string
+                  example: "57d5293c-e65f-4a29-9ce4-d21b44b1c853"
+                status_message:
+                  type: string
+                  example: "midtrans payment notification"
+                status_code:
+                  type: string
+                  example: "200"
+                signature_key:
+                  type: string
+                  description: "SHA512(order_id+status_code+gross_amount+ServerKey)"
+                  example: "d21b44b1c853..."
+                payment_type:
+                  type: string
+                  example: "qris"
+                order_id:
+                  type: string
+                  example: "HALO-TRX-1710735821"
+                gross_amount:
+                  type: string
+                  example: "150000.00"
+                fraud_status:
+                  type: string
+                  example: "accept"
+      responses:
+        "200":
+          description: Webhook berhasil diproses dan divalidasi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /admin/analytics/overview:
+    get:
+      summary: Dapatkan data analitik untuk dashboard Admin
+      description: Mengambil data metrik seperti jumlah user dan arsitek berstatus ter-registrasi, total konsultasi per minggu, serta data grafik pertumbuhan (growth chart) dengan pilihan filter harian, mingguan, bulanan, atau tahunan. Mengandung presentase komparasi pertumbuhan.
+      tags: [Analytics]
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: [day, week, month, year]
+            default: month
+          description: Jangka waktu filter untuk data chart
+      responses:
+        "200":
+          description: Berhasil memuat data overview analitik
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        $ref: "#/components/schemas/AnalyticsOverviewResponse"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /faqs:
+    get:
+      summary: Mendapatkan daftar FAQ
+      description: Menampilkan list Frequently Asked Questions untuk halaman public atau admin.
+      tags: [FAQ]
+      security: []
+      responses:
+        "200":
+          description: Berhasil memuat daftar FAQ
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/FAQItem"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: Menambahkan FAQ baru (Admin)
+      tags: [FAQ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [question, answer]
+              properties:
+                question:
+                  type: string
+                  example: "Bagaimana cara menjadi arsitek di platform ini?"
+                answer:
+                  type: string
+                  example: "Anda bisa mendaftar dan menunggu verifikasi admin..."
+                is_active:
+                  type: boolean
+                  default: true
+      responses:
+        "201":
+          description: FAQ berhasil ditambahkan
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        $ref: "#/components/schemas/FAQItem"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /faqs/{id}:
+    get:
+      summary: Dapatkan detail FAQ khusus
+      tags: [FAQ]
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Berhasil memuat FAQ
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                  - properties:
+                      data:
+                        $ref: "#/components/schemas/FAQItem"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    put:
+      summary: Mengubah data FAQ (Admin)
+      tags: [FAQ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                question:
+                  type: string
+                answer:
+                  type: string
+                is_active:
+                  type: boolean
+      responses:
+        "200":
+          description: FAQ berhasil diubah
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+    delete:
+      summary: Menghapus FAQ (Admin)
+      tags: [FAQ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: FAQ berhasil dihapus
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Gunakan access_token JWT yang didapat dari endpoint /auth/login atau /auth/register.
+
+  responses:
+    InternalServerError:
+      description: Terjadi kesalahan pada server
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - type: object
+              - properties:
+                  status_code:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: "Terjadi kesalahan internal pada server kami."
+
+    UnauthorizedError:
+      description: Tidak diizinkan (Unauthorized)
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - type: object
+              - properties:
+                  status_code:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: "Akses ditolak, Anda harus login terlebih dahulu."
+                    
+    NotFoundError:
+      description: Data tidak ditemukan
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - type: object
+              - properties:
+                  status_code:
+                    type: integer
+                    example: 404
+                  message:
+                    type: string
+                    example: "Resource yang Anda cari tidak ditemukan."
+
+    ValidationError:
+      description: Validasi gagal
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - type: object
+              - properties:
+                  status_code:
+                    type: integer
+                    example: 422
+                  message:
+                    type: string
+                    example: "Data yang dimasukkan tidak valid."
+
+  schemas:
+    AuthResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "69ae9177a8e74b186805a5b4"
+        name:
+          type: string
+          example: "Regular User"
+        email:
+          type: string
+          example: "user@halositek.com"
+        profile_picture:
+          type: string
+          nullable: true
+          example: "https://storage.halositek.com/profiles/user-1.jpg"
+        email_verified_at:
+          type: string
+          format: date-time
+        role:
+          type: string
+          enum: [user, architect, admin]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ArchitectProfile:
+      allOf:
+        - $ref: "#/components/schemas/User"
+        - type: object
+          properties:
+            headline:
+              type: string
+              example: "Ahli Desain Tropis Modern"
+            bio:
+              type: string
+              example: "Arsitek berpengalaman lebih dari 5 tahun merancang hunian ramah lingkungan."
+            location:
+              type: string
+              example: "Bandung, Jawa Barat"
+            catalogs_file_url:
+              type: string
+              description: "URL file portofolio katalog yang diupload"
+              example: "https://storage.halositek.com/documents/catalogs.pdf"
+            awards_file_url:
+              type: string
+              description: "URL file bukti penghargaan yang diupload"
+              example: "https://storage.halositek.com/documents/awards.pdf"
+            status:
+              type: string
+              enum: [pending, approved, rejected]
+              example: "approved"
+            specialization:
+              type: string
+              example: "Residential, Minimalist, Tropical"
+            likes_count:
+              type: integer
+              example: 150
+
+    CatalogInput:
+      type: object
+      required: [title, style, images, estimated_cost, area]
+      properties:
+        title:
+          type: string
+          example: "Rumah Tropis Modern 2 Lantai"
+        style:
+          type: string
+          example: "Tropis Modern"
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+          example: ["https://storage.halositek.com/catalogs/1-a.jpg", "https://storage.halositek.com/catalogs/1-b.jpg"]
+        interior_highlights:
+          type: array
+          items:
+            type: string
+        layout_image:
+          type: string
+        estimated_cost:
+          type: number
+          example: 450000000
+        area:
+          type: string
+          example: "120 m2 (10x12m)"
+
+    CatalogItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        architect_id:
+          type: string
+        architect_name:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        interior_highlights:
+          type: array
+          items:
+            type: string
+        layout_image:
+          type: string
+          nullable: true
+        estimated_cost:
+          type: number
+        area:
+          type: string
+        style:
+          type: string
+          enum: [Traditional, modern, minimalist, futuristik, industrial]
+        description:
+          type: string
+        likes_count:
+          type: integer
+          example: 320
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+          example: "approved"
+        created_at:
+          type: string
+          format: date-time
+
+    ConsultationSession:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "60d5ec49f1b2c8b1f8e4e1a1"
+        user_id:
+          type: string
+        architect_id:
+          type: string
+        topic:
+          type: string
+          example: "Konsultasi desain fasad rumah tropis"
+        status:
+          type: string
+          enum: [pending, active, completed]
+          example: "active"
+        channel_name:
+          type: string
+          description: "Nama private channel untuk disubscribe via Laravel Echo"
+          example: "private-consultation.60d5ec49f1b2c8b1f8e4e1a1"
+        last_message:
+          type: string
+          nullable: true
+          description: "Potongan pesan terakhir untuk ditampilkan di chat list"
+          example: "Baik, mari kita bahas denah lantai 1 ya."
+        last_message_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: "Waktu pesan terakhir, gunakan ini untuk sorting daftar chat"
+        unread_count:
+          type: integer
+          example: 2
+          description: "Jumlah pesan yang belum dibaca oleh user yang sedang request"
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        consultation_id:
+          type: string
+        sender_id:
+          type: string
+        message:
+          type: string
+        attachment_url:
+          type: string
+          nullable: true
+        sent_at:
+          type: string
+          format: date-time
+
+    SuccessResponse:
+      type: object
+      required: [success, status_code, message]
+      properties:
+        success:
+          type: boolean
+          example: true
+        status_code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "Operasi berhasil"
+
+    ErrorResponse:
+      type: object
+      required: [success, status_code, message]
+      properties:
+        success:
+          type: boolean
+          example: false
+        status_code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Terjadi kesalahan"
+
+    PaginatedResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessResponse"
+        - type: object
+          properties:
+            meta:
+              type: object
+              properties:
+                current_page:
+                  type: integer
+                last_page:
+                  type: integer
+                per_page:
+                  type: integer
+                total:
+                  type: integer
+            links:
+              type: object
+              properties:
+                first_page_url:
+                  type: string
+                last_page_url:
+                  type: string
+                next_page_url:
+                  type: string
+                  nullable: true
+                prev_page_url:
+                  type: string
+                  nullable: true
+
+    FAQItem:
+      type: object
+      properties:
+        id:
+          type: string
+        question:
+          type: string
+          example: "Bagaimana cara melakukan pembayaran?"
+        answer:
+          type: string
+          example: "Anda dapat membayar melalui Midtrans menggunakan metode transfer bank atau e-wallet."
+        is_active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AnalyticsOverviewResponse:
+      type: object
+      properties:
+        total_registered_users:
+          type: integer
+          example: 1540
+        total_registered_architects:
+          type: integer
+          example: 210
+        total_consultations_this_week:
+          type: integer
+          example: 85
+        weekly_consultation_chart:
+          type: array
+          description: "Data array harian untuk menampilkan bar chart konsultasi selama minggu ini"
+          items:
+            type: object
+            properties:
+              day:
+                type: string
+                description: "Hari di dalam satu minggu yang bersangkutan"
+                example: "Senin"
+              consultation_count:
+                type: integer
+                description: "Jumlah konsultasi di hari tersebut"
+                example: 15
+              growth_percentage:
+                type: number
+                format: float
+                description: "Persentase komparasi pertumbuhan per hari dari periode/minggu lalu"
+                example: 5.5
+        growth_chart:
+          type: array
+          description: "Data tren pertumbuhan sesuai filter (day, week, month, year)"
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+                description: "Label waktu (misal: 'Senin', 'Januari', atau tanggal)"
+                example: "Januari"
+              user_count:
+                type: integer
+                example: 120
+              architect_count:
+                type: integer
+                example: 15
+              growth_percentage:
+                type: number
+                format: float
+                description: "Persentase kenaikan/penurunan dari periode sebelumnya. (+ untuk naik, - untuk turun)"
+                example: 12.5

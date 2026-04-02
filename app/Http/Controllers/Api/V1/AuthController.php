@@ -14,11 +14,29 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use OpenApi\Annotations as OA;
 
 class AuthController extends Controller
 {
     /**
      * Register a new user.
+     *
+     * @OA\Post(
+     *   path="/auth/register",
+     *   tags={"Auth"},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       required={"name","email","password","password_confirmation"},
+     *       @OA\Property(property="name", type="string", example="Budi Santoso"),
+     *       @OA\Property(property="email", type="string", format="email", example="budi_santoso@gmail.com"),
+     *       @OA\Property(property="password", type="string", format="password", example="password123"),
+     *       @OA\Property(property="password_confirmation", type="string", format="password", example="password123"),
+     *       @OA\Property(property="role", type="string", example="user")
+     *     )
+     *   ),
+     *   @OA\Response(response=201, description="Berhasil registrasi")
+     * )
      */
     public function register(RegisterRequest $request, RegisterUserAction $action): JsonResponse
     {
@@ -34,7 +52,21 @@ class AuthController extends Controller
     }
 
     /**
-     * Authenticate user and issue token pair.
+     * Authenticate user and return tokens.
+     *
+     * @OA\Post(
+     *   path="/auth/login",
+     *   tags={"Auth"},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       required={"email","password"},
+     *       @OA\Property(property="email", type="string", format="email", example="user@halositek.com"),
+     *       @OA\Property(property="password", type="string", example="securepassword123")
+     *     )
+     *   ),
+     *   @OA\Response(response=200, description="Berhasil login")
+     * )
      */
     public function login(LoginRequest $request): JsonResponse
     {
@@ -53,13 +85,25 @@ class AuthController extends Controller
     }
 
     /**
-     * Refresh token pair using a valid refresh token.
+     * Refresh access token using a refresh token.
+     *
+     * @OA\Post(
+     *   path="/auth/refresh-token",
+     *   tags={"Auth"},
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       @OA\Property(property="refresh_token", type="string", example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+     *     )
+     *   ),
+     *   @OA\Response(response=200, description="Berhasil mendapatkan token baru")
+     * )
      */
     public function refresh(RefreshTokenRequest $request): JsonResponse
     {
         $refreshToken = $request->validated('refresh_token');
 
-        // Sanctum tokens are stored as "id|plaintext" — extract both parts
+        // Sanctum tokens are stored as "id|plaintext" â€” extract both parts
         $parts = explode('|', $refreshToken, 2);
 
         if (count($parts) !== 2) {
@@ -102,7 +146,20 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout the authenticated user (revoke all tokens).
+     * Logout current user and revoke tokens.
+     *
+     * @OA\Post(
+     *   path="/auth/logout",
+     *   tags={"Auth"},
+     *   security={{"BearerAuth":{}}},
+     *   @OA\RequestBody(
+     *     required=false,
+     *     @OA\JsonContent(
+     *       @OA\Property(property="refresh_token", type="string")
+     *     )
+     *   ),
+     *   @OA\Response(response=200, description="Berhasil logout")
+     * )
      */
     public function logout(Request $request): JsonResponse
     {
@@ -123,7 +180,14 @@ class AuthController extends Controller
     }
 
     /**
-     * Get the authenticated user's profile.
+     * Get current authenticated user's profile.
+     *
+     * @OA\Get(
+     *   path="/users/me",
+     *   tags={"Users"},
+     *   security={{"BearerAuth":{}}},
+     *   @OA\Response(response=200, description="Data profil berhasil diambil")
+     * )
      */
     public function me(Request $request): JsonResponse
     {

@@ -7,21 +7,26 @@
     <h1 class="text-2xl font-bold text-slate-900 mb-1">Welcome Back</h1>
     <p class="text-slate-500 text-sm mb-8">Please enter your details to access your dashboard</p>
 
-    @if ($errors->any())
-        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            @foreach ($errors->all() as $error)
-                <p class="text-red-600 text-sm">{{ $error }}</p>
-            @endforeach
-        </div>
-    @endif
+    <div
+        data-auth-alert
+        class="mb-4 hidden rounded-lg border px-3 py-3 text-sm"
+        role="alert"
+        aria-live="polite"
+    ></div>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+    <form
+        method="POST"
+        action="{{ url('/api/v1/login') }}"
+        data-auth-form
+        data-auth-mode="login"
+        data-auth-endpoint="{{ url('/api/v1/login') }}"
+        data-auth-redirect="{{ url('/') }}"
+    >
 
         <div class="mb-5">
-            <label for="email" class="block text-sm font-semibold text-slate-900 mb-2">Username</label>
+            <label for="email" class="block text-sm font-semibold text-slate-900 mb-2">Email</label>
             <input
-                type="text"
+                type="email"
                 id="email"
                 name="email"
                 value="{{ old('email') }}"
@@ -59,6 +64,7 @@
 
         <button
             type="submit"
+            data-auth-submit
             class="w-full bg-[#E8820C] hover:bg-[#d4750a] text-white font-bold py-3 px-4 rounded-lg text-sm uppercase tracking-wider transition"
         >
             Login

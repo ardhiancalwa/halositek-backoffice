@@ -20,7 +20,7 @@
         data-auth-form
         data-auth-mode="register"
         data-auth-endpoint="{{ url('/api/v1/register') }}"
-        data-auth-redirect="{{ url('/') }}"
+        data-auth-redirect="{{ route('dashboard') }}"
     >
         <div class="mb-4">
             <label for="email" class="block text-sm font-semibold text-slate-900 mb-2">Email</label>

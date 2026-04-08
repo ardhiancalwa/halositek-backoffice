@@ -20,7 +20,7 @@
         data-auth-form
         data-auth-mode="login"
         data-auth-endpoint="{{ url('/api/v1/login') }}"
-        data-auth-redirect="{{ url('/') }}"
+        data-auth-redirect="{{ route('dashboard') }}"
     >
 
         <div class="mb-5">

@@ -36,10 +36,10 @@
             </div>
         </div>
 
-        <div class="w-full lg:w-1/2 flex items-center justify-center px-6 py-12">
-            <div class="w-full max-w-md">
+        <div class="w-full lg:w-1/2 flex items-center justify-center px-6 py-10">
+            <div class="auth-page-scale w-full max-w-md">
                 <div class="flex justify-center mb-8">
-                    <img src="{{ asset('images/brand.png') }}" alt="HaloSitek" class="h-16">
+                    <img src="{{ asset('images/brand.png') }}" alt="HaloSitek" class="h-14">
                 </div>
 
                 @yield('content')

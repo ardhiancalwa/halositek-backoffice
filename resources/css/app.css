@@ -11,6 +11,38 @@
 }
 
 @layer base {
+    :root {
+        --hs-primary: #d97706;
+        --hs-primary-hover: #b96508;
+        --hs-accent: #137fec;
+        --hs-accent-hover: #0f6dcc;
+        --hs-text-strong: #1e293b;
+        --hs-text-main: #475569;
+        --hs-text-muted: #64748b;
+        --hs-surface: #ffffff;
+        --hs-border: #cbd5e1;
+        --hs-ring: rgb(217 119 6 / 0.2);
+    }
+
+    html,
+    body,
+    button,
+    input,
+    select,
+    textarea,
+    label,
+    a,
+    p,
+    span,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-sans);
+    }
+
     input[type="password"]::-ms-reveal,
     input[type="password"]::-ms-clear {
         display: none;
@@ -20,5 +52,76 @@
         visibility: hidden;
         display: none !important;
         pointer-events: none;
+    }
+}
+
+@layer components {
+    .auth-page-scale {
+        zoom: 0.9;
+    }
+
+    @supports not (zoom: 1) {
+        .auth-page-scale {
+            width: 111.111%;
+            transform: scale(0.9);
+            transform-origin: top center;
+        }
+    }
+
+    .auth-title {
+        color: var(--hs-text-strong);
+    }
+
+    .auth-subtitle {
+        color: var(--hs-text-muted);
+    }
+
+    .auth-label {
+        color: var(--hs-text-main);
+    }
+
+    .auth-muted-text {
+        color: var(--hs-text-muted);
+    }
+
+    .auth-primary-link {
+        color: var(--hs-primary);
+    }
+
+    .auth-primary-link:hover {
+        color: var(--hs-primary-hover);
+    }
+
+    .auth-accent-link {
+        color: var(--hs-accent);
+    }
+
+    .auth-accent-link:hover {
+        color: var(--hs-accent-hover);
+    }
+
+    .auth-input {
+        border-color: var(--hs-border);
+        color: var(--hs-text-strong);
+        background-color: var(--hs-surface);
+    }
+
+    .auth-input::placeholder {
+        color: var(--hs-text-muted);
+    }
+
+    .auth-input:focus {
+        border-color: var(--hs-primary);
+        box-shadow: 0 0 0 3px var(--hs-ring);
+        outline: none;
+    }
+
+    .auth-primary-button {
+        background-color: var(--hs-primary);
+        color: var(--hs-surface);
+    }
+
+    .auth-primary-button:hover {
+        background-color: var(--hs-primary-hover);
     }
 }

@@ -4,8 +4,8 @@
 
 @section('content')
 <div>
-    <h1 class="text-2xl font-bold text-slate-900 mb-1">Welcome Back</h1>
-    <p class="text-slate-500 text-sm mb-8">Please enter your details to access your dashboard</p>
+    <h1 class="auth-title mb-1 text-2xl font-bold">Welcome Back</h1>
+    <p class="auth-subtitle mb-8 text-sm">Please enter your details to access your dashboard</p>
 
     <div
         data-auth-alert
@@ -24,26 +24,26 @@
     >
 
         <div class="mb-5">
-            <label for="email" class="block text-sm font-semibold text-slate-900 mb-2">Email</label>
+            <label for="email" class="auth-label mb-2 block text-sm font-semibold">Email</label>
             <input
                 type="email"
                 id="email"
                 name="email"
                 value="{{ old('email') }}"
-                class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
+                class="auth-input w-full rounded-lg border px-4 py-3 text-sm transition"
                 required
                 autofocus
             >
         </div>
 
         <div class="mb-4">
-            <label for="password" class="block text-sm font-semibold text-slate-900 mb-2">Password</label>
+            <label for="password" class="auth-label mb-2 block text-sm font-semibold">Password</label>
             <div class="relative">
                 <input
                     type="password"
                     id="password"
                     name="password"
-                    class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition pr-12"
+                    class="auth-input w-full rounded-lg border px-4 py-3 pr-12 text-sm transition"
                     required
                 >
                 <button type="button" data-toggle-password="password" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -59,20 +59,20 @@
         </div>
 
         <div class="mb-6">
-            <a href="#" class="text-sm text-[#E8820C] hover:text-[#d4750a] font-medium">Forgot Password?</a>
+            <a href="#" class="auth-primary-link text-sm font-medium">Forgot Password?</a>
         </div>
 
         <button
             type="submit"
             data-auth-submit
-            class="w-full bg-[#E8820C] hover:bg-[#d4750a] text-white font-bold py-3 px-4 rounded-lg text-sm uppercase tracking-wider transition"
+            class="auth-primary-button w-full rounded-lg px-4 py-3 text-sm font-bold uppercase tracking-wider transition"
         >
             Login
         </button>
 
-        <p class="text-center text-sm text-slate-500 mt-6">
+        <p class="auth-muted-text mt-6 text-center text-sm">
             Don't have any account?
-            <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-700 font-semibold">Register now</a>
+            <a href="{{ route('register') }}" class="auth-accent-link font-semibold">Register now</a>
         </p>
     </form>
 </div>

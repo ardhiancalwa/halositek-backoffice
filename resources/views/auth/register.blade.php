@@ -4,53 +4,57 @@
 
 @section('content')
 <div>
-    <h1 class="text-2xl font-bold text-slate-900 mb-1">Create Your Account</h1>
-    <p class="text-slate-500 text-sm mb-8">Join the architectural community of HaloSitek today!</p>
+    <h1 class="auth-title mb-1 text-2xl font-bold">Create Your Account</h1>
+    <p class="auth-subtitle mb-8 text-sm">Join the architectural community of HaloSitek today!</p>
 
-    @if ($errors->any())
-        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-            @foreach ($errors->all() as $error)
-                <p class="text-red-600 text-sm">{{ $error }}</p>
-            @endforeach
-        </div>
-    @endif
+    <div
+        data-auth-alert
+        class="mb-4 hidden rounded-lg border px-3 py-3 text-sm"
+        role="alert"
+        aria-live="polite"
+    ></div>
 
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
-
+    <form
+        method="POST"
+        action="{{ url('/api/v1/auth/register') }}"
+        data-auth-form
+        data-auth-mode="register"
+        data-auth-endpoint="{{ url('/api/v1/auth/register') }}"
+        data-auth-redirect="{{ route('dashboard') }}"
+    >
         <div class="mb-4">
-            <label for="email" class="block text-sm font-semibold text-slate-900 mb-2">Email</label>
+            <label for="email" class="auth-label mb-2 block text-sm font-semibold">Email</label>
             <input
                 type="email"
                 id="email"
                 name="email"
                 value="{{ old('email') }}"
-                class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
+                class="auth-input w-full rounded-lg border px-4 py-3 text-sm transition"
                 required
                 autofocus
             >
         </div>
 
         <div class="mb-4">
-            <label for="name" class="block text-sm font-semibold text-slate-900 mb-2">Username</label>
+            <label for="name" class="auth-label mb-2 block text-sm font-semibold">Username</label>
             <input
                 type="text"
                 id="name"
                 name="name"
                 value="{{ old('name') }}"
-                class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
+                class="auth-input w-full rounded-lg border px-4 py-3 text-sm transition"
                 required
             >
         </div>
 
         <div class="mb-4">
-            <label for="password" class="block text-sm font-semibold text-slate-900 mb-2">Password</label>
+            <label for="password" class="auth-label mb-2 block text-sm font-semibold">Password</label>
             <div class="relative">
                 <input
                     type="password"
                     id="password"
                     name="password"
-                    class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition pr-12"
+                    class="auth-input w-full rounded-lg border px-4 py-3 pr-12 text-sm transition"
                     required
                 >
                 <button type="button" data-toggle-password="password" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -66,13 +70,13 @@
         </div>
 
         <div class="mb-5">
-            <label for="password_confirmation" class="block text-sm font-semibold text-slate-900 mb-2">Confirmation Password</label>
+            <label for="password_confirmation" class="auth-label mb-2 block text-sm font-semibold">Confirmation Password</label>
             <div class="relative">
                 <input
                     type="password"
                     id="password_confirmation"
                     name="password_confirmation"
-                    class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition pr-12"
+                    class="auth-input w-full rounded-lg border px-4 py-3 pr-12 text-sm transition"
                     required
                 >
                 <button type="button" data-toggle-password="password_confirmation" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -89,24 +93,25 @@
 
         <div class="mb-6">
             <label class="flex items-start gap-2 cursor-pointer">
-                <input type="checkbox" name="terms" class="mt-0.5 w-4 h-4 rounded border-slate-300 text-[#E8820C] focus:ring-orange-400" required>
-                <span class="text-sm text-slate-600">
-                    I agree to the <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">Terms of Service</a>
-                    and <a href="#" class="text-blue-600 hover:text-blue-700 font-medium">Privacy Policy</a>.
+                <input type="checkbox" name="terms" class="mt-0.5 h-4 w-4 rounded border-slate-300 text-[#D97706] focus:ring-[#D97706]" required>
+                <span class="auth-muted-text text-sm">
+                    I agree to the <a href="#" class="auth-accent-link font-medium">Terms of Service</a>
+                    and <a href="#" class="auth-accent-link font-medium">Privacy Policy</a>.
                 </span>
             </label>
         </div>
 
         <button
             type="submit"
-            class="w-full bg-[#E8820C] hover:bg-[#d4750a] text-white font-bold py-3 px-4 rounded-lg text-sm uppercase tracking-wider transition"
+            data-auth-submit
+            class="auth-primary-button w-full rounded-lg px-4 py-3 text-sm font-bold uppercase tracking-wider transition"
         >
             Register
         </button>
 
-        <p class="text-center text-sm text-slate-500 mt-6">
+        <p class="auth-muted-text mt-6 text-center text-sm">
             Already have an account?
-            <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-700 font-semibold">Login here</a>
+            <a href="{{ route('login') }}" class="auth-accent-link font-semibold">Login here</a>
         </p>
     </form>
 </div>

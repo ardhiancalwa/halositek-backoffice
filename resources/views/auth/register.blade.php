@@ -16,10 +16,10 @@
 
     <form
         method="POST"
-        action="{{ url('/api/v1/register') }}"
+        action="{{ url('/api/v1/auth/register') }}"
         data-auth-form
         data-auth-mode="register"
-        data-auth-endpoint="{{ url('/api/v1/register') }}"
+        data-auth-endpoint="{{ url('/api/v1/auth/register') }}"
         data-auth-redirect="{{ route('dashboard') }}"
     >
         <div class="mb-4">

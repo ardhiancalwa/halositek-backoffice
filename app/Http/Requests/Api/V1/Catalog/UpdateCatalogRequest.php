@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api\V1\Catalog;
 
 use App\Models\Catalog;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCatalogRequest extends FormRequest
@@ -12,13 +13,13 @@ class UpdateCatalogRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        if (!auth()->check() || !auth()->user()->isArchitect()) {
+        if (! auth()->check() || ! auth()->user()->isArchitect()) {
             return false;
         }
 
         // Identify the catalog from route (assuming parameter name is 'id' or 'catalog')
         $catalog = $this->route('catalog') ?? $this->route('id');
-        
+
         if (is_string($catalog)) {
             $catalog = Catalog::find($catalog);
         }
@@ -29,7 +30,7 @@ class UpdateCatalogRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

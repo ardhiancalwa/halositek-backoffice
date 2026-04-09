@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ArchitectController;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\CatalogController;
+use App\Http\Controllers\Api\V1\FaqController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,36 +15,54 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // Public routes
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/refresh-token', [AuthController::class, 'refresh']);
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/refresh-token', [AuthController::class, 'refresh']);
 
     // Protected routes (any authenticated user)
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
-        
+
         // Catalog Routes (Authenticated)
         Route::post('/catalogs/{id}/like', [CatalogController::class, 'like']);
         Route::delete('/catalogs/{id}/like', [CatalogController::class, 'unlike']);
-        
+
         // Catalog CRUD (Architect)
         Route::post('/catalogs', [CatalogController::class, 'store']);
         Route::put('/catalogs/{id}', [CatalogController::class, 'update']);
         Route::delete('/catalogs/{id}', [CatalogController::class, 'destroy']);
+
+        // Architect wishlist
+        Route::get('/architects/wishlist', [ArchitectController::class, 'wishlist']);
+        Route::post('/architects/{id}/save', [ArchitectController::class, 'save']);
+        Route::delete('/architects/{id}/save', [ArchitectController::class, 'unsave']);
     });
 
     // Admin only routes
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
-        
+
         // Catalog Review/Verify
         Route::put('/catalogs/{id}/verify', [CatalogController::class, 'verify']);
+
+        // Architect Review/Verify
+        Route::put('/architects/{id}/verify', [ArchitectController::class, 'verify']);
+
+        // FAQ management
+        Route::post('/faqs', [FaqController::class, 'store']);
+        Route::put('/faqs/{id}', [FaqController::class, 'update']);
+        Route::delete('/faqs/{id}', [FaqController::class, 'destroy']);
     });
-    
+
     // Public routes (down here to avoid intercepting wishlist if grouped)
     // Actually wishlist is above, so we are safe.
+    Route::get('/architects', [ArchitectController::class, 'index']);
+
     Route::get('/catalogs', [CatalogController::class, 'index']);
     Route::get('/catalogs/{id}', [CatalogController::class, 'show']);
+
+    Route::get('/faqs', [FaqController::class, 'index']);
+    Route::get('/faqs/{id}', [FaqController::class, 'show']);
 });

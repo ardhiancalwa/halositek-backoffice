@@ -1,0 +1,16 @@
+{
+    "scripts": {
+        "prepare": "husky",
+        "lint-staged": "lint-staged"
+    },
+    "lint-staged": {
+        "{app,config,database,routes,tests}/**/*.php": [
+            "php vendor/bin/pint --test",
+            "php vendor/bin/phpcs --standard=.phpcs.xml --report=summary --warning-severity=0"
+        ]
+    },
+    "devDependencies": {
+        "husky": "^9.1.7",
+        "lint-staged": "^15.5.2"
+    }
+}

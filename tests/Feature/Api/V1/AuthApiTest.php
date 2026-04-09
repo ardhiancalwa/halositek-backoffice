@@ -1,9 +1,7 @@
 <?php
 
-use App\Models\PersonalAccessToken;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 afterEach(function () {
     DB::connection('mongodb')->table('users')->delete();
@@ -17,7 +15,7 @@ afterEach(function () {
 */
 
 it('can register as user', function () {
-    $response = $this->postJson('/api/v1/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'name' => 'Test User',
         'email' => 'user@example.com',
         'password' => 'password123',
@@ -48,7 +46,7 @@ it('can register as user', function () {
 });
 
 it('can register as architect', function () {
-    $response = $this->postJson('/api/v1/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'name' => 'Architect User',
         'email' => 'architect@example.com',
         'password' => 'password123',
@@ -62,7 +60,7 @@ it('can register as architect', function () {
 });
 
 it('cannot register as admin', function () {
-    $response = $this->postJson('/api/v1/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'name' => 'Admin User',
         'email' => 'admin@example.com',
         'password' => 'password123',
@@ -78,7 +76,7 @@ it('cannot register as admin', function () {
 it('cannot register with duplicate email', function () {
     User::factory()->create(['email' => 'taken@example.com']);
 
-    $response = $this->postJson('/api/v1/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'name' => 'Duplicate User',
         'email' => 'taken@example.com',
         'password' => 'password123',
@@ -90,7 +88,7 @@ it('cannot register with duplicate email', function () {
 });
 
 it('cannot register without password confirmation', function () {
-    $response = $this->postJson('/api/v1/register', [
+    $response = $this->postJson('/api/v1/auth/register', [
         'name' => 'Test User',
         'email' => 'user@example.com',
         'password' => 'password123',
@@ -112,7 +110,7 @@ it('can login with valid credentials', function () {
         'password' => bcrypt('password'),
     ]);
 
-    $response = $this->postJson('/api/v1/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'login@example.com',
         'password' => 'password',
     ]);
@@ -143,7 +141,7 @@ it('cannot login with invalid credentials', function () {
         'password' => bcrypt('password'),
     ]);
 
-    $response = $this->postJson('/api/v1/login', [
+    $response = $this->postJson('/api/v1/auth/login', [
         'email' => 'login@example.com',
         'password' => 'wrong-password',
     ]);
@@ -163,7 +161,7 @@ it('can refresh token', function () {
     $user = User::factory()->create(['password' => bcrypt('password')]);
 
     // Login to get tokens
-    $loginResponse = $this->postJson('/api/v1/login', [
+    $loginResponse = $this->postJson('/api/v1/auth/login', [
         'email' => $user->email,
         'password' => 'password',
     ]);
@@ -172,7 +170,7 @@ it('can refresh token', function () {
     $oldAccessToken = $loginResponse->json('data.access_token');
 
     // Use refresh token to get new pair
-    $response = $this->postJson('/api/v1/refresh-token', [
+    $response = $this->postJson('/api/v1/auth/refresh-token', [
         'refresh_token' => $refreshToken,
     ]);
 
@@ -201,7 +199,7 @@ it('can refresh token', function () {
 it('cannot refresh with access token', function () {
     $user = User::factory()->create(['password' => bcrypt('password')]);
 
-    $loginResponse = $this->postJson('/api/v1/login', [
+    $loginResponse = $this->postJson('/api/v1/auth/login', [
         'email' => $user->email,
         'password' => 'password',
     ]);
@@ -209,7 +207,7 @@ it('cannot refresh with access token', function () {
     $accessToken = $loginResponse->json('data.access_token');
 
     // Try to use access token as refresh token — should fail
-    $response = $this->postJson('/api/v1/refresh-token', [
+    $response = $this->postJson('/api/v1/auth/refresh-token', [
         'refresh_token' => $accessToken,
     ]);
 
@@ -223,7 +221,7 @@ it('cannot use expired refresh token', function () {
     // Create a refresh token that's already expired
     $token = $user->createToken('refresh-token', ['refresh'], now()->subDay());
 
-    $response = $this->postJson('/api/v1/refresh-token', [
+    $response = $this->postJson('/api/v1/auth/refresh-token', [
         'refresh_token' => $token->plainTextToken,
     ]);
 
@@ -253,7 +251,7 @@ it('can logout', function () {
     $user = User::factory()->create(['password' => bcrypt('password')]);
 
     // Login first to create tokens
-    $loginResponse = $this->postJson('/api/v1/login', [
+    $loginResponse = $this->postJson('/api/v1/auth/login', [
         'email' => $user->email,
         'password' => 'password',
     ]);
@@ -265,8 +263,8 @@ it('can logout', function () {
     $response = $this->withHeaders([
         'Authorization' => 'Bearer ' . $accessToken,
     ])->postJson('/api/v1/logout', [
-                'refresh_token' => $refreshToken
-            ]);
+        'refresh_token' => $refreshToken,
+    ]);
 
     $response->assertOk()
         ->assertJsonPath('success', true)

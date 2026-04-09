@@ -5,6 +5,7 @@ use App\DTOs\User\CreateUserDTO;
 use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 afterEach(function () {
     DB::connection('mongodb')->table('users')->delete();
@@ -39,7 +40,7 @@ it('hashes the password when creating user', function () {
     $user = $action->execute($dto);
 
     expect($user->password)->not->toBe('plaintext');
-    expect(\Illuminate\Support\Facades\Hash::check('plaintext', $user->password))->toBeTrue();
+    expect(Hash::check('plaintext', $user->password))->toBeTrue();
 });
 
 it('assigns default user role', function () {

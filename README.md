@@ -1,116 +1,91 @@
 # HaloSitek Backoffice
 
-Production-ready Laravel 12 backoffice — **admin panel** (Filament v5) + **REST API** (Sanctum), backed by **MongoDB**.
+Backoffice untuk HaloSitek berbasis Laravel 12.
 
-## Tech Stack
+Project ini dipakai untuk:
+- REST API (auth, user, catalog, architect, FAQ)
+- Admin panel internal via Filament
+- Workflow quality check sebelum commit/push
 
-| Layer        | Technology                               |
-| ------------ | ---------------------------------------- |
-| Framework    | Laravel 12                               |
-| Database     | MongoDB (`mongodb/laravel-mongodb ^5.6`) |
-| Admin Panel  | Filament PHP v5 (Livewire v4)            |
-| API Auth     | Laravel Sanctum (token-based)            |
-| Architecture | Action classes + readonly DTO classes    |
-| Testing      | Pest PHP                                 |
+## Stack
 
-## Requirements
+- Laravel 12
+- MongoDB (`mongodb/laravel-mongodb`)
+- Filament v5
+- Sanctum
+- Pest
 
-- PHP >= 8.2
+## Kebutuhan
+
+- PHP 8.2+
 - Composer 2.x
-- MongoDB >= 6.0 (running on `localhost:27017`)
-- Node.js (for Filament assets)
+- MongoDB aktif di local
+- Node.js + npm
 
-## Setup
+## Quick Start
 
 ```bash
-# Install dependencies
 composer install
+npm install
 
-# Copy environment file
 cp .env.example .env
 php artisan key:generate
 
-# Configure MongoDB in .env
+# set env database
 # DB_CONNECTION=mongodb
-# DB_DATABASE=halositek_db
+# DB_DATABASE=halositek_backoffice
 
-# Install Filament assets
+php artisan migrate
+php artisan db:seed
+
 php artisan filament:assets
-
-# Create admin user
 php artisan make:filament-user
 
-# Start server
 php artisan serve
 ```
 
-## Project Structure
+Admin panel: `http://localhost:8000/admin`
 
-```
-app/
-├── Actions/           # Business logic (single-responsibility, final classes)
-│   └── User/
-│       └── CreateUserAction.php
-├── DTOs/              # Data Transfer Objects (readonly classes)
-│   └── User/
-│       └── CreateUserDTO.php
-├── Filament/
-│   └── Resources/     # Admin panel resources
-│       └── UserResource.php
-├── Http/
-│   ├── Controllers/Api/V1/   # Versioned API controllers
-│   └── Requests/Api/V1/      # Form request validation
-├── Models/            # MongoDB Eloquent models
-└── Providers/         # Service providers
-```
+## API Ringkas
 
-## Architecture Patterns
+Prefix semua endpoint: `/api/v1`
 
-### Action Classes (`app/Actions/`)
+- Public auth: `/auth/register`, `/auth/login`, `/auth/refresh-token`
+- Authenticated: `/me`, `/logout`, like/unlike catalog, save/unsave architect
+- Admin: manage users, verify architect/catalog, manage FAQ
+- Public data: list/detail catalog, architect, FAQ
 
-- Single responsibility — one action per class
-- Must be `final` (enforced by arch tests)
-- Accept a DTO, return a Model
-- Reusable across API controllers and Filament
+Referensi route: `routes/api.php`
 
-### DTOs (`app/DTOs/`)
+## Quality Check
 
-- Must be `readonly` classes (enforced by arch tests)
-- Factory methods: `fromRequest()`, `fromArray()`
-- Immutable data containers
-
-## API Endpoints
-
-All API routes are prefixed with `/api/v1`.
-
-| Method | Endpoint         | Auth    | Description    |
-| ------ | ---------------- | ------- | -------------- |
-| POST   | `/api/v1/login`  | Public  | Get auth token |
-| POST   | `/api/v1/logout` | Sanctum | Revoke token   |
-| GET    | `/api/v1/me`     | Sanctum | Current user   |
-| GET    | `/api/v1/users`  | Sanctum | List users     |
-| POST   | `/api/v1/users`  | Sanctum | Create user    |
-
-## Admin Panel
-
-Access at `http://localhost:8000/admin` after creating an admin user.
-
-## Testing
+Perintah utama:
 
 ```bash
-# Run all tests
-php artisan test
-
-# Run specific test file
-php artisan test --filter=CreateUserActionTest
+composer quality
 ```
 
-> **Note:** Feature tests require MongoDB to be running.
+Perintah terpisah:
 
-## Package Upgrade Notes
+```bash
+composer pint:check
+composer phpcs
+composer phpstan
+composer test
+```
 
-| Package                   | Constraint | Watch For                                        |
-| ------------------------- | ---------- | ------------------------------------------------ |
-| `mongodb/laravel-mongodb` | `^5.6`     | Breaking changes on Laravel 13 upgrade           |
-| `filament/filament`       | `^5.0`     | Livewire v4 dependency; check Filament changelog |
-| `pestphp/pest`            | `^3.8`     | v4 requires PHP 8.3+                             |
+## Git Hooks
+
+- Pre-commit: lint staged PHP files (Pint + PHPCS)
+- Pre-push: jalankan `composer phpstan`
+
+Aktifkan hook jika belum:
+
+```bash
+npm run prepare
+```
+
+## Catatan Developer
+
+- Jika ada issue lama di static analysis, baseline ada di `phpstan-baseline.neon`.
+- Tambahkan kode baru tetap harus clean terhadap Pint, PHPCS, PHPStan, dan test.

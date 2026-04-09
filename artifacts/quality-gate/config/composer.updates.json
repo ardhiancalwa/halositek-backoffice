@@ -1,0 +1,20 @@
+{
+    "require-dev": {
+        "larastan/larastan": "^3.1",
+        "phpstan/phpstan": "^2.1",
+        "squizlabs/php_codesniffer": "^3.11"
+    },
+    "scripts": {
+        "pint": "vendor/bin/pint",
+        "pint:check": "vendor/bin/pint --test",
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=1G --no-progress",
+        "phpcs": "vendor/bin/phpcs --standard=.phpcs.xml --warning-severity=0",
+        "phpcs:fix": "vendor/bin/phpcbf --standard=.phpcs.xml",
+        "quality": [
+            "@pint:check",
+            "@phpcs",
+            "@phpstan",
+            "@test"
+        ]
+    }
+}

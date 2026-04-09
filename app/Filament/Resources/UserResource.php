@@ -31,8 +31,8 @@ class UserResource extends Resource
                     ->unique(ignoreRecord: true),
                 TextInput::make('password')
                     ->password()
-                    ->required(fn(string $operation): bool => $operation === 'create')
-                    ->dehydrated(fn(?string $state) => filled($state))
+                    ->required(fn (string $operation): bool => $operation === 'create')
+                    ->dehydrated(fn (?string $state) => filled($state))
                     ->minLength(8),
             ]);
     }

@@ -9,25 +9,28 @@ use MongoDB\Laravel\Eloquent\Model;
 
 class CatalogLike extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory;
+    use HasUuids;
 
     protected $connection = 'mongodb';
-        protected $fillable = [
+
+    protected $fillable = [
         'id',
         'catalog_id',
         'user_id',
     ];
 
     public $timestamps = false;
-    
+
     public const CREATED_AT = 'created_at';
+
     public const UPDATED_AT = null;
 
     protected static function boot()
     {
         parent::boot();
         // Since we disabled general timestamps, we must handle created_at manually if needed
-        // but since MongoDB/Laravel supports just setting defined constants, 
+        // but since MongoDB/Laravel supports just setting defined constants,
         // it may still hook into creating events.
         static::creating(function ($model) {
             $model->created_at = $model->freshTimestamp();

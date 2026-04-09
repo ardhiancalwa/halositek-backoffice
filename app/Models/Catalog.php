@@ -11,10 +11,11 @@ use MongoDB\Laravel\Eloquent\Model;
 
 class Catalog extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory;
+    use HasUuids;
+    use SoftDeletes;
 
     protected $connection = 'mongodb';
-
 
     /**
      * The attributes that are mass assignable.
@@ -95,7 +96,7 @@ class Catalog extends Model
     {
         return $query->where(function ($q) use ($keyword) {
             $q->where('title', 'like', "%{$keyword}%")
-              ->orWhere('description', 'like', "%{$keyword}%");
+                ->orWhere('description', 'like', "%{$keyword}%");
         });
     }
 
@@ -104,7 +105,7 @@ class Catalog extends Model
      */
     public function getIsLikedByUserAttribute(): bool
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return false;
         }
 

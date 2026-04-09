@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
@@ -28,8 +29,8 @@ class CatalogCollection extends ResourceCollection
     /**
      * Customize the outgoing response for the resource.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Illuminate\Http\JsonResponse  $response
+     * @param  Request  $request
+     * @param  JsonResponse  $response
      * @return void
      */
     public function withResponse($request, $response)
@@ -49,7 +50,7 @@ class CatalogCollection extends ResourceCollection
         ];
 
         // Ensure meta structure matches exact specification
-        if (!empty($meta)) {
+        if (! empty($meta)) {
             $formatted['meta'] = [
                 'current_page' => $meta['current_page'] ?? null,
                 'last_page' => $meta['last_page'] ?? null,
@@ -59,7 +60,7 @@ class CatalogCollection extends ResourceCollection
         }
 
         // Ensure links structure matches exact specification
-        if (!empty($links)) {
+        if (! empty($links)) {
             $formatted['links'] = [
                 'first_page_url' => $links['first'] ?? null,
                 'last_page_url' => $links['last'] ?? null,

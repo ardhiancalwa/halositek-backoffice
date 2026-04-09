@@ -6,7 +6,7 @@ use App\Models\Catalog;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Catalog>
+ * @extends Factory<Catalog>
  */
 class CatalogFactory extends Factory
 {
@@ -43,7 +43,7 @@ class CatalogFactory extends Factory
             'layout_image' => 'https://picsum.photos/seed/' . rand(1000, 9999) . '/400/300',
             'rooms' => $this->faker->randomElement($roomsOptions),
             'estimated_cost' => $this->faker->numberBetween(200_000_000, 2_000_000_000),
-            'area' => $this->faker->randomElement(["80 m2 (8x10m)", "120 m2 (10x12m)", "150 m2 (12x12m)", "200 m2 (10x20m)"]),
+            'area' => $this->faker->randomElement(['80 m2 (8x10m)', '120 m2 (10x12m)', '150 m2 (12x12m)', '200 m2 (10x20m)']),
             'status' => 'approved',
             'rating' => $this->faker->randomFloat(1, 3.5, 5.0),
             'likes_count' => $this->faker->numberBetween(0, 500),

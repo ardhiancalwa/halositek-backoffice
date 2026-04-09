@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpdocumentor>
+    <title>HaloSitek Backoffice</title>
+
+    <paths>
+        <output>artifacts/quality-gate/docs</output>
+        <cache>storage/phpdoc-cache</cache>
+    </paths>
+
+    <version number="latest">
+        <api>
+            <source dsn=".">
+                <path>app</path>
+                <path>routes</path>
+                <ignore>vendor/**/*</ignore>
+                <ignore>storage/**/*</ignore>
+                <ignore>bootstrap/cache/**/*</ignore>
+            </source>
+
+            <output>api</output>
+        </api>
+    </version>
+</phpdocumentor>

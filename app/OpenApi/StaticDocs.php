@@ -2,6 +2,8 @@
 
 namespace App\OpenApi;
 
+use OpenApi\Annotations as OA;
+
 /**
  * @OA\Info(
  *   title="HaloSitek Core API (Annotations shim)",
@@ -13,6 +15,7 @@ namespace App\OpenApi;
  * @OA\Get(
  *   path="/ping",
  *   summary="Ping endpoint used only for documentation generation",
+ *
  *   @OA\Response(response=200, description="pong")
  * )
  */

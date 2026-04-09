@@ -20,4 +20,9 @@ class AuthController extends Controller
     {
         return view('dashboard.index');
     }
+
+    public function showDesigns()
+    {
+        return view('dashboard.design');
+    }
 }

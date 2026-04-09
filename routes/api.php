@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // Public routes
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/refresh-token', [AuthController::class, 'refresh']);
+    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::post('/auth/refresh-token', [AuthController::class, 'refresh']);
 
     // Protected routes (any authenticated user)
     Route::middleware('auth:sanctum')->group(function () {

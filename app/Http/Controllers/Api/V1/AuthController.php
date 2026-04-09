@@ -24,10 +24,13 @@ class AuthController extends Controller
      * @OA\Post(
      *   path="/auth/register",
      *   tags={"Auth"},
+     *
      *   @OA\RequestBody(
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       required={"name","email","password","password_confirmation"},
+     *
      *       @OA\Property(property="name", type="string", example="Budi Santoso"),
      *       @OA\Property(property="email", type="string", format="email", example="budi_santoso@gmail.com"),
      *       @OA\Property(property="password", type="string", format="password", example="password123"),
@@ -35,6 +38,7 @@ class AuthController extends Controller
      *       @OA\Property(property="role", type="string", example="user")
      *     )
      *   ),
+     *
      *   @OA\Response(response=201, description="Berhasil registrasi")
      * )
      */
@@ -57,14 +61,18 @@ class AuthController extends Controller
      * @OA\Post(
      *   path="/auth/login",
      *   tags={"Auth"},
+     *
      *   @OA\RequestBody(
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       required={"email","password"},
+     *
      *       @OA\Property(property="email", type="string", format="email", example="user@halositek.com"),
      *       @OA\Property(property="password", type="string", example="securepassword123")
      *     )
      *   ),
+     *
      *   @OA\Response(response=200, description="Berhasil login")
      * )
      */
@@ -72,7 +80,7 @@ class AuthController extends Controller
     {
         $user = User::where('email', $request->validated('email'))->first();
 
-        if (!$user || !Hash::check($request->validated('password'), $user->password)) {
+        if (! $user || ! Hash::check($request->validated('password'), $user->password)) {
             return ApiResponse::unauthorized('The provided credentials are incorrect.');
         }
 
@@ -90,12 +98,16 @@ class AuthController extends Controller
      * @OA\Post(
      *   path="/auth/refresh-token",
      *   tags={"Auth"},
+     *
      *   @OA\RequestBody(
      *     required=true,
+     *
      *     @OA\JsonContent(
+     *
      *       @OA\Property(property="refresh_token", type="string", example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
      *     )
      *   ),
+     *
      *   @OA\Response(response=200, description="Berhasil mendapatkan token baru")
      * )
      */
@@ -115,7 +127,7 @@ class AuthController extends Controller
         // Find the token record in the database
         $tokenRecord = PersonalAccessToken::find($tokenId);
 
-        if (!$tokenRecord) {
+        if (! $tokenRecord) {
             return ApiResponse::unauthorized('Refresh token not found.');
         }
 
@@ -126,10 +138,11 @@ class AuthController extends Controller
 
         if ($tokenRecord->expires_at && $tokenRecord->expires_at->isPast()) {
             $tokenRecord->delete();
+
             return ApiResponse::unauthorized('Refresh token has expired.');
         }
 
-        if (!hash_equals($tokenRecord->token, hash('sha256', $plainToken))) {
+        if (! hash_equals($tokenRecord->token, hash('sha256', $plainToken))) {
             return ApiResponse::unauthorized('Invalid refresh token.');
         }
 
@@ -152,12 +165,16 @@ class AuthController extends Controller
      *   path="/auth/logout",
      *   tags={"Auth"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\RequestBody(
      *     required=false,
+     *
      *     @OA\JsonContent(
+     *
      *       @OA\Property(property="refresh_token", type="string")
      *     )
      *   ),
+     *
      *   @OA\Response(response=200, description="Berhasil logout")
      * )
      */
@@ -186,6 +203,7 @@ class AuthController extends Controller
      *   path="/users/me",
      *   tags={"Users"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\Response(response=200, description="Data profil berhasil diambil")
      * )
      */

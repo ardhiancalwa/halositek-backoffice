@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="HaloSitek Backoffice PSR-12">
+    <description>Code style ruleset for HaloSitek Backoffice.</description>
+
+    <arg name="basepath" value="."/>
+    <arg name="colors"/>
+    <arg name="parallel" value="4"/>
+    <arg name="cache" value=".phpcs-cache"/>
+
+    <rule ref="PSR12"/>
+
+    <file>app</file>
+    <file>routes</file>
+    <file>config</file>
+    <file>database</file>
+    <file>tests</file>
+
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/storage/*</exclude-pattern>
+    <exclude-pattern>*/bootstrap/cache/*</exclude-pattern>
+    <exclude-pattern>*/public/build/*</exclude-pattern>
+    <exclude-pattern>*/database/migrations/*</exclude-pattern>
+</ruleset>

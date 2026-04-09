@@ -3,17 +3,23 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    /** @use HasFactory<UserFactory> */
+    use HasApiTokens;
+
+    use HasFactory;
+    use Notifiable;
 
     protected $connection = 'mongodb';
 
@@ -76,5 +82,15 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->isAdmin();
+    }
+
+    public function architectProfile(): HasOne
+    {
+        return $this->hasOne(ArchitectProfile::class);
+    }
+
+    public function wishlistArchitects(): BelongsToMany
+    {
+        return $this->belongsToMany(self::class, 'architect_wishlists', 'user_id', 'architect_id');
     }
 }

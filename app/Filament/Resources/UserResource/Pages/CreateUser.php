@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\UserResource\Pages;
 
-use App\Actions\User\CreateUserAction;
-use App\DTOs\User\CreateUserDTO;
 use App\Filament\Resources\UserResource;
 use Filament\Resources\Pages\CreateRecord;
 

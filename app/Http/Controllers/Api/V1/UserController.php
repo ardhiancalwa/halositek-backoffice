@@ -20,6 +20,7 @@ class UserController extends Controller
      *   path="/users",
      *   tags={"Users"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\Response(response=200, description="Users retrieved successfully.")
      * )
      */
@@ -37,7 +38,9 @@ class UserController extends Controller
      *   path="/users",
      *   tags={"Users"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\RequestBody(@OA\JsonContent(type="object")),
+     *
      *   @OA\Response(response=201, description="User created successfully.")
      * )
      */

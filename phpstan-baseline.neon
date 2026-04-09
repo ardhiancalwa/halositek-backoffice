@@ -1,0 +1,457 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined method Illuminate\\Http\\Request\:\:validated\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: app/DTOs/Auth/RegisterUserDTO.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Http\\Request\:\:validated\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: app/DTOs/User/CreateUserDTO.php
+
+		-
+			message: '#^Method App\\DTOs\\User\\CreateUserDTO\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/DTOs/User/CreateUserDTO.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: app/Http/Controllers/Api/V1/AuthController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\CatalogController\:\:index\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Api/V1/CatalogController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\CatalogController\:\:show\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Api/V1/CatalogController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\CatalogController\:\:store\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Api/V1/CatalogController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Api\\V1\\CatalogController\:\:update\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Api/V1/CatalogController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:login\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Web/AuthController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:logout\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Web/AuthController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:register\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Web/AuthController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:showLogin\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Web/AuthController.php
+
+		-
+			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:showRegister\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Http/Controllers/Web/AuthController.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$architectProfile\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$email\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$email_verified_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$name\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$profile_picture\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$role\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>rating" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Resources/ArchitectProfileResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$architect\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$area\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$description\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$estimated_cost\.$#'
+			identifier: property.notFound
+			count: 2
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$images\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$interior_highlights\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$is_liked_by_user\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$layout_image\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$likes_count\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$rating\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$rooms\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$status\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$style\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\CatalogResource\:\:\$title\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/CatalogResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$answer\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/FaqResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$created_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/FaqResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$id\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/FaqResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$is_active\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/FaqResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$question\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/FaqResource.php
+
+		-
+			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$updated_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Http/Resources/FaqResource.php
+
+		-
+			message: '#^Method App\\Http\\Responses\\ApiResponse\:\:error\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Responses/ApiResponse.php
+
+		-
+			message: '#^Method App\\Http\\Responses\\ApiResponse\:\:paginated\(\) has parameter \$paginator with generic class Illuminate\\Pagination\\LengthAwarePaginator but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Http/Responses/ApiResponse.php
+
+		-
+			message: '#^Method App\\Http\\Responses\\ApiResponse\:\:validationError\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Http/Responses/ApiResponse.php
+
+		-
+			message: '#^Class App\\Models\\ArchitectProfile uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ArchitectProfile.php
+
+		-
+			message: '#^Method App\\Models\\ArchitectProfile\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ArchitectProfile.php
+
+		-
+			message: '#^Class App\\Models\\ArchitectWishlist uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ArchitectWishlist.php
+
+		-
+			message: '#^Method App\\Models\\ArchitectWishlist\:\:architect\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ArchitectWishlist.php
+
+		-
+			message: '#^Method App\\Models\\ArchitectWishlist\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/ArchitectWishlist.php
+
+		-
+			message: '#^Class App\\Models\\Catalog uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Method App\\Models\\Catalog\:\:architect\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Method App\\Models\\Catalog\:\:likes\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasMany does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Method App\\Models\\Catalog\:\:scopeApproved\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Method App\\Models\\Catalog\:\:scopeApproved\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Method App\\Models\\Catalog\:\:scopeByStyle\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Method App\\Models\\Catalog\:\:scopeByStyle\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Method App\\Models\\Catalog\:\:scopeSearch\(\) has no return type specified\.$#'
+			identifier: missingType.return
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Method App\\Models\\Catalog\:\:scopeSearch\(\) has parameter \$query with no type specified\.$#'
+			identifier: missingType.parameter
+			count: 1
+			path: app/Models/Catalog.php
+
+		-
+			message: '#^Class App\\Models\\CatalogLike uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CatalogLike.php
+
+		-
+			message: '#^Method App\\Models\\CatalogLike\:\:catalog\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CatalogLike.php
+
+		-
+			message: '#^Method App\\Models\\CatalogLike\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/CatalogLike.php
+
+		-
+			message: '#^Class App\\Models\\Faq uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/Faq.php
+
+		-
+			message: '#^Property App\\Models\\PersonalAccessToken\:\:\$collection has no type specified\.$#'
+			identifier: missingType.property
+			count: 1
+			path: app/Models/PersonalAccessToken.php
+
+		-
+			message: '#^Class App\\Models\\User uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:architectProfile\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasOne does not specify its types\: TRelatedModel, TDeclaringModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Method App\\Models\\User\:\:wishlistArchitects\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\UserRole will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\UserRole\:\:Admin will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\UserRole\:\:Architect will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\UserRole\:\:User will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^The @use tag of class App\\Models\\User describes Illuminate\\Database\\Eloquent\\Factories\\HasFactory but the class uses Laravel\\Sanctum\\HasApiTokens\.$#'
+			identifier: generics.wrongParent
+			count: 1
+			path: app/Models/User.php
+
+		-
+			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
+			identifier: larastan.noEnvCallsOutsideOfConfig
+			count: 9
+			path: database/seeders/DatabaseSeeder.php

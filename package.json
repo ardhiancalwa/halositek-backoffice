@@ -4,13 +4,23 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "prepare": "husky",
+        "lint-staged": "lint-staged"
+    },
+    "lint-staged": {
+        "{app,config,database,routes,tests}/**/*.php": [
+            "php vendor/bin/pint --test",
+            "php vendor/bin/phpcs --standard=.phpcs.xml --report=summary --warning-severity=0"
+        ]
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
+        "husky": "^9.1.7",
         "laravel-vite-plugin": "^2.0.0",
+        "lint-staged": "^15.5.2",
         "tailwindcss": "^4.0.0",
         "vite": "^7.0.7"
     }

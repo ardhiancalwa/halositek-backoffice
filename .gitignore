@@ -28,3 +28,7 @@ Thumbs.db
 test_sanctum.php
 test_output.*
 coverage/
+
+# Quality tool caches
+.phpcs-cache
+/storage/phpstan/

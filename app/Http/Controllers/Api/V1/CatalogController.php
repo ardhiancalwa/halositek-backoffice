@@ -25,9 +25,11 @@ class CatalogController extends Controller
      * @OA\Get(
      *   path="/catalogs",
      *   tags={"Catalog"},
+     *
      *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
      *   @OA\Parameter(name="style", in="query", @OA\Schema(type="string")),
      *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
+     *
      *   @OA\Response(response=200, description="Daftar katalog berhasil diambil")
      * )
      */
@@ -56,7 +58,9 @@ class CatalogController extends Controller
      * @OA\Get(
      *   path="/catalogs/{id}",
      *   tags={"Catalog"},
+     *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
      *   @OA\Response(response=200, description="Detail katalog berhasil diambil"),
      *   @OA\Response(response=404, description="Not found")
      * )
@@ -66,10 +70,10 @@ class CatalogController extends Controller
         $catalog = Catalog::with('architect')->findOrFail($id);
 
         if ($catalog->status !== 'approved') {
-            if (!auth()->check()) {
+            if (! auth()->check()) {
                 abort(404, 'Data tidak ditemukan.');
             }
-            if ($catalog->architect_id !== auth()->id() && !auth()->user()->isAdmin()) {
+            if ($catalog->architect_id !== auth()->id() && ! auth()->user()->isAdmin()) {
                 abort(404, 'Data tidak ditemukan.');
             }
         }
@@ -88,12 +92,15 @@ class CatalogController extends Controller
      *   path="/catalogs",
      *   tags={"Catalog"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\RequestBody(
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       type="object"
      *     )
      *   ),
+     *
      *   @OA\Response(response=201, description="Katalog berhasil dikirim")
      * )
      */
@@ -120,8 +127,11 @@ class CatalogController extends Controller
      *   path="/catalogs/{id}",
      *   tags={"Catalog"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
      *   @OA\RequestBody(@OA\JsonContent(type="object")),
+     *
      *   @OA\Response(response=200, description="Katalog berhasil diperbarui")
      * )
      */
@@ -156,7 +166,9 @@ class CatalogController extends Controller
      *   path="/catalogs/{id}",
      *   tags={"Catalog"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
      *   @OA\Response(response=200, description="Katalog berhasil dihapus")
      * )
      */
@@ -165,7 +177,7 @@ class CatalogController extends Controller
         $catalog = Catalog::findOrFail($id);
 
         $user = auth()->user();
-        if ($catalog->architect_id !== $user->id && !$user->isAdmin()) {
+        if ($catalog->architect_id !== $user->id && ! $user->isAdmin()) {
             abort(403, 'Kamu tidak memiliki akses untuk melakukan tindakan ini.');
         }
 
@@ -181,8 +193,11 @@ class CatalogController extends Controller
      *   path="/catalogs/{id}/verify",
      *   tags={"Catalog"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
      *   @OA\RequestBody(@OA\JsonContent(@OA\Property(property="status", type="string", example="approved"))),
+     *
      *   @OA\Response(response=200, description="Status katalog berhasil diperbarui")
      * )
      */
@@ -203,7 +218,9 @@ class CatalogController extends Controller
      *   path="/catalogs/{id}/like",
      *   tags={"Catalog"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
      *   @OA\Response(response=200, description="Katalog berhasil disukai")
      * )
      */
@@ -237,7 +254,9 @@ class CatalogController extends Controller
      *   path="/catalogs/{id}/like",
      *   tags={"Catalog"},
      *   security={{"BearerAuth":{}}},
+     *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
      *   @OA\Response(response=200, description="Like berhasil dihapus")
      * )
      */
@@ -248,7 +267,7 @@ class CatalogController extends Controller
 
         $like = CatalogLike::where('catalog_id', $catalog->id)->where('user_id', $userId)->first();
 
-        if (!$like) {
+        if (! $like) {
             return ApiResponse::error('Kamu belum menyukai katalog ini.', ApiStatus::NOT_FOUND);
         }
 
@@ -261,6 +280,4 @@ class CatalogController extends Controller
 
         return ApiResponse::success(['likes_count' => $likesCount], 'Like berhasil dihapus.');
     }
-
-
 }

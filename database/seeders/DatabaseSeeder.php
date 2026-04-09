@@ -32,5 +32,7 @@ class DatabaseSeeder extends Seeder
             'email' => env('SEED_USER_EMAIL', 'user@halositek.com'),
             'password' => bcrypt(env('SEED_USER_PASSWORD', 'Password123!')),
         ]);
+
+        $this->call(ArchitectFaqSeeder::class);
     }
 }

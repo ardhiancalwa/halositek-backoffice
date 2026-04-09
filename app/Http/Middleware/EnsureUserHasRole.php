@@ -13,19 +13,18 @@ class EnsureUserHasRole
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  string  ...$roles
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             return ApiResponse::unauthorized();
         }
 
         $allowedRoles = array_map(
-            fn(string $role) => UserRole::tryFrom($role),
+            fn (string $role) => UserRole::tryFrom($role),
             $roles
         );
 

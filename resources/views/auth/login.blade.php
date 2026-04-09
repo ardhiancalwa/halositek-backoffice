@@ -16,10 +16,10 @@
 
     <form
         method="POST"
-        action="{{ url('/api/v1/login') }}"
+        action="{{ url('/api/v1/auth/login') }}"
         data-auth-form
         data-auth-mode="login"
-        data-auth-endpoint="{{ url('/api/v1/login') }}"
+        data-auth-endpoint="{{ url('/api/v1/auth/login') }}"
         data-auth-redirect="{{ route('dashboard') }}"
     >
 

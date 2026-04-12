@@ -82,6 +82,9 @@ jobs:
       - name: Install composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
+      - name: Generate app key for tests
+        run: echo "APP_KEY=$(php artisan key:generate --show)" >> $GITHUB_ENV
+
       - name: Run test suite
         env:
           APP_ENV: testing

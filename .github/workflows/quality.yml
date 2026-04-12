@@ -22,7 +22,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, intl, pdo, mongodb
+          extensions: mbstring, intl, pdo, mongodb-1.21.0
           coverage: none
 
       - name: Cache composer dependencies
@@ -68,7 +68,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, intl, pdo, mongodb
+          extensions: mbstring, intl, pdo, mongodb-1.21.0
           coverage: none
 
       - name: Cache composer dependencies
@@ -81,6 +81,9 @@ jobs:
 
       - name: Install composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Generate app key for tests
+        run: echo "APP_KEY=$(php artisan key:generate --show)" >> $GITHUB_ENV
 
       - name: Run test suite
         env:

@@ -23,7 +23,7 @@ class AuthController extends Controller
         return view('dashboard.index');
     }
 
-    public function showDesigns()
+    public function showDesigns(): Factory|View
     {
         return view('dashboard.design');
     }

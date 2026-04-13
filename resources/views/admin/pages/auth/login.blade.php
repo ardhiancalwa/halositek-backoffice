@@ -1,4 +1,4 @@
-@extends('layouts.auth')
+@extends('admin.layout.auth')
 
 @section('title', 'Login - HaloSitek')
 

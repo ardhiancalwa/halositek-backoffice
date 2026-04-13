@@ -1,13 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', config('app.name', 'HaloSitek'))</title>
-
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+    @include('admin.plugins._top')
 
     <style>
         [data-protected-shell] {
@@ -35,12 +29,10 @@
             });
         })();
     </script>
-
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50 font-sans antialiased text-slate-900" data-protected-shell>
     <div class="flex h-screen overflow-hidden">
-        @include('layouts.partials.sidebar')
+        @include('admin.components._sidebar')
 
         <!-- Main Content Wrapper -->
         <main class="flex-1 flex flex-col h-screen overflow-hidden bg-[#fafafa]">
@@ -67,7 +59,11 @@
             <div class="flex-1 overflow-y-auto p-8">
                 @yield('content')
             </div>
+            
+            @include('admin.components._footer')
         </main>
     </div>
+    
+    @include('admin.plugins._bottom')
 </body>
 </html>

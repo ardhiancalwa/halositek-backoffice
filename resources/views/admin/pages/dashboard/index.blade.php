@@ -1,4 +1,4 @@
-@extends('layouts.dashboard')
+@extends('admin.layout.dashboard')
 
 @section('title', 'Dashboard - HaloSitek')
 

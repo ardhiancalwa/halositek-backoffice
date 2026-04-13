@@ -25,6 +25,11 @@ class AuthController extends Controller
 
     public function showDesigns(): Factory|View
     {
-        return view('admin.pages.dashboard.design');
+        return view('admin.pages.dashboard.design.index');
+    }
+
+    public function showConsultations(): Factory|View
+    {
+        return view('admin.pages.dashboard.consultations.index');
     }
 }

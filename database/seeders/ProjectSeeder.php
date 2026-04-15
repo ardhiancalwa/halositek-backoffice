@@ -3,11 +3,11 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
-use App\Models\Catalog;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class CatalogSeeder extends Seeder
+class ProjectSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -26,9 +26,9 @@ class CatalogSeeder extends Seeder
             $architects->push($architect);
         }
 
-        // Create 30 catalogs
+        // Create 30 projects
         foreach (range(1, 30) as $index) {
-            Catalog::factory()->create([
+            Project::factory()->create([
                 'architect_id' => $architects->random()->id,
             ]);
         }

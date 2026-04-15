@@ -4,31 +4,33 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Models\Catalog;
+use App\Models\Project;
 use Illuminate\Support\Arr;
 use RuntimeException;
 
-class CatalogService
+class ProjectService
 {
     /**
-     * Create a catalog domain record from normalized input.
+     * Create a project domain record from normalized input.
      *
      * @param  array<string, mixed>  $payload  Validated payload from controller/request.
      *
      * @throws RuntimeException When required fields are missing.
      */
-    public function create(array $payload): Catalog
+    public function create(array $payload): Project
     {
-        $title = Arr::get($payload, 'title');
+        $name = Arr::get($payload, 'name');
 
-        if (! is_string($title) || trim($title) === '') {
-            throw new RuntimeException('Catalog title is required.');
+        if (! is_string($name) || trim($name) === '') {
+            throw new RuntimeException('Project name is required.');
         }
 
-        return Catalog::query()->create([
-            'title' => $title,
+        return Project::query()->create([
+            'name' => $name,
+            'style' => Arr::get($payload, 'style', 'Modern'),
             'description' => Arr::get($payload, 'description'),
-            'is_published' => (bool) Arr::get($payload, 'is_published', false),
+            'estimated_cost' => Arr::get($payload, 'estimated_cost', 'Rp 0 - 0'),
+            'status' => Arr::get($payload, 'status', 'pending'),
         ]);
     }
 }

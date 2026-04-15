@@ -11,21 +11,17 @@ return new class() extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('awards', function (Blueprint $table) {
             $table->uuid();
             $table->string('architect_id')->index();
-            $table->string('name')->index();
-            $table->string('style')->index();
+            $table->string('name');
+            $table->string('project_name');
+            $table->string('role');
+            $table->date('award_date');
             $table->text('description')->nullable();
-            $table->json('images')->nullable();
-            $table->json('layout_images')->nullable();
-            $table->string('highlight_features')->nullable();
-            $table->string('estimated_cost');
-            $table->string('area')->nullable();
+            $table->string('verification_file')->nullable();
             $table->string('status')->default('pending')->index();
-            $table->unsignedInteger('likes_count')->default(0);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -34,6 +30,6 @@ return new class() extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('awards');
     }
 };

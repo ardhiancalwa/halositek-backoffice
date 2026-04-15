@@ -23,8 +23,16 @@ class ArchitectController extends Controller
      *   path="/architects",
      *   tags={"Architects"},
      *   security={},
+     *   summary="List architects",
+     *   description="Returns a list of verified architects for public browsing.",
      *
-     *   @OA\Response(response=200, description="Daftar arsitek berhasil dimuat")
+     *   @OA\Response(response=200, description="Architect list retrieved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Architect list retrieved successfully", "data": {{"id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "name": "Architect User", "email": "architect@halositek.com", "headline": "Residential Specialist", "status": "approved"}}, "meta": {"current_page": 1, "last_page": 1, "per_page": 12, "total": 1}, "links": {"first_page_url": "http://localhost:8000/api/v1/architects?page=1", "last_page_url": "http://localhost:8000/api/v1/architects?page=1", "next_page_url": null, "prev_page_url": null}})
+     * ),
+     *
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function index(Request $request): JsonResponse
@@ -52,8 +60,17 @@ class ArchitectController extends Controller
      *   path="/architects/wishlist",
      *   tags={"Architects"},
      *   security={{"BearerAuth":{}}},
+     *   summary="List wishlist architects",
+     *   description="Returns the authenticated user's saved architect wishlist.",
      *
-     *   @OA\Response(response=200, description="Daftar arsitek di wishlist berhasil dimuat")
+     *   @OA\Response(response=200, description="Wishlist architects retrieved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Wishlist architects retrieved successfully", "data": {{"id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "name": "Architect User", "email": "architect@halositek.com", "headline": "Residential Specialist", "status": "approved"}}, "meta": {"current_page": 1, "last_page": 1, "per_page": 12, "total": 1}, "links": {"first_page_url": "http://localhost:8000/api/v1/architects/wishlist?page=1", "last_page_url": "http://localhost:8000/api/v1/architects/wishlist?page=1", "next_page_url": null, "prev_page_url": null}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function wishlist(Request $request): JsonResponse
@@ -93,6 +110,8 @@ class ArchitectController extends Controller
      *   path="/architects/{id}/verify",
      *   tags={"Architects"},
      *   security={{"BearerAuth":{}}},
+     *   summary="Verify architect",
+     *   description="Validates and updates an architect status to approved or rejected by admin.",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
@@ -106,7 +125,16 @@ class ArchitectController extends Controller
      *     )
      *   ),
      *
-     *   @OA\Response(response=200, description="Status arsitek berhasil diperbarui")
+     *   @OA\Response(response=200, description="Architect status updated successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Architect status updated successfully", "data": {"architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "status": "approved"}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function verify(VerifyArchitectRequest $request, string $id): JsonResponse
@@ -139,10 +167,20 @@ class ArchitectController extends Controller
      *   path="/architects/{id}/save",
      *   tags={"Architects"},
      *   security={{"BearerAuth":{}}},
+     *   summary="Save architect to wishlist",
+     *   description="Saves a specific architect to the authenticated user's wishlist.",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
-     *   @OA\Response(response=200, description="Arsitek berhasil disimpan ke wishlist")
+     *   @OA\Response(response=200, description="Architect saved to wishlist successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Architect saved to wishlist successfully", "data": null})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=409, ref="#/components/responses/ConflictError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function save(string $id): JsonResponse
@@ -184,10 +222,19 @@ class ArchitectController extends Controller
      *   path="/architects/{id}/save",
      *   tags={"Architects"},
      *   security={{"BearerAuth":{}}},
+     *   summary="Remove architect from wishlist",
+     *   description="Removes a specific architect from the authenticated user's wishlist.",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
-     *   @OA\Response(response=200, description="Arsitek berhasil dihapus dari wishlist")
+     *   @OA\Response(response=200, description="Architect removed from wishlist successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Architect removed from wishlist successfully", "data": null})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function unsave(string $id): JsonResponse

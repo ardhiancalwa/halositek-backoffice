@@ -9,7 +9,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Illuminate\\Http\\Request\:\:validated\(\)\.$#'
 			identifier: method.notFound
-			count: 4
+			count: 5
 			path: app/DTOs/User/CreateUserDTO.php
 
 		-

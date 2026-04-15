@@ -24,6 +24,8 @@ class AuthController extends Controller
      * @OA\Post(
      *   path="/auth/register",
      *   tags={"Auth"},
+     *   summary="Register account",
+     *   description="Registers a new user and returns an access token and refresh token.",
      *
      *   @OA\RequestBody(
      *     required=true,
@@ -39,7 +41,13 @@ class AuthController extends Controller
      *     )
      *   ),
      *
-     *   @OA\Response(response=201, description="Berhasil registrasi")
+     *   @OA\Response(response=201, description="Registration successful",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 201, "message": "Registration successful", "data": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRS", "name": "Budi Santoso", "email": "budi_santoso@gmail.com", "role": "user", "access_token": "1|plain-access-token", "refresh_token": "2|plain-refresh-token", "token_type": "Bearer", "expires_in": 3600}})
+     * ),
+     *
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function register(RegisterRequest $request, RegisterUserAction $action): JsonResponse
@@ -61,6 +69,8 @@ class AuthController extends Controller
      * @OA\Post(
      *   path="/auth/login",
      *   tags={"Auth"},
+     *   summary="Login account",
+     *   description="Authenticates user credentials and returns a token pair.",
      *
      *   @OA\RequestBody(
      *     required=true,
@@ -73,7 +83,14 @@ class AuthController extends Controller
      *     )
      *   ),
      *
-     *   @OA\Response(response=200, description="Berhasil login")
+     *   @OA\Response(response=200, description="Login successful",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Login successful", "data": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRS", "name": "Regular User", "email": "user@halositek.com", "role": "user", "access_token": "1|plain-access-token", "refresh_token": "2|plain-refresh-token", "token_type": "Bearer", "expires_in": 3600}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function login(LoginRequest $request): JsonResponse
@@ -98,6 +115,8 @@ class AuthController extends Controller
      * @OA\Post(
      *   path="/auth/refresh-token",
      *   tags={"Auth"},
+     *   summary="Refresh access token",
+     *   description="Exchanges a valid refresh token for a new token pair.",
      *
      *   @OA\RequestBody(
      *     required=true,
@@ -108,7 +127,14 @@ class AuthController extends Controller
      *     )
      *   ),
      *
-     *   @OA\Response(response=200, description="Berhasil mendapatkan token baru")
+     *   @OA\Response(response=200, description="Token refreshed successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Token refreshed successfully", "data": {"access_token": "3|plain-access-token", "refresh_token": "4|plain-refresh-token", "token_type": "Bearer", "expires_in": 3600}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function refresh(RefreshTokenRequest $request): JsonResponse
@@ -162,9 +188,11 @@ class AuthController extends Controller
      * Logout current user and revoke tokens.
      *
      * @OA\Post(
-     *   path="/auth/logout",
+     *   path="/logout",
      *   tags={"Auth"},
      *   security={{"BearerAuth":{}}},
+     *   summary="Logout current session",
+     *   description="Revokes the current access token and optionally the refresh token provided in the request body.",
      *
      *   @OA\RequestBody(
      *     required=false,
@@ -175,7 +203,13 @@ class AuthController extends Controller
      *     )
      *   ),
      *
-     *   @OA\Response(response=200, description="Berhasil logout")
+     *   @OA\Response(response=200, description="Logout successful",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Logout successful", "data": null})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function logout(Request $request): JsonResponse
@@ -200,11 +234,20 @@ class AuthController extends Controller
      * Get current authenticated user's profile.
      *
      * @OA\Get(
-     *   path="/users/me",
+     *   path="/me",
      *   tags={"Users"},
      *   security={{"BearerAuth":{}}},
+     *   summary="Get current user profile",
+     *   description="Returns the profile data of the currently authenticated user.",
      *
-     *   @OA\Response(response=200, description="Data profil berhasil diambil")
+     *   @OA\Response(response=200, description="Profile retrieved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Profile retrieved successfully", "data": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRS", "name": "Regular User", "email": "user@halositek.com", "role": "user", "account_status": "active", "created_at": "2026-04-13T10:00:00Z", "updated_at": "2026-04-13T10:00:00Z"}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function me(Request $request): JsonResponse

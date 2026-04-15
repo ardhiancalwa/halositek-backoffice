@@ -11,7 +11,7 @@ class StoreProjectRequest extends FormRequest
     {
         $user = Auth::user();
 
-        return $user !== null && $user->role === 'architect';
+        return $user !== null && $user->isArchitect();
     }
 
     /**

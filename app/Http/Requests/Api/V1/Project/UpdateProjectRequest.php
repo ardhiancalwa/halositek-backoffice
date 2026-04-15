@@ -11,7 +11,7 @@ class UpdateProjectRequest extends FormRequest
     {
         $user = Auth::user();
 
-        return $user !== null && in_array($user->role, ['architect', 'admin'], true);
+        return $user !== null && ($user->isArchitect() || $user->isAdmin());
     }
 
     /**

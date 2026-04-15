@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\AccountStatus;
 use App\Enums\UserRole;
-use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -33,6 +34,7 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'role',
+        'account_status',
     ];
 
     /**
@@ -56,6 +58,7 @@ class User extends Authenticatable implements FilamentUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'account_status' => AccountStatus::class,
         ];
     }
 
@@ -92,5 +95,15 @@ class User extends Authenticatable implements FilamentUser
     public function wishlistArchitects(): BelongsToMany
     {
         return $this->belongsToMany(self::class, 'architect_wishlists', 'user_id', 'architect_id');
+    }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class, 'architect_id');
+    }
+
+    public function awards(): HasMany
+    {
+        return $this->hasMany(Award::class, 'architect_id');
     }
 }

@@ -1,7 +1,9 @@
 <?php
 
 use L5Swagger\Generator;
-use OpenApi\scan;
+use OpenApi\Analysers\AttributeAnnotationFactory;
+use OpenApi\Analysers\DocBlockAnnotationFactory;
+use OpenApi\Analysers\ReflectionAnalyser;
 
 return [
     'default' => 'default',
@@ -128,7 +130,10 @@ return [
              *
              * @see scan
              */
-            'analyser' => null,
+            'analyser' => new ReflectionAnalyser([
+                new AttributeAnnotationFactory(),
+                new DocBlockAnnotationFactory(),
+            ]),
 
             /**
              * analysis: defaults to a new \OpenApi\Analysis .

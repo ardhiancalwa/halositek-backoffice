@@ -17,7 +17,7 @@ class ProjectController extends Controller
     }
 
     /**
-    * Create a project item from request payload.
+     * Create a project item from request payload.
      *
      * @param  Request  $request  Incoming request with validated payload.
      * @return JsonResponse API response with created entity.

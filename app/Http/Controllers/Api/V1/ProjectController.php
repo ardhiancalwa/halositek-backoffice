@@ -216,7 +216,7 @@ class ProjectController extends Controller
             return ApiResponse::forbidden('You are not allowed to update this project.');
         }
 
-        $isAdmin = $user->role === 'admin';
+        $isAdmin = $user->isAdmin();
 
         $data = $request->validated();
 

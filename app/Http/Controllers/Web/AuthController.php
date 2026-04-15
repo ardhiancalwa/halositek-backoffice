@@ -10,21 +10,26 @@ class AuthController extends Controller
 {
     public function showLogin(): Factory|View
     {
-        return view('auth.login');
+        return view('admin.pages.auth.login');
     }
 
     public function showRegister(): Factory|View
     {
-        return view('auth.register');
+        return view('admin.pages.auth.register');
     }
 
     public function showDashboard(): Factory|View
     {
-        return view('dashboard.index');
+        return view('admin.pages.dashboard.index');
     }
 
     public function showDesigns(): Factory|View
     {
-        return view('dashboard.design');
+        return view('admin.pages.dashboard.design.index');
+    }
+
+    public function showConsultations(): Factory|View
+    {
+        return view('admin.pages.dashboard.consultations.index');
     }
 }

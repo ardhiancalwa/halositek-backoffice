@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Services\CatalogService;
+use App\Services\ProjectService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Throwable;
 
-class CatalogController extends Controller
+class ProjectController extends Controller
 {
-    public function __construct(private readonly CatalogService $catalogService)
+    public function __construct(private readonly ProjectService $catalogService)
     {
     }
 
     /**
-     * Create a catalog item from request payload.
+     * Create a project item from request payload.
      *
      * @param  Request  $request  Incoming request with validated payload.
      * @return JsonResponse API response with created entity.
@@ -29,7 +29,7 @@ class CatalogController extends Controller
         $catalog = $this->catalogService->create($request->all());
 
         return response()->json([
-            'message' => 'Catalog created successfully.',
+            'message' => 'Project created successfully.',
             'data' => $catalog,
         ], 201);
     }

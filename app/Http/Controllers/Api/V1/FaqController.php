@@ -19,8 +19,16 @@ class FaqController extends Controller
      *   path="/faqs",
      *   tags={"FAQ"},
      *   security={},
+     *   summary="List FAQs",
+     *   description="Returns FAQ items; public users can only see active entries.",
      *
-     *   @OA\Response(response=200, description="Berhasil memuat daftar FAQ")
+     *   @OA\Response(response=200, description="FAQ list retrieved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "FAQ list retrieved successfully", "data": {{"id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ", "question": "How do I become an architect on this platform?", "answer": "Register and complete your architect profile.", "is_active": true}}, "meta": {"current_page": 1, "last_page": 1, "per_page": 15, "total": 1}, "links": {"first_page_url": "http://localhost:8000/api/v1/faqs?page=1", "last_page_url": "http://localhost:8000/api/v1/faqs?page=1", "next_page_url": null, "prev_page_url": null}})
+     * ),
+     *
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function index(Request $request): JsonResponse
@@ -47,10 +55,18 @@ class FaqController extends Controller
      *   path="/faqs/{id}",
      *   tags={"FAQ"},
      *   security={},
+     *   summary="Get FAQ detail",
+     *   description="Returns details for a single FAQ by id.",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
-     *   @OA\Response(response=200, description="Berhasil memuat FAQ")
+     *   @OA\Response(response=200, description="FAQ retrieved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "FAQ retrieved successfully", "data": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ", "question": "How do I become an architect on this platform?", "answer": "Register and complete your architect profile.", "is_active": true}})
+     * ),
+     *
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function show(Request $request, string $id): JsonResponse
@@ -69,6 +85,8 @@ class FaqController extends Controller
      *   path="/faqs",
      *   tags={"FAQ"},
      *   security={{"BearerAuth":{}}},
+     *   summary="Create FAQ",
+     *   description="Creates a new FAQ entry through admin access.",
      *
      *   @OA\RequestBody(
      *     required=true,
@@ -82,7 +100,15 @@ class FaqController extends Controller
      *     )
      *   ),
      *
-     *   @OA\Response(response=201, description="FAQ berhasil ditambahkan")
+     *   @OA\Response(response=201, description="FAQ created successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 201, "message": "FAQ created successfully", "data": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ", "question": "How do I become an architect on this platform?", "answer": "Register and complete your architect profile.", "is_active": true}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function store(StoreFaqRequest $request): JsonResponse
@@ -100,6 +126,8 @@ class FaqController extends Controller
      *   path="/faqs/{id}",
      *   tags={"FAQ"},
      *   security={{"BearerAuth":{}}},
+     *   summary="Update FAQ",
+     *   description="Updates an existing FAQ entry by id.",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
@@ -114,7 +142,16 @@ class FaqController extends Controller
      *     )
      *   ),
      *
-     *   @OA\Response(response=200, description="FAQ berhasil diperbarui")
+     *   @OA\Response(response=200, description="FAQ updated successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "FAQ updated successfully", "data": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ", "question": "How do I become an architect on this platform?", "answer": "Your architect profile has been updated.", "is_active": true}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function update(UpdateFaqRequest $request, string $id): JsonResponse
@@ -131,10 +168,20 @@ class FaqController extends Controller
      *   path="/faqs/{id}",
      *   tags={"FAQ"},
      *   security={{"BearerAuth":{}}},
+     *   summary="Delete FAQ",
+     *   description="Deletes an FAQ entry by id.",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
-     *   @OA\Response(response=200, description="FAQ berhasil dihapus")
+     *   @OA\Response(response=200, description="FAQ deleted successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "FAQ deleted successfully", "data": null})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function destroy(string $id): JsonResponse

@@ -1,0 +1,1037 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "HaloSitek Core API",
+        "description": "OpenAPI metadata for HaloSitek Backoffice API.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api/v1",
+            "description": "Local Development Server"
+        }
+    ],
+    "paths": {
+        "/architects": {
+            "get": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "List architects",
+                "description": "Menampilkan daftar arsitek yang sudah terverifikasi untuk kebutuhan halaman publik.",
+                "operationId": "d4ecab5f93bf0a5d922dd4a0070eba63",
+                "responses": {
+                    "200": {
+                        "description": "Daftar arsitek berhasil dimuat"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/architects/wishlist": {
+            "get": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "List wishlist architects",
+                "description": "Menampilkan daftar arsitek yang disimpan user login ke wishlist.",
+                "operationId": "5740e73b9215dc96daaa1798730b86fe",
+                "responses": {
+                    "200": {
+                        "description": "Daftar arsitek di wishlist berhasil dimuat"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/architects/{id}/verify": {
+            "put": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "Verify architect",
+                "description": "Memvalidasi status arsitek menjadi approved atau rejected oleh admin.",
+                "operationId": "6066745799d1274d94d4cedd610fabd3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "approved",
+                                            "rejected"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status arsitek berhasil diperbarui"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/architects/{id}/save": {
+            "post": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "Save architect to wishlist",
+                "description": "Menyimpan arsitek tertentu ke wishlist milik user login.",
+                "operationId": "5faaea73ec73e2070ee252396e4b1304",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arsitek berhasil disimpan ke wishlist"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "Remove architect from wishlist",
+                "description": "Menghapus arsitek tertentu dari wishlist milik user login.",
+                "operationId": "59b0eea4e7c60d70f58e32a7506004c3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Arsitek berhasil dihapus dari wishlist"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register account",
+                "description": "Mendaftarkan pengguna baru dan mengembalikan access token serta refresh token.",
+                "operationId": "8f20688904ee49d0d8739eeb08faf0b1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "budi_santoso@gmail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "user"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Berhasil registrasi"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login account",
+                "description": "Melakukan autentikasi email dan password, lalu mengembalikan pasangan token.",
+                "operationId": "985cd5203e2d0a820e113f2f4fdb2847",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@halositek.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "securepassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil login"
+                    }
+                }
+            }
+        },
+        "/auth/refresh-token": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh access token",
+                "description": "Menukar refresh token yang valid menjadi pasangan token baru.",
+                "operationId": "2fdd67496aeb7fc933c8e1ddb9f7f211",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string",
+                                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mendapatkan token baru"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout current session",
+                "description": "Mencabut access token aktif dan opsional refresh token yang dikirim pada body.",
+                "operationId": "5660f1ae61b95f0283dfc205d5ffdad5",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Berhasil logout"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get current user profile",
+                "description": "Mengambil data profil pengguna yang sedang login berdasarkan access token.",
+                "operationId": "0fadd24761c66bfa1bfdc46dea94c0dd",
+                "responses": {
+                    "200": {
+                        "description": "Data profil berhasil diambil"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update current profile",
+                "description": "Memperbarui profil milik user yang sedang login.",
+                "operationId": "5705eaa8e3358048290c90ac2f975ae1",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "budi@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/awards": {
+            "get": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "List awards",
+                "description": "Menampilkan daftar penghargaan dengan opsi filter status dan pagination.",
+                "operationId": "ac6ba36ef2b8191a2fe55c943c7d9d4e",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "approved",
+                                "declined"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Awards retrieved successfully"
+                    }
+                },
+                "security": []
+            },
+            "post": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Create award",
+                "description": "Menambahkan data penghargaan baru oleh arsitek termasuk berkas verifikasi.",
+                "operationId": "b0afa1a40ba8f5a9cb004c157bfdc59d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {}
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Award created successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/awards/{id}": {
+            "get": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Get award detail",
+                "description": "Mengambil detail penghargaan berdasarkan id.",
+                "operationId": "a6725d6997632cafcbde215b860a95ca",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Award retrieved successfully"
+                    }
+                },
+                "security": []
+            },
+            "put": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Update award",
+                "description": "Memperbarui data penghargaan; admin hanya dapat mengubah status penghargaan.",
+                "operationId": "bd4372e2d81916a8553f975d67147884",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {}
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Award updated successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Delete award",
+                "description": "Menghapus data penghargaan dan file verifikasinya berdasarkan id.",
+                "operationId": "8617d7b65c7184a1c70fae76032f879e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Award deleted successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/faqs": {
+            "get": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "List FAQs",
+                "description": "Menampilkan daftar FAQ; user publik hanya melihat FAQ yang aktif.",
+                "operationId": "2a7f89e5292d6d76c4704457f09b497a",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat daftar FAQ"
+                    }
+                },
+                "security": []
+            },
+            "post": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "Create FAQ",
+                "description": "Menambahkan item FAQ baru melalui akses admin.",
+                "operationId": "51ddc2d8a7d5262f2bb023ae85acb90d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "question",
+                                    "answer"
+                                ],
+                                "properties": {
+                                    "question": {
+                                        "type": "string"
+                                    },
+                                    "answer": {
+                                        "type": "string"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "FAQ berhasil ditambahkan"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/faqs/{id}": {
+            "get": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "Get FAQ detail",
+                "description": "Mengambil detail satu FAQ berdasarkan id.",
+                "operationId": "3798b459714d4b10d7ff7ca0f6cbf9d7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil memuat FAQ"
+                    }
+                },
+                "security": []
+            },
+            "put": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "Update FAQ",
+                "description": "Memperbarui konten FAQ yang sudah ada berdasarkan id.",
+                "operationId": "947a871d989acfa4548a8652c4fbbe92",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "question": {
+                                        "type": "string"
+                                    },
+                                    "answer": {
+                                        "type": "string"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "FAQ berhasil diperbarui"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "Delete FAQ",
+                "description": "Menghapus item FAQ berdasarkan id.",
+                "operationId": "bd2fd27a6275bf2cf12d754d2f0279dd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "FAQ berhasil dihapus"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects": {
+            "get": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "List projects",
+                "description": "Menampilkan daftar proyek beserta filter status dan pagination.",
+                "operationId": "d8bc32b45579a2263ca77907248c9002",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "approved",
+                                "declined"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Projects retrieved successfully"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Create project",
+                "description": "Membuat proyek baru oleh arsitek dengan upload gambar dan layout.",
+                "operationId": "d14ce90da851ad8044ec318a766df32e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {}
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Project created successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}": {
+            "get": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Get project detail",
+                "description": "Mengambil detail proyek berdasarkan id.",
+                "operationId": "83c87bebdc302e4ae4afcefcf319d08c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project retrieved successfully"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Update project",
+                "description": "Memperbarui data proyek; admin hanya dapat mengubah status proyek.",
+                "operationId": "62d247065d872bb3694822fd1a77b76e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {}
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Project updated successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Delete project",
+                "description": "Menghapus proyek beserta berkas gambar terkait berdasarkan id.",
+                "operationId": "0e1ef9693d0bf640ec8a8027909a5902",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project deleted successfully"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "List users",
+                "description": "Menampilkan daftar user untuk kebutuhan administrasi (admin only).",
+                "operationId": "47249454f1cdb4ad92ff4dd2abad233f",
+                "responses": {
+                    "200": {
+                        "description": "Users retrieved successfully."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create user",
+                "description": "Membuat akun user baru melalui panel administrasi.",
+                "operationId": "381804010d0bc76cac24bab8ac5f1707",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created successfully."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users/{id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user detail",
+                "description": "Mengambil detail satu user berdasarkan id.",
+                "operationId": "90ca44c038360e66084588a1a5951520",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User retrieved successfully."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user status",
+                "description": "Memperbarui status akun user tertentu (contoh: active atau suspend).",
+                "operationId": "e734c66a7d375609edee2154bc5f7b47",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "account_status"
+                                ],
+                                "properties": {
+                                    "account_status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "active",
+                                            "suspend"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User status updated successfully."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user",
+                "description": "Menghapus akun user berdasarkan id.",
+                "operationId": "9daa558fb80f5a3e2b490a3a5b05a716",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted successfully."
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "description": "Use Sanctum access token in Authorization header as: Bearer {token}",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Architects",
+            "description": "Architects"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Users",
+            "description": "Users"
+        },
+        {
+            "name": "Awards",
+            "description": "Awards"
+        },
+        {
+            "name": "FAQ",
+            "description": "FAQ"
+        },
+        {
+            "name": "Projects",
+            "description": "Projects"
+        }
+    ]
+}

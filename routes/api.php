@@ -2,8 +2,9 @@
 
 use App\Http\Controllers\Api\V1\ArchitectController;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\CatalogController;
+use App\Http\Controllers\Api\V1\AwardController;
 use App\Http\Controllers\Api\V1\FaqController;
+use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,15 +24,17 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
+        Route::put('/me', [UserController::class, 'updateProfile']);
 
-        // Catalog Routes (Authenticated)
-        Route::post('/catalogs/{id}/like', [CatalogController::class, 'like']);
-        Route::delete('/catalogs/{id}/like', [CatalogController::class, 'unlike']);
+        // Project CRUD (Architect/Admin)
+        Route::post('/projects', [ProjectController::class, 'store']);
+        Route::put('/projects/{id}', [ProjectController::class, 'update']);
+        Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
 
-        // Catalog CRUD (Architect)
-        Route::post('/catalogs', [CatalogController::class, 'store']);
-        Route::put('/catalogs/{id}', [CatalogController::class, 'update']);
-        Route::delete('/catalogs/{id}', [CatalogController::class, 'destroy']);
+        // Award CRUD (Architect/Admin)
+        Route::post('/awards', [AwardController::class, 'store']);
+        Route::put('/awards/{id}', [AwardController::class, 'update']);
+        Route::delete('/awards/{id}', [AwardController::class, 'destroy']);
 
         // Architect wishlist
         Route::get('/architects/wishlist', [ArchitectController::class, 'wishlist']);
@@ -43,9 +46,9 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
-
-        // Catalog Review/Verify
-        Route::put('/catalogs/{id}/verify', [CatalogController::class, 'verify']);
+        Route::get('/users/{id}', [UserController::class, 'show']);
+        Route::put('/users/{id}', [UserController::class, 'update']);
+        Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
         // Architect Review/Verify
         Route::put('/architects/{id}/verify', [ArchitectController::class, 'verify']);
@@ -60,8 +63,11 @@ Route::prefix('v1')->group(function () {
     // Actually wishlist is above, so we are safe.
     Route::get('/architects', [ArchitectController::class, 'index']);
 
-    Route::get('/catalogs', [CatalogController::class, 'index']);
-    Route::get('/catalogs/{id}', [CatalogController::class, 'show']);
+    Route::get('/projects', [ProjectController::class, 'index']);
+    Route::get('/projects/{id}', [ProjectController::class, 'show']);
+
+    Route::get('/awards', [AwardController::class, 'index']);
+    Route::get('/awards/{id}', [AwardController::class, 'show']);
 
     Route::get('/faqs', [FaqController::class, 'index']);
     Route::get('/faqs/{id}', [FaqController::class, 'show']);

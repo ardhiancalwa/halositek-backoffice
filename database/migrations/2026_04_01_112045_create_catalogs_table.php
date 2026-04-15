@@ -11,24 +11,21 @@ return new class() extends Migration
      */
     public function up(): void
     {
-        Schema::create('catalogs', function (Blueprint $table) {
-            $table->uuid('architect_id')->index();
-            $table->string('title');
+        Schema::create('projects', function (Blueprint $table) {
+            $table->uuid();
+            $table->string('architect_id')->index();
+            $table->string('name')->index();
             $table->string('style')->index();
             $table->text('description')->nullable();
-            $table->json('images');
-            $table->json('interior_highlights')->nullable();
-            $table->string('layout_image')->nullable();
-            $table->string('rooms');
-            $table->bigInteger('estimated_cost');
-            $table->string('area');
+            $table->json('images')->nullable();
+            $table->json('layout_images')->nullable();
+            $table->string('highlight_features')->nullable();
+            $table->string('estimated_cost');
+            $table->string('area')->nullable();
             $table->string('status')->default('pending')->index();
-            $table->decimal('rating', 3, 1)->default(0.0);
             $table->unsignedInteger('likes_count')->default(0);
             $table->timestamps();
             $table->softDeletes();
-
-            $table->index(['title' => 'text', 'description' => 'text'], 'catalogs_fulltext_idx');
         });
     }
 
@@ -37,6 +34,6 @@ return new class() extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('catalogs');
+        Schema::dropIfExists('projects');
     }
 };

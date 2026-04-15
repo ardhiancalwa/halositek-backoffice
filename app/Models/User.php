@@ -87,21 +87,33 @@ class User extends Authenticatable implements FilamentUser
         return $this->isAdmin();
     }
 
+    /**
+     * @return HasOne<ArchitectProfile, self>
+     */
     public function architectProfile(): HasOne
     {
         return $this->hasOne(ArchitectProfile::class);
     }
 
+    /**
+     * @return BelongsToMany<self, self>
+     */
     public function wishlistArchitects(): BelongsToMany
     {
         return $this->belongsToMany(self::class, 'architect_wishlists', 'user_id', 'architect_id');
     }
 
+    /**
+     * @return HasMany<Project, self>
+     */
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class, 'architect_id');
     }
 
+    /**
+     * @return HasMany<Award, self>
+     */
     public function awards(): HasMany
     {
         return $this->hasMany(Award::class, 'architect_id');

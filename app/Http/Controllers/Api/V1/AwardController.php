@@ -169,8 +169,7 @@ class AwardController extends Controller
             return ApiResponse::forbidden('You are not allowed to update this award.');
         }
 
-        $role = is_object($user->role) ? $user->role->value : $user->role;
-        $isAdmin = $role === 'admin';
+        $isAdmin = $user->role === 'admin';
 
         $data = $request->validated();
 

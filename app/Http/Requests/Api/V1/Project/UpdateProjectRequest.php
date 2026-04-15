@@ -10,11 +10,13 @@ class UpdateProjectRequest extends FormRequest
     public function authorize(): bool
     {
         $user = Auth::user();
-        $role = is_object($user?->role) ? $user->role->value : $user?->role;
 
-        return $user !== null && in_array($role, ['architect', 'admin'], true);
+        return $user !== null && in_array($user->role, ['architect', 'admin'], true);
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [

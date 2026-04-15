@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\AwardStatus;
+use App\Models\Award;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -16,30 +16,31 @@ class AwardResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $status = $this->status instanceof AwardStatus ? $this->status->value : $this->status;
+        /** @var Award $award */
+        $award = $this->resource;
 
         return [
-            'id' => $this->id,
-            'architect_id' => $this->architect_id,
-            'name' => $this->name,
-            'project_name' => $this->project_name,
-            'role' => $this->role,
-            'award_date' => $this->award_date?->toDateString(),
-            'description' => $this->description,
-            'verification_file' => $this->verification_file,
-            'verification_file_url' => $this->verification_file
-                ? Storage::url($this->verification_file)
+            'id' => $award->id,
+            'architect_id' => $award->architect_id,
+            'name' => $award->name,
+            'project_name' => $award->project_name,
+            'role' => $award->role,
+            'award_date' => $award->award_date,
+            'description' => $award->description,
+            'verification_file' => $award->verification_file,
+            'verification_file_url' => $award->verification_file
+                ? Storage::url($award->verification_file)
                 : null,
-            'status' => $status,
-            'architect' => $this->whenLoaded('architect', function () {
+            'status' => $award->status,
+            'architect' => $this->whenLoaded('architect', function () use ($award) {
                 return [
-                    'id' => $this->architect->id,
-                    'name' => $this->architect->name,
-                    'email' => $this->architect->email,
+                    'id' => $award->architect->id,
+                    'name' => $award->architect->name,
+                    'email' => $award->architect->email,
                 ];
             }),
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
+            'created_at' => $award->created_at?->toIso8601String(),
+            'updated_at' => $award->updated_at?->toIso8601String(),
         ];
     }
 }

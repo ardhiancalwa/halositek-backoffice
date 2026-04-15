@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\ProjectStatus;
+use Database\Factories\ProjectFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +13,9 @@ use MongoDB\Laravel\Eloquent\Model;
 
 class Project extends Model
 {
+    /** @use HasFactory<ProjectFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 
@@ -48,12 +52,19 @@ class Project extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<User, self>
+     */
     public function architect(): BelongsTo
     {
         return $this->belongsTo(User::class, 'architect_id');
     }
 
-    public function scopeByStatus($query, string $status)
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeByStatus(Builder $query, string $status): Builder
     {
         return $query->where('status', $status);
     }

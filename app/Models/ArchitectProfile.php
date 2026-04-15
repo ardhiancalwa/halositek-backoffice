@@ -45,16 +45,25 @@ class ArchitectProfile extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<User, self>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return HasMany<Project, self>
+     */
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class, 'architect_id', 'user_id');
     }
 
+    /**
+     * @return HasMany<Award, self>
+     */
     public function awards(): HasMany
     {
         return $this->hasMany(Award::class, 'architect_id', 'user_id');

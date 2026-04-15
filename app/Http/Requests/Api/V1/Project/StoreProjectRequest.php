@@ -10,11 +10,13 @@ class StoreProjectRequest extends FormRequest
     public function authorize(): bool
     {
         $user = Auth::user();
-        $role = is_object($user?->role) ? $user->role->value : $user?->role;
 
-        return $user !== null && $role === 'architect';
+        return $user !== null && $user->role === 'architect';
     }
 
+    /**
+     * @return array<string, array<int, string>>
+     */
     public function rules(): array
     {
         return [

@@ -12,6 +12,9 @@ class UpdateProfileRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, array<int, string|Rule>>
+     */
     public function rules(): array
     {
         $userId = $this->user()?->id;

@@ -3,14 +3,18 @@
 namespace App\Models;
 
 use App\Enums\AwardStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MongoDB\Laravel\Eloquent\Model;
 
 class Award extends Model
 {
+    /** @use HasFactory<Factory> */
     use HasFactory;
+
     use HasUuids;
 
     protected $connection = 'mongodb';
@@ -41,12 +45,19 @@ class Award extends Model
         ];
     }
 
+    /**
+     * @return BelongsTo<User, self>
+     */
     public function architect(): BelongsTo
     {
         return $this->belongsTo(User::class, 'architect_id');
     }
 
-    public function scopeByStatus($query, string $status)
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeByStatus(Builder $query, string $status): Builder
     {
         return $query->where('status', $status);
     }

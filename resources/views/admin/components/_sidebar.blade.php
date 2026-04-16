@@ -53,14 +53,16 @@
         ],
     ];
 
-    $renderSidebarIcon = function (string $icon): string {
+    $renderSidebarIcon = function (string $icon, bool $isActive): string {
+        $iconName = $icon;
+        if (in_array($icon, ['user', 'architect', 'design']) && $isActive) {
+            $iconName .= '-orange';
+        }
+        
         return match ($icon) {
             'dashboard' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>',
-            'user' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19a4 4 0 0 0-8 0"></path><circle cx="12" cy="10" r="3"></circle><path d="M19 19a3 3 0 0 0-2.2-2.9"></path><path d="M18 7.5a2.5 2.5 0 1 1 0 5"></path><path d="M5 19a3 3 0 0 1 2.2-2.9"></path><path d="M6 7.5a2.5 2.5 0 1 0 0 5"></path></svg>',
-            'architect' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"></path><path d="M6 19V9l6-4 6 4v10"></path><path d="M9 19v-4h6v4"></path><path d="M9 11h.01"></path><path d="M15 11h.01"></path></svg>',
-            'design' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"></path><path d="M6 17V6.5A1.5 1.5 0 0 1 7.5 5h3A1.5 1.5 0 0 1 12 6.5V17"></path><path d="M12 17V9.5A1.5 1.5 0 0 1 13.5 8H17a1.5 1.5 0 0 1 1.5 1.5V17"></path></svg>',
-            'consultation' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6.5h14A1.5 1.5 0 0 1 20.5 8v8A1.5 1.5 0 0 1 19 17.5H9l-4.5 3V8A1.5 1.5 0 0 1 5 6.5Z"></path></svg>',
-            'bot' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"></path><path d="M12 3v3"></path><rect x="4.5" y="8" width="15" height="10" rx="3"></rect><path d="M9 13h.01"></path><path d="M15 13h.01"></path><path d="M8 18v2"></path><path d="M16 18v2"></path><path d="M4.5 12H3"></path><path d="M21 12h-1.5"></path></svg>',
+            'user', 'architect', 'design', 'consultation' => '<img src="' . asset("images/dashboard/{$iconName}-icon.png") . '" class="h-5 w-5" alt="'.ucfirst($icon).'">',
+            'bot' => '<img src="' . asset("images/dashboard/ai-icon.png") . '" class="h-5 w-5" alt="AI Bot">',
             default => '',
         };
     };
@@ -98,7 +100,7 @@
                             $stateClasses = $isActive
                                 ? 'bg-[#E8820C] text-white shadow-[0_10px_30px_-18px_rgba(232,130,12,0.95)]'
                                 : 'text-slate-500 hover:bg-[#FFF5EA] hover:text-[#E8820C]';
-                            $iconMarkup = $renderSidebarIcon($item['icon']);
+                            $iconMarkup = $renderSidebarIcon($item['icon'], $isActive);
                         @endphp
 
                         <a

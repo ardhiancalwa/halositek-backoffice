@@ -16,37 +16,28 @@
         <!-- Stat Card 1 -->
         <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
             <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center text-[#E8820C] mb-4">
-               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+               <img src="{{ asset('images/dashboard/user-icon-orange.png') }}" class="w-6 h-6 object-contain" alt="Users">
             </div>
             <p class="text-sm text-slate-500 font-medium mb-1">Registered Users</p>
-            <h3 class="text-3xl font-bold text-slate-900 tracking-tight">12,450</h3>
-            <div class="absolute bottom-6 left-6 right-6 h-1 bg-slate-100 rounded-full overflow-hidden mt-4">
-                <div class="h-full bg-[#E8820C] w-[60%] rounded-full"></div>
-            </div>
+            <h3 id="total-users" class="text-3xl font-bold text-slate-900 tracking-tight">...</h3>
         </div>
 
         <!-- Stat Card 2 -->
         <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
             <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center text-[#E8820C] mb-4">
-                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                 <img src="{{ asset('images/dashboard/architect-icon-orange.png') }}" class="w-6 h-6 object-contain" alt="Architects">
             </div>
             <p class="text-sm text-slate-500 font-medium mb-1">Registered Architect</p>
-            <h3 class="text-3xl font-bold text-slate-900 tracking-tight">1,892</h3>
-            <div class="absolute bottom-6 left-6 right-6 h-1 bg-slate-100 rounded-full overflow-hidden mt-4">
-                <div class="h-full bg-[#E8820C] w-[45%] rounded-full"></div>
-            </div>
+            <h3 id="total-architects" class="text-3xl font-bold text-slate-900 tracking-tight">...</h3>
         </div>
 
         <!-- Stat Card 3 -->
         <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
             <div class="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center text-[#E8820C] mb-4">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <img src="{{ asset('images/dashboard/design-icon-orange.png') }}" class="w-6 h-6 object-contain" alt="Designs">
             </div>
             <p class="text-sm text-slate-500 font-medium mb-1">Total Design</p>
-            <h3 class="text-3xl font-bold text-slate-900 tracking-tight">1,892</h3>
-            <div class="absolute bottom-6 left-6 right-6 h-1 bg-slate-100 rounded-full overflow-hidden mt-4">
-                <div class="h-full bg-[#E8820C] w-[30%] rounded-full"></div>
-            </div>
+            <h3 id="total-designs" class="text-3xl font-bold text-slate-900 tracking-tight">...</h3>
         </div>
     </div>
 
@@ -86,4 +77,44 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const accessToken = window.localStorage.getItem('halositek.auth.access_token');
+    if (!accessToken) return;
+
+    const headers = {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+    };
+
+    try {
+        const [usersRes, archRes, projRes] = await Promise.all([
+            fetch('/api/v1/users?per_page=1', { headers }),
+            fetch('/api/v1/architects?per_page=1', { headers }),
+            fetch('/api/v1/projects?per_page=1', { headers })
+        ]);
+
+        if (usersRes.ok) {
+            const usersData = await usersRes.json();
+            document.getElementById('total-users').textContent = (usersData.meta?.total || 0).toLocaleString();
+        }
+
+        if (archRes.ok) {
+            const archData = await archRes.json();
+            document.getElementById('total-architects').textContent = (archData.meta?.total || 0).toLocaleString();
+        }
+
+        if (projRes.ok) {
+            const projData = await projRes.json();
+            document.getElementById('total-designs').textContent = (projData.meta?.total || 0).toLocaleString();
+        }
+    } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+    }
+});
+</script>
+@endpush
+
 @endsection

@@ -26,8 +26,6 @@ class ArchitectProfile extends Model
         'headline',
         'bio',
         'location',
-        'catalogs_file_url',
-        'awards_file_url',
         'status',
         'specialization',
         'rating',

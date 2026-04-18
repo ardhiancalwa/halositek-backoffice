@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\Award\UpdateAwardRequest;
 use App\Http\Resources\AwardResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Award;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +27,8 @@ class AwardController extends Controller
      *   description="Returns a paginated award list with optional status filtering.",
      *
      *   @OA\Parameter(name="status", in="query", @OA\Schema(type="string", enum={"pending","approved","declined"})),
+     *   @OA\Parameter(name="architect_id", in="query", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
      *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
      *
      *   @OA\Response(response=200, description="Awards retrieved successfully",
@@ -42,14 +45,37 @@ class AwardController extends Controller
         $query = Award::with('architect')->latest();
 
         if ($request->filled('status')) {
-            $query->byStatus($request->string('status')->toString());
+            $status = $request->string('status')->toString();
+
+            if (in_array($status, ['pending', 'approved', 'declined'], true)) {
+                $query->byStatus($status);
+            }
         }
+
+        if ($request->filled('architect_id')) {
+            $query->where('architect_id', $request->string('architect_id')->toString());
+        }
+
+        if ($request->filled('search')) {
+            $search = trim($request->string('search')->toString());
+
+            $query->where(function ($builder) use ($search): void {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('project_name', 'like', "%{$search}%");
+            });
+        }
+
+        $pendingCount = (clone $query)->where('status', 'pending')->count();
+        $approvedCount = (clone $query)->where('status', 'approved')->count();
 
         $perPage = min(50, max(1, (int) $request->input('per_page', 12)));
         $awards = $query->paginate($perPage);
         $awards->setCollection(AwardResource::collection($awards->getCollection())->collection);
 
-        return ApiResponse::paginated($awards, 'Awards retrieved successfully.');
+        return ApiResponse::paginated($awards, 'Awards retrieved successfully.', meta: [
+            'pending_count' => $pendingCount,
+            'approved_count' => $approvedCount,
+        ]);
     }
 
     /**
@@ -160,6 +186,7 @@ class AwardController extends Controller
     {
         $award = Award::findOrFail($id);
 
+        /** @var User|null $user */
         $user = Auth::user();
         if ($user === null) {
             return ApiResponse::unauthorized('Unauthorized.');
@@ -234,6 +261,7 @@ class AwardController extends Controller
     {
         $award = Award::findOrFail($id);
 
+        /** @var User|null $user */
         $user = Auth::user();
         if ($user === null) {
             return ApiResponse::unauthorized('Unauthorized.');

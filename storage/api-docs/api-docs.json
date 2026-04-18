@@ -711,6 +711,20 @@
                         }
                     },
                     {
+                        "name": "architect_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "per_page",
                         "in": "query",
                         "schema": {
@@ -1308,6 +1322,20 @@
                         }
                     },
                     {
+                        "name": "architect_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "per_page",
                         "in": "query",
                         "schema": {
@@ -1794,6 +1822,33 @@
                 "summary": "List users",
                 "description": "Returns a paginated user list for administrative usage (admin only).",
                 "operationId": "47249454f1cdb4ad92ff4dd2abad233f",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "suspend"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Users retrieved successfully.",
@@ -2361,15 +2416,13 @@
                         "example": "Jakarta",
                         "nullable": true
                     },
-                    "catalogs_file_url": {
-                        "type": "string",
-                        "example": "https://cdn.halositek.com/catalogs/architect-user.pdf",
-                        "nullable": true
+                    "total_projects": {
+                        "type": "integer",
+                        "example": 8
                     },
-                    "awards_file_url": {
-                        "type": "string",
-                        "example": "https://cdn.halositek.com/awards/architect-user.pdf",
-                        "nullable": true
+                    "total_awards": {
+                        "type": "integer",
+                        "example": 4
                     },
                     "status": {
                         "type": "string",

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/login');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/dashboard', [AuthController::class, 'showDashboard'])->name('dashboard');
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/architects', [ArchitectController::class, 'index'])->name('architects.index');

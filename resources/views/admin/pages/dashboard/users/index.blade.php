@@ -35,72 +35,53 @@
             </button>
         </div>
     </div>
-
     <!-- Table Section -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="border-b border-slate-100 bg-slate-50">
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Name</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Email</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Member Since</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Account Status</th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-slate-600">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="users-table-body">
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-500">
-                            <div class="flex items-center justify-center">
-                                <svg class="animate-spin h-5 w-5 text-[#E8820C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div id="users-table-wrapper">
+        @component('admin.components.table', ['headers' => [
+            ['label' => 'Name', 'class' => 'text-left text-xs font-semibold uppercase tracking-wider text-slate-600'],
+            ['label' => 'Email', 'class' => 'text-left text-xs font-semibold uppercase tracking-wider text-slate-600'],
+            ['label' => 'Member Since', 'class' => 'text-left text-xs font-semibold uppercase tracking-wider text-slate-600'],
+            ['label' => 'Account Status', 'class' => 'text-left text-xs font-semibold uppercase tracking-wider text-slate-600'],
+            ['label' => 'Actions', 'class' => 'text-center text-xs font-semibold uppercase tracking-wider text-slate-600'],
+        ]])
+            <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-slate-500">
+                    <div class="flex items-center justify-center">
+                        <svg class="animate-spin h-5 w-5 text-[#E8820C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </td>
+            </tr>
+        @endcomponent
+    </div>
 
-        <!-- Pagination -->
-        <div class="border-t border-slate-100 px-6 py-4 flex items-center justify-between">
-            <div class="text-sm text-slate-600">
-                Showing <span id="current-page">1</span> of <span id="total-pages">1</span> pages
-            </div>
-            <div class="flex items-center gap-2">
-                <button id="prev-page" class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    ←
-                </button>
-                <div id="pagination-numbers" class="flex gap-1">
-                    <!-- Pagination numbers will be filled by JavaScript -->
-                </div>
-                <button id="next-page" class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                    →
-                </button>
-            </div>
+    <!-- Pagination -->
+    <div class="border-t border-slate-100 px-6 py-4 flex items-center justify-between bg-white rounded-b-xl">
+        <div class="text-sm text-slate-600">
+            Showing <span id="current-page">1</span> of <span id="total-pages">1</span> pages
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="prev-page" class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                &larr;
+            </button>
+            <div id="pagination-numbers" class="flex gap-1"></div>
+            <button id="next-page" class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                &rarr;
+            </button>
         </div>
     </div>
 </div>
-
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-    const accessToken = window.localStorage.getItem('halositek.auth.access_token');
-    if (!accessToken) return;
-
     let currentPage = 1;
     let selectedStatus = 'all';
     const perPage = 15;
 
-    const headers = {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
     const statusFilterBtns = document.querySelectorAll('.status-filter-btn');
-    const tableBody = document.getElementById('users-table-body');
+    const tableBody = document.querySelector('#users-table-wrapper tbody');
     const prevPageBtn = document.getElementById('prev-page');
     const nextPageBtn = document.getElementById('next-page');
     const paginationNumbers = document.getElementById('pagination-numbers');
@@ -128,13 +109,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Fetch users data
     async function fetchUsers(page = 1, status = null) {
-        let url = `/api/v1/users?page=${page}&per_page=${perPage}`;
+        let url = @js(route('users.data')) + `?page=${page}&per_page=${perPage}`;
         if (status && status !== 'all') {
             url += `&status=${status}`;
         }
 
         try {
-            const response = await fetch(url, { headers });
+            const response = await fetch(url, {
+                headers: {
+                    'Accept': 'application/json'
+                },
+            });
             if (!response.ok) return null;
 
             const data = await response.json();
@@ -258,3 +243,4 @@ document.addEventListener('DOMContentLoaded', async () => {
 @endpush
 
 @endsection
+

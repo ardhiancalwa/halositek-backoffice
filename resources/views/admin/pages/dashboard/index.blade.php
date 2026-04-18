@@ -81,35 +81,23 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', async () => {
-    const accessToken = window.localStorage.getItem('halositek.auth.access_token');
-    if (!accessToken) return;
-
-    const headers = {
-        'Accept': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-    };
-
     try {
-        const [usersRes, archRes, projRes] = await Promise.all([
-            fetch('/api/v1/users?per_page=1', { headers }),
-            fetch('/api/v1/architects?per_page=1', { headers }),
-            fetch('/api/v1/projects?per_page=1', { headers })
-        ]);
+        const response = await fetch(@js(route('dashboard.stats')), {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
 
-        if (usersRes.ok) {
-            const usersData = await usersRes.json();
-            document.getElementById('total-users').textContent = (usersData.meta?.total || 0).toLocaleString();
+        if (!response.ok) {
+            return;
         }
 
-        if (archRes.ok) {
-            const archData = await archRes.json();
-            document.getElementById('total-architects').textContent = (archData.meta?.total || 0).toLocaleString();
-        }
+        const payload = await response.json();
+        const stats = payload?.data ?? {};
 
-        if (projRes.ok) {
-            const projData = await projRes.json();
-            document.getElementById('total-designs').textContent = (projData.meta?.total || 0).toLocaleString();
-        }
+        document.getElementById('total-users').textContent = Number(stats.total_users ?? 0).toLocaleString();
+        document.getElementById('total-architects').textContent = Number(stats.total_architects ?? 0).toLocaleString();
+        document.getElementById('total-designs').textContent = Number(stats.total_designs ?? 0).toLocaleString();
     } catch (error) {
         console.error('Error fetching dashboard stats:', error);
     }

@@ -56,32 +56,30 @@
     </div>
 
     <!-- Data Table -->
-    <div class="bg-white border rounded-2xl border-slate-200 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-                <thead class="bg-[#F8EADC] text-slate-600 font-bold uppercase tracking-[0.05em] text-[11px]">
-                    <tr>
-                        <th class="px-6 py-4">Architect Name</th>
-                        <th class="px-6 py-4">Award Name</th>
-                        <th class="px-6 py-4">Awards Date</th>
-                        <th class="px-6 py-4">Submission Date</th>
-                        <th class="px-6 py-4">Award Status</th>
-                        <th class="px-6 py-4 text-center">Proof</th>
-                        <th class="px-6 py-4 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="awards-table-body" class="divide-y divide-slate-100">
-                    <tr>
-                        <td colspan="7" class="px-6 py-8 text-center text-slate-500">
-                            Loading awards data...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <!-- Pagination -->
-        <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end bg-slate-50" id="pagination-container"></div>
-    </div>
+    <x-admin.list-table
+        wrapper-class="bg-white border rounded-2xl border-slate-200 shadow-sm overflow-hidden"
+        table-class="w-full text-left text-sm whitespace-nowrap"
+        thead-class="bg-[#F8EADC] text-slate-600 font-bold uppercase tracking-[0.05em] text-[11px]"
+        tbody-id="awards-table-body"
+        tbody-class="divide-y divide-slate-100"
+        :loading-colspan="7"
+        loading-message="Loading awards data..."
+    >
+        <x-slot:head>
+            <tr>
+                <th class="px-6 py-4">Architect Name</th>
+                <th class="px-6 py-4">Award Name</th>
+                <th class="px-6 py-4">Awards Date</th>
+                <th class="px-6 py-4">Submission Date</th>
+                <th class="px-6 py-4">Award Status</th>
+                <th class="px-6 py-4 text-center">Proof</th>
+                <th class="px-6 py-4 text-center">Actions</th>
+            </tr>
+        </x-slot:head>
+        <x-slot:pagination>
+            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end bg-slate-50" id="pagination-container"></div>
+        </x-slot:pagination>
+    </x-admin.list-table>
 
     <!-- Statistics Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
@@ -154,21 +152,17 @@
     }
 
     async function fetchAwards(page = 1) {
-        const accessToken = window.localStorage.getItem('halositek.auth.access_token');
-        if (!accessToken) return;
-
         const search = document.getElementById('search-input').value;
         const tbody = document.getElementById('awards-table-body');
         
-        let url = `/api/v1/awards?page=${page}&per_page=10`;
+        let url = @js(route('architects.awards')) + `?page=${page}&per_page=10`;
         if (currentStatus) url += `&status=${currentStatus.toLowerCase()}`;
         if (search) url += `&search=${encodeURIComponent(search)}`;
 
         try {
             const res = await fetch(url, {
                 headers: {
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
+                    'Accept': 'application/json'
                 }
             });
 
@@ -287,36 +281,28 @@
     }
 
     async function fetchStatistics() {
-        const accessToken = window.localStorage.getItem('halositek.auth.access_token');
-        if (!accessToken) return;
-
-        const headers = {
-            'Accept': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
-        };
-
         try {
-            // Mock fetching all awards & projects simply across stats filters:
-            // Since this is an aggregation, we will ping paginated lists with 1 per page for each status.
-            const [awPend, awAppr, awDecl, dpPend, dpAppr, dpDecl] = await Promise.all([
-                fetch('/api/v1/awards?status=pending&per_page=1', { headers }),
-                fetch('/api/v1/awards?status=approved&per_page=1', { headers }),
-                fetch('/api/v1/awards?status=declined&per_page=1', { headers }),
-                fetch('/api/v1/projects?status=pending&per_page=1', { headers }),
-                fetch('/api/v1/projects?status=approved&per_page=1', { headers }),
-                fetch('/api/v1/projects?status=declined&per_page=1', { headers })
-            ]);
+            const response = await fetch(@js(route('architects.stats')), {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
 
-            // Update UI elements: Award stats
-            if (awPend.ok) document.getElementById('stat-award-pending').textContent = (await awPend.json()).meta?.total || '0';
-            if (awAppr.ok) document.getElementById('stat-award-approved').textContent = (await awAppr.json()).meta?.total || '0';
-            if (awDecl.ok) document.getElementById('stat-award-declined').textContent = (await awDecl.json()).meta?.total || '0';
+            if (!response.ok) {
+                return;
+            }
 
-            // Update UI elements: Design stats
-            if (dpPend.ok) document.getElementById('stat-design-pending').textContent = (await dpPend.json()).meta?.total || '0';
-            if (dpAppr.ok) document.getElementById('stat-design-approved').textContent = (await dpAppr.json()).meta?.total || '0';
-            if (dpDecl.ok) document.getElementById('stat-design-declined').textContent = (await dpDecl.json()).meta?.total || '0';
-            
+            const payload = await response.json();
+            const awards = payload?.data?.awards ?? {};
+            const designs = payload?.data?.designs ?? {};
+
+            document.getElementById('stat-award-pending').textContent = String(awards.pending ?? 0);
+            document.getElementById('stat-award-approved').textContent = String(awards.approved ?? 0);
+            document.getElementById('stat-award-declined').textContent = String(awards.declined ?? 0);
+
+            document.getElementById('stat-design-pending').textContent = String(designs.pending ?? 0);
+            document.getElementById('stat-design-approved').textContent = String(designs.approved ?? 0);
+            document.getElementById('stat-design-declined').textContent = String(designs.declined ?? 0);
         } catch (error) {
             console.error('Failed to load statistics', error);
         }

@@ -2,35 +2,8 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('admin.plugins._top')
-
-    <style>
-        [data-protected-shell] {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        [data-protected-shell="ready"] {
-            opacity: 1;
-            visibility: visible;
-        }
-    </style>
-
-    <script>
-        (() => {
-            const accessToken = window.localStorage.getItem('halositek.auth.access_token');
-
-            if (!accessToken) {
-                window.location.replace(@js(route('login')));
-                return;
-            }
-
-            window.addEventListener('DOMContentLoaded', () => {
-                document.body.setAttribute('data-protected-shell', 'ready');
-            });
-        })();
-    </script>
 </head>
-<body class="bg-gray-50 font-sans antialiased text-slate-900" data-protected-shell>
+<body class="bg-gray-50 font-sans antialiased text-slate-900">
     <div class="flex h-screen overflow-hidden">
         @include('admin.components._sidebar')
 

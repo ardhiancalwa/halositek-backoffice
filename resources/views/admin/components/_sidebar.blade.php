@@ -74,9 +74,6 @@
 
 <aside
     class="hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col"
-    data-sidebar-auth
-    data-logout-url="{{ url('/api/v1/logout') }}"
-    data-login-url="{{ route('login') }}"
 >
     <div class="flex min-h-0 flex-1 flex-col">
         <div class="flex h-20 items-center px-6">
@@ -142,18 +139,20 @@
                 </div>
             </div>
 
-            <button
-                type="button"
-                class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
-                data-sidebar-logout
-                aria-label="Logout"
-            >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <path d="M16 17l5-5-5-5"></path>
-                    <path d="M21 12H9"></path>
-                </svg>
-            </button>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button
+                    type="submit"
+                    class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white hover:text-slate-600"
+                    aria-label="Logout"
+                >
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <path d="M16 17l5-5-5-5"></path>
+                        <path d="M21 12H9"></path>
+                    </svg>
+                </button>
+            </form>
         </div>
     </div>
 </aside>

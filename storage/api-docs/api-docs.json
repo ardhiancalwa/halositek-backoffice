@@ -18,11 +18,48 @@
                     "Architects"
                 ],
                 "summary": "List architects",
-                "description": "Menampilkan daftar arsitek yang sudah terverifikasi untuk kebutuhan halaman publik.",
+                "description": "Returns a list of verified architects for public browsing.",
                 "operationId": "d4ecab5f93bf0a5d922dd4a0070eba63",
                 "responses": {
                     "200": {
-                        "description": "Daftar arsitek berhasil dimuat"
+                        "description": "Architect list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect list retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                            "name": "Architect User",
+                                            "email": "architect@halositek.com",
+                                            "headline": "Residential Specialist",
+                                            "status": "approved"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 12,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/architects?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/architects?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": []
@@ -34,11 +71,51 @@
                     "Architects"
                 ],
                 "summary": "List wishlist architects",
-                "description": "Menampilkan daftar arsitek yang disimpan user login ke wishlist.",
+                "description": "Returns the authenticated user's saved architect wishlist.",
                 "operationId": "5740e73b9215dc96daaa1798730b86fe",
                 "responses": {
                     "200": {
-                        "description": "Daftar arsitek di wishlist berhasil dimuat"
+                        "description": "Wishlist architects retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Wishlist architects retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                            "name": "Architect User",
+                                            "email": "architect@halositek.com",
+                                            "headline": "Residential Specialist",
+                                            "status": "approved"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 12,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/architects/wishlist?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/architects/wishlist?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -54,7 +131,7 @@
                     "Architects"
                 ],
                 "summary": "Verify architect",
-                "description": "Memvalidasi status arsitek menjadi approved atau rejected oleh admin.",
+                "description": "Validates and updates an architect status to approved or rejected by admin.",
                 "operationId": "6066745799d1274d94d4cedd610fabd3",
                 "parameters": [
                     {
@@ -90,7 +167,36 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Status arsitek berhasil diperbarui"
+                        "description": "Architect status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect status updated successfully",
+                                    "data": {
+                                        "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                        "status": "approved"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -106,7 +212,7 @@
                     "Architects"
                 ],
                 "summary": "Save architect to wishlist",
-                "description": "Menyimpan arsitek tertentu ke wishlist milik user login.",
+                "description": "Saves a specific architect to the authenticated user's wishlist.",
                 "operationId": "5faaea73ec73e2070ee252396e4b1304",
                 "parameters": [
                     {
@@ -120,7 +226,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Arsitek berhasil disimpan ke wishlist"
+                        "description": "Architect saved to wishlist successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect saved to wishlist successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/ConflictError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -134,7 +263,7 @@
                     "Architects"
                 ],
                 "summary": "Remove architect from wishlist",
-                "description": "Menghapus arsitek tertentu dari wishlist milik user login.",
+                "description": "Removes a specific architect from the authenticated user's wishlist.",
                 "operationId": "59b0eea4e7c60d70f58e32a7506004c3",
                 "parameters": [
                     {
@@ -148,7 +277,27 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Arsitek berhasil dihapus dari wishlist"
+                        "description": "Architect removed from wishlist successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect removed from wishlist successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -164,7 +313,7 @@
                     "Auth"
                 ],
                 "summary": "Register account",
-                "description": "Mendaftarkan pengguna baru dan mengembalikan access token serta refresh token.",
+                "description": "Registers a new user and returns an access token and refresh token.",
                 "operationId": "8f20688904ee49d0d8739eeb08faf0b1",
                 "requestBody": {
                     "required": true,
@@ -209,7 +358,33 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Berhasil registrasi"
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "Registration successful",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
+                                        "name": "Budi Santoso",
+                                        "email": "budi_santoso@gmail.com",
+                                        "role": "user",
+                                        "access_token": "1|plain-access-token",
+                                        "refresh_token": "2|plain-refresh-token",
+                                        "token_type": "Bearer",
+                                        "expires_in": 3600
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 }
             }
@@ -220,7 +395,7 @@
                     "Auth"
                 ],
                 "summary": "Login account",
-                "description": "Melakukan autentikasi email dan password, lalu mengembalikan pasangan token.",
+                "description": "Authenticates user credentials and returns a token pair.",
                 "operationId": "985cd5203e2d0a820e113f2f4fdb2847",
                 "requestBody": {
                     "required": true,
@@ -249,7 +424,36 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Berhasil login"
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Login successful",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
+                                        "name": "Regular User",
+                                        "email": "user@halositek.com",
+                                        "role": "user",
+                                        "access_token": "1|plain-access-token",
+                                        "refresh_token": "2|plain-refresh-token",
+                                        "token_type": "Bearer",
+                                        "expires_in": 3600
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 }
             }
@@ -260,7 +464,7 @@
                     "Auth"
                 ],
                 "summary": "Refresh access token",
-                "description": "Menukar refresh token yang valid menjadi pasangan token baru.",
+                "description": "Exchanges a valid refresh token for a new token pair.",
                 "operationId": "2fdd67496aeb7fc933c8e1ddb9f7f211",
                 "requestBody": {
                     "required": true,
@@ -280,7 +484,32 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Berhasil mendapatkan token baru"
+                        "description": "Token refreshed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Token refreshed successfully",
+                                    "data": {
+                                        "access_token": "3|plain-access-token",
+                                        "refresh_token": "4|plain-refresh-token",
+                                        "token_type": "Bearer",
+                                        "expires_in": 3600
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 }
             }
@@ -291,7 +520,7 @@
                     "Auth"
                 ],
                 "summary": "Logout current session",
-                "description": "Mencabut access token aktif dan opsional refresh token yang dikirim pada body.",
+                "description": "Revokes the current access token and optionally the refresh token provided in the request body.",
                 "operationId": "5660f1ae61b95f0283dfc205d5ffdad5",
                 "requestBody": {
                     "required": false,
@@ -310,7 +539,24 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Berhasil logout"
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Logout successful",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -326,11 +572,39 @@
                     "Users"
                 ],
                 "summary": "Get current user profile",
-                "description": "Mengambil data profil pengguna yang sedang login berdasarkan access token.",
+                "description": "Returns the profile data of the currently authenticated user.",
                 "operationId": "0fadd24761c66bfa1bfdc46dea94c0dd",
                 "responses": {
                     "200": {
-                        "description": "Data profil berhasil diambil"
+                        "description": "Profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Profile retrieved successfully",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
+                                        "name": "Regular User",
+                                        "email": "user@halositek.com",
+                                        "role": "user",
+                                        "account_status": "active",
+                                        "created_at": "2026-04-13T10:00:00Z",
+                                        "updated_at": "2026-04-13T10:00:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -344,7 +618,7 @@
                     "Users"
                 ],
                 "summary": "Update current profile",
-                "description": "Memperbarui profil milik user yang sedang login.",
+                "description": "Updates the profile of the currently authenticated user.",
                 "operationId": "5705eaa8e3358048290c90ac2f975ae1",
                 "requestBody": {
                     "required": true,
@@ -374,7 +648,38 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Profile updated successfully."
+                        "description": "Profile updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Profile updated successfully.",
+                                    "data": {
+                                        "user": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRT",
+                                            "name": "Updated User Name",
+                                            "email": "user@halositek.com",
+                                            "role": "user",
+                                            "account_status": "active"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -390,7 +695,7 @@
                     "Awards"
                 ],
                 "summary": "List awards",
-                "description": "Menampilkan daftar penghargaan dengan opsi filter status dan pagination.",
+                "description": "Returns a paginated award list with optional status filtering.",
                 "operationId": "ac6ba36ef2b8191a2fe55c943c7d9d4e",
                 "parameters": [
                     {
@@ -415,7 +720,43 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Awards retrieved successfully"
+                        "description": "Awards retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Awards retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "name": "Best Residential Design",
+                                            "project_name": "Modern House",
+                                            "status": "approved"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 12,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/awards?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/awards?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": []
@@ -425,7 +766,7 @@
                     "Awards"
                 ],
                 "summary": "Create award",
-                "description": "Menambahkan data penghargaan baru oleh arsitek termasuk berkas verifikasi.",
+                "description": "Creates a new award record by an architect, including verification file upload.",
                 "operationId": "b0afa1a40ba8f5a9cb004c157bfdc59d",
                 "requestBody": {
                     "required": true,
@@ -435,7 +776,37 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Award created successfully"
+                        "description": "Award created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "Award created successfully",
+                                    "data": {
+                                        "award": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "name": "Best Residential Design",
+                                            "project_name": "Modern House",
+                                            "status": "pending"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -451,7 +822,7 @@
                     "Awards"
                 ],
                 "summary": "Get award detail",
-                "description": "Mengambil detail penghargaan berdasarkan id.",
+                "description": "Returns award details by id.",
                 "operationId": "a6725d6997632cafcbde215b860a95ca",
                 "parameters": [
                     {
@@ -465,7 +836,31 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Award retrieved successfully"
+                        "description": "Award retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Award retrieved successfully",
+                                    "data": {
+                                        "award": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "name": "Best Residential Design",
+                                            "project_name": "Modern House",
+                                            "status": "approved"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": []
@@ -475,7 +870,7 @@
                     "Awards"
                 ],
                 "summary": "Update award",
-                "description": "Memperbarui data penghargaan; admin hanya dapat mengubah status penghargaan.",
+                "description": "Updates award data; admin users can only update award status.",
                 "operationId": "bd4372e2d81916a8553f975d67147884",
                 "parameters": [
                     {
@@ -495,7 +890,40 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Award updated successfully"
+                        "description": "Award updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Award updated successfully",
+                                    "data": {
+                                        "award": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "name": "Best Residential Design",
+                                            "project_name": "Modern House",
+                                            "status": "pending"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -509,7 +937,7 @@
                     "Awards"
                 ],
                 "summary": "Delete award",
-                "description": "Menghapus data penghargaan dan file verifikasinya berdasarkan id.",
+                "description": "Deletes an award record and its verification file by id.",
                 "operationId": "8617d7b65c7184a1c70fae76032f879e",
                 "parameters": [
                     {
@@ -523,7 +951,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Award deleted successfully"
+                        "description": "Award deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Award deleted successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -539,11 +990,47 @@
                     "FAQ"
                 ],
                 "summary": "List FAQs",
-                "description": "Menampilkan daftar FAQ; user publik hanya melihat FAQ yang aktif.",
+                "description": "Returns FAQ items; public users can only see active entries.",
                 "operationId": "2a7f89e5292d6d76c4704457f09b497a",
                 "responses": {
                     "200": {
-                        "description": "Berhasil memuat daftar FAQ"
+                        "description": "FAQ list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "FAQ list retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
+                                            "question": "How do I become an architect on this platform?",
+                                            "answer": "Register and complete your architect profile.",
+                                            "is_active": true
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 15,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/faqs?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/faqs?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": []
@@ -553,7 +1040,7 @@
                     "FAQ"
                 ],
                 "summary": "Create FAQ",
-                "description": "Menambahkan item FAQ baru melalui akses admin.",
+                "description": "Creates a new FAQ entry through admin access.",
                 "operationId": "51ddc2d8a7d5262f2bb023ae85acb90d",
                 "requestBody": {
                     "required": true,
@@ -582,7 +1069,35 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "FAQ berhasil ditambahkan"
+                        "description": "FAQ created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "FAQ created successfully",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
+                                        "question": "How do I become an architect on this platform?",
+                                        "answer": "Register and complete your architect profile.",
+                                        "is_active": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -598,7 +1113,7 @@
                     "FAQ"
                 ],
                 "summary": "Get FAQ detail",
-                "description": "Mengambil detail satu FAQ berdasarkan id.",
+                "description": "Returns details for a single FAQ by id.",
                 "operationId": "3798b459714d4b10d7ff7ca0f6cbf9d7",
                 "parameters": [
                     {
@@ -612,7 +1127,29 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Berhasil memuat FAQ"
+                        "description": "FAQ retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "FAQ retrieved successfully",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
+                                        "question": "How do I become an architect on this platform?",
+                                        "answer": "Register and complete your architect profile.",
+                                        "is_active": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": []
@@ -622,7 +1159,7 @@
                     "FAQ"
                 ],
                 "summary": "Update FAQ",
-                "description": "Memperbarui konten FAQ yang sudah ada berdasarkan id.",
+                "description": "Updates an existing FAQ entry by id.",
                 "operationId": "947a871d989acfa4548a8652c4fbbe92",
                 "parameters": [
                     {
@@ -657,7 +1194,38 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "FAQ berhasil diperbarui"
+                        "description": "FAQ updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "FAQ updated successfully",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
+                                        "question": "How do I become an architect on this platform?",
+                                        "answer": "Your architect profile has been updated.",
+                                        "is_active": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -671,7 +1239,7 @@
                     "FAQ"
                 ],
                 "summary": "Delete FAQ",
-                "description": "Menghapus item FAQ berdasarkan id.",
+                "description": "Deletes an FAQ entry by id.",
                 "operationId": "bd2fd27a6275bf2cf12d754d2f0279dd",
                 "parameters": [
                     {
@@ -685,7 +1253,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "FAQ berhasil dihapus"
+                        "description": "FAQ deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "FAQ deleted successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -701,7 +1292,7 @@
                     "Projects"
                 ],
                 "summary": "List projects",
-                "description": "Menampilkan daftar proyek beserta filter status dan pagination.",
+                "description": "Returns a paginated project list with optional status filtering.",
                 "operationId": "d8bc32b45579a2263ca77907248c9002",
                 "parameters": [
                     {
@@ -726,7 +1317,68 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Projects retrieved successfully"
+                        "description": "Projects retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Projects retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRP",
+                                            "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                            "name": "Modern House",
+                                            "style": "Modern",
+                                            "description": "Two-story tropical house with natural lighting.",
+                                            "images": [
+                                                "projects/images/project-1.jpg"
+                                            ],
+                                            "image_urls": [
+                                                "http://localhost:8000/storage/projects/images/project-1.jpg"
+                                            ],
+                                            "estimated_cost": "Rp 2M - 3M",
+                                            "layout_images": [
+                                                "projects/layouts/layout-1.jpg"
+                                            ],
+                                            "layout_image_urls": [
+                                                "http://localhost:8000/storage/projects/layouts/layout-1.jpg"
+                                            ],
+                                            "highlight_features": "Void area, skylight, and rooftop garden.",
+                                            "area": "120 m2",
+                                            "likes_count": 12,
+                                            "status": "approved",
+                                            "architect": {
+                                                "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                                "name": "Architect User",
+                                                "email": "architect@halositek.com"
+                                            },
+                                            "created_at": "2026-04-13T10:00:00Z",
+                                            "updated_at": "2026-04-13T10:00:00Z"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 12,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/projects?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/projects?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 }
             },
@@ -735,17 +1387,124 @@
                     "Projects"
                 ],
                 "summary": "Create project",
-                "description": "Membuat proyek baru oleh arsitek dengan upload gambar dan layout.",
+                "description": "Creates a new project by an architect with image and layout uploads.",
                 "operationId": "d14ce90da851ad8044ec318a766df32e",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "multipart/form-data": {}
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "style",
+                                    "estimated_cost"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Modern House"
+                                    },
+                                    "style": {
+                                        "type": "string",
+                                        "example": "Modern"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Two-story tropical house with natural lighting.",
+                                        "nullable": true
+                                    },
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "estimated_cost": {
+                                        "type": "string",
+                                        "example": "Rp 2M - 3M"
+                                    },
+                                    "layout_images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "highlight_features": {
+                                        "type": "string",
+                                        "example": "Void area, skylight, and rooftop garden.",
+                                        "nullable": true
+                                    },
+                                    "area": {
+                                        "type": "string",
+                                        "example": "120 m2",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Project created successfully"
+                        "description": "Project created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "Project created successfully",
+                                    "data": {
+                                        "project": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRP",
+                                            "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                            "name": "Modern House",
+                                            "style": "Modern",
+                                            "description": "Two-story tropical house with natural lighting.",
+                                            "images": [
+                                                "projects/images/project-1.jpg"
+                                            ],
+                                            "image_urls": [
+                                                "http://localhost:8000/storage/projects/images/project-1.jpg"
+                                            ],
+                                            "estimated_cost": "Rp 2M - 3M",
+                                            "layout_images": [
+                                                "projects/layouts/layout-1.jpg"
+                                            ],
+                                            "layout_image_urls": [
+                                                "http://localhost:8000/storage/projects/layouts/layout-1.jpg"
+                                            ],
+                                            "highlight_features": "Void area, skylight, and rooftop garden.",
+                                            "area": "120 m2",
+                                            "likes_count": 0,
+                                            "status": "pending",
+                                            "architect": {
+                                                "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                                "name": "Architect User",
+                                                "email": "architect@halositek.com"
+                                            },
+                                            "created_at": "2026-04-13T10:00:00Z",
+                                            "updated_at": "2026-04-13T10:00:00Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -761,7 +1520,7 @@
                     "Projects"
                 ],
                 "summary": "Get project detail",
-                "description": "Mengambil detail proyek berdasarkan id.",
+                "description": "Returns project details by id.",
                 "operationId": "83c87bebdc302e4ae4afcefcf319d08c",
                 "parameters": [
                     {
@@ -775,7 +1534,56 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Project retrieved successfully"
+                        "description": "Project retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Project retrieved successfully",
+                                    "data": {
+                                        "project": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRP",
+                                            "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                            "name": "Modern House",
+                                            "style": "Modern",
+                                            "description": "Two-story tropical house with natural lighting.",
+                                            "images": [
+                                                "projects/images/project-1.jpg"
+                                            ],
+                                            "image_urls": [
+                                                "http://localhost:8000/storage/projects/images/project-1.jpg"
+                                            ],
+                                            "estimated_cost": "Rp 2M - 3M",
+                                            "layout_images": [
+                                                "projects/layouts/layout-1.jpg"
+                                            ],
+                                            "layout_image_urls": [
+                                                "http://localhost:8000/storage/projects/layouts/layout-1.jpg"
+                                            ],
+                                            "highlight_features": "Void area, skylight, and rooftop garden.",
+                                            "area": "120 m2",
+                                            "likes_count": 12,
+                                            "status": "approved",
+                                            "architect": {
+                                                "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                                "name": "Architect User",
+                                                "email": "architect@halositek.com"
+                                            },
+                                            "created_at": "2026-04-13T10:00:00Z",
+                                            "updated_at": "2026-04-13T10:00:00Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 }
             },
@@ -784,7 +1592,7 @@
                     "Projects"
                 ],
                 "summary": "Update project",
-                "description": "Memperbarui data proyek; admin hanya dapat mengubah status proyek.",
+                "description": "Updates project data; admin users can only update project status.",
                 "operationId": "62d247065d872bb3694822fd1a77b76e",
                 "parameters": [
                     {
@@ -799,12 +1607,125 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "multipart/form-data": {}
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pending",
+                                            "approved",
+                                            "declined"
+                                        ]
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Modern House Updated"
+                                    },
+                                    "style": {
+                                        "type": "string",
+                                        "example": "Modern"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Updated description for the project.",
+                                        "nullable": true
+                                    },
+                                    "images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "estimated_cost": {
+                                        "type": "string",
+                                        "example": "Rp 2M - 3M"
+                                    },
+                                    "layout_images": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    },
+                                    "highlight_features": {
+                                        "type": "string",
+                                        "example": "Updated highlight features.",
+                                        "nullable": true
+                                    },
+                                    "area": {
+                                        "type": "string",
+                                        "example": "120 m2",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Project updated successfully"
+                        "description": "Project updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Project updated successfully",
+                                    "data": {
+                                        "project": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRP",
+                                            "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                            "name": "Modern House Updated",
+                                            "style": "Modern",
+                                            "description": "Updated description for the project.",
+                                            "images": [
+                                                "projects/images/project-1-updated.jpg"
+                                            ],
+                                            "image_urls": [
+                                                "http://localhost:8000/storage/projects/images/project-1-updated.jpg"
+                                            ],
+                                            "estimated_cost": "Rp 2M - 3M",
+                                            "layout_images": [
+                                                "projects/layouts/layout-1-updated.jpg"
+                                            ],
+                                            "layout_image_urls": [
+                                                "http://localhost:8000/storage/projects/layouts/layout-1-updated.jpg"
+                                            ],
+                                            "highlight_features": "Updated highlight features.",
+                                            "area": "120 m2",
+                                            "likes_count": 12,
+                                            "status": "pending",
+                                            "architect": {
+                                                "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                                "name": "Architect User",
+                                                "email": "architect@halositek.com"
+                                            },
+                                            "created_at": "2026-04-13T10:00:00Z",
+                                            "updated_at": "2026-04-13T11:00:00Z"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -818,7 +1739,7 @@
                     "Projects"
                 ],
                 "summary": "Delete project",
-                "description": "Menghapus proyek beserta berkas gambar terkait berdasarkan id.",
+                "description": "Deletes a project and related stored image files by id.",
                 "operationId": "0e1ef9693d0bf640ec8a8027909a5902",
                 "parameters": [
                     {
@@ -832,7 +1753,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Project deleted successfully"
+                        "description": "Project deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Project deleted successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -848,11 +1792,61 @@
                     "Users"
                 ],
                 "summary": "List users",
-                "description": "Menampilkan daftar user untuk kebutuhan administrasi (admin only).",
+                "description": "Returns a paginated user list for administrative usage (admin only).",
                 "operationId": "47249454f1cdb4ad92ff4dd2abad233f",
                 "responses": {
                     "200": {
-                        "description": "Users retrieved successfully."
+                        "description": "Users retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Users retrieved successfully.",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
+                                            "name": "Admin User",
+                                            "email": "admin@halositek.com",
+                                            "role": "admin",
+                                            "account_status": "active"
+                                        },
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRT",
+                                            "name": "Regular User",
+                                            "email": "user@halositek.com",
+                                            "role": "user",
+                                            "account_status": "active"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 15,
+                                        "total": 2
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/users?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/users?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -866,12 +1860,51 @@
                     "Users"
                 ],
                 "summary": "Create user",
-                "description": "Membuat akun user baru melalui panel administrasi.",
+                "description": "Creates a new user account from the administrative panel.",
                 "operationId": "381804010d0bc76cac24bab8ac5f1707",
                 "requestBody": {
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "New User"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "new_user@halositek.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "user",
+                                        "enum": [
+                                            "user",
+                                            "architect",
+                                            "admin"
+                                        ]
+                                    },
+                                    "account_status": {
+                                        "type": "string",
+                                        "example": "active",
+                                        "enum": [
+                                            "active",
+                                            "suspend"
+                                        ]
+                                    }
+                                },
                                 "type": "object"
                             }
                         }
@@ -879,7 +1912,38 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "User created successfully."
+                        "description": "User created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "User created successfully.",
+                                    "data": {
+                                        "user": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRU",
+                                            "name": "New User",
+                                            "email": "new_user@halositek.com",
+                                            "role": "user",
+                                            "account_status": "active"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -895,7 +1959,7 @@
                     "Users"
                 ],
                 "summary": "Get user detail",
-                "description": "Mengambil detail satu user berdasarkan id.",
+                "description": "Returns details for a specific user by id.",
                 "operationId": "90ca44c038360e66084588a1a5951520",
                 "parameters": [
                     {
@@ -909,7 +1973,38 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User retrieved successfully."
+                        "description": "User retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "User retrieved successfully.",
+                                    "data": {
+                                        "user": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRT",
+                                            "name": "Regular User",
+                                            "email": "user@halositek.com",
+                                            "role": "user",
+                                            "account_status": "active"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -923,7 +2018,7 @@
                     "Users"
                 ],
                 "summary": "Update user status",
-                "description": "Memperbarui status akun user tertentu (contoh: active atau suspend).",
+                "description": "Updates a target user's account status (for example: active or suspend).",
                 "operationId": "e734c66a7d375609edee2154bc5f7b47",
                 "parameters": [
                     {
@@ -959,7 +2054,41 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "User status updated successfully."
+                        "description": "User status updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "User status updated successfully.",
+                                    "data": {
+                                        "user": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRT",
+                                            "name": "Regular User",
+                                            "email": "user@halositek.com",
+                                            "role": "user",
+                                            "account_status": "suspend"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -973,7 +2102,7 @@
                     "Users"
                 ],
                 "summary": "Delete user",
-                "description": "Menghapus akun user berdasarkan id.",
+                "description": "Deletes a user account by id.",
                 "operationId": "9daa558fb80f5a3e2b490a3a5b05a716",
                 "parameters": [
                     {
@@ -987,7 +2116,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User deleted successfully."
+                        "description": "User deleted successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "User deleted successfully.",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
                     }
                 },
                 "security": [
@@ -999,6 +2151,701 @@
         }
     },
     "components": {
+        "schemas": {
+            "ApiResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "status_code": {
+                        "type": "integer",
+                        "example": 200
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Operation successful"
+                    },
+                    "data": {
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PaginationMeta": {
+                "properties": {
+                    "current_page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "last_page": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "per_page": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "total": {
+                        "type": "integer",
+                        "example": 150
+                    }
+                },
+                "type": "object"
+            },
+            "PaginationLinks": {
+                "properties": {
+                    "first_page_url": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/v1/users?page=1"
+                    },
+                    "last_page_url": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/v1/users?page=10"
+                    },
+                    "next_page_url": {
+                        "type": "string",
+                        "example": "http://localhost:8000/api/v1/users?page=2",
+                        "nullable": true
+                    },
+                    "prev_page_url": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "PaginatedResponse": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ApiResponse"
+                    },
+                    {
+                        "properties": {
+                            "meta": {
+                                "$ref": "#/components/schemas/PaginationMeta"
+                            },
+                            "links": {
+                                "$ref": "#/components/schemas/PaginationLinks"
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "AuthTokenPair": {
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "example": "1|plain-access-token"
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "example": "2|plain-refresh-token"
+                    },
+                    "token_type": {
+                        "type": "string",
+                        "example": "Bearer"
+                    },
+                    "expires_in": {
+                        "type": "integer",
+                        "example": 3600
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "01HZX9M1F45M2Z6K7T9K7Y8QRS"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Budi Santoso"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "budi@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "user",
+                        "enum": [
+                            "user",
+                            "architect",
+                            "admin"
+                        ]
+                    },
+                    "account_status": {
+                        "type": "string",
+                        "example": "active",
+                        "enum": [
+                            "active",
+                            "suspend"
+                        ]
+                    },
+                    "member_since": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ArchitectProfile": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "01HZX9M1F45M2Z6K7T9K7Y8QRA"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Architect User"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "architect@halositek.com"
+                    },
+                    "profile_picture": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "architect",
+                        "enum": [
+                            "architect"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-04-13T10:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-04-13T10:00:00Z"
+                    },
+                    "headline": {
+                        "type": "string",
+                        "example": "Residential Specialist",
+                        "nullable": true
+                    },
+                    "bio": {
+                        "type": "string",
+                        "example": "Experienced architect specializing in tropical modern homes.",
+                        "nullable": true
+                    },
+                    "location": {
+                        "type": "string",
+                        "example": "Jakarta",
+                        "nullable": true
+                    },
+                    "catalogs_file_url": {
+                        "type": "string",
+                        "example": "https://cdn.halositek.com/catalogs/architect-user.pdf",
+                        "nullable": true
+                    },
+                    "awards_file_url": {
+                        "type": "string",
+                        "example": "https://cdn.halositek.com/awards/architect-user.pdf",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "approved",
+                        "enum": [
+                            "pending",
+                            "approved",
+                            "rejected"
+                        ]
+                    },
+                    "specialization": {
+                        "type": "string",
+                        "example": "Residential Design",
+                        "nullable": true
+                    },
+                    "rating": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 4.8
+                    }
+                },
+                "type": "object"
+            },
+            "Project": {
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "architect_id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Rumah Tropis 2 Lantai"
+                    },
+                    "style": {
+                        "type": "string",
+                        "example": "Modern"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "image_urls": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uri"
+                        }
+                    },
+                    "estimated_cost": {
+                        "type": "string",
+                        "example": "Rp 2M - 3M"
+                    },
+                    "layout_images": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "layout_image_urls": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uri"
+                        }
+                    },
+                    "highlight_features": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "area": {
+                        "type": "string",
+                        "example": "120 m2",
+                        "nullable": true
+                    },
+                    "likes_count": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pending",
+                        "enum": [
+                            "pending",
+                            "approved",
+                            "declined"
+                        ]
+                    },
+                    "architect": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Award": {
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "architect_id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Best Residential Design"
+                    },
+                    "project_name": {
+                        "type": "string",
+                        "example": "Villa Aster"
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "Lead Architect"
+                    },
+                    "award_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-04-01"
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "verification_file": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "verification_file_url": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pending",
+                        "enum": [
+                            "pending",
+                            "approved",
+                            "declined"
+                        ]
+                    },
+                    "architect": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Faq": {
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "question": {
+                        "type": "string",
+                        "example": "Bagaimana cara mendaftar arsitek?"
+                    },
+                    "answer": {
+                        "type": "string",
+                        "example": "Daftar akun lalu lengkapi profil arsitek."
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ApiError": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "status_code": {
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Unauthorized"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "responses": {
+            "UnauthorizedError": {
+                "description": "Unauthorized - missing or invalid access token.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/ApiError"
+                                },
+                                {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 401
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized. Access token is missing or invalid."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": null,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "ForbiddenError": {
+                "description": "Forbidden - user does not have permission for this action.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/ApiError"
+                                },
+                                {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 403
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Forbidden. You are not allowed to perform this action."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": null,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "NotFoundError": {
+                "description": "Not Found - requested resource was not found.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/ApiError"
+                                },
+                                {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 404
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Resource not found."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": null,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "ConflictError": {
+                "description": "Conflict - resource already exists or state conflict occurred.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/ApiError"
+                                },
+                                {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 409
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Conflict. Resource state already exists."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": null,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "ValidationError": {
+                "description": "Validation Error - request input is invalid.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/ApiError"
+                                },
+                                {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 422
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation error."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "email": [
+                                                    "The email field is required."
+                                                ],
+                                                "password": [
+                                                    "The password must be at least 8 characters."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "ServerError": {
+                "description": "Internal Server Error - an unexpected server error occurred.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "allOf": [
+                                {
+                                    "$ref": "#/components/schemas/ApiError"
+                                },
+                                {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "status_code": {
+                                            "type": "integer",
+                                            "example": 500
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Internal server error."
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": null,
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "securitySchemes": {
             "BearerAuth": {
                 "type": "http",

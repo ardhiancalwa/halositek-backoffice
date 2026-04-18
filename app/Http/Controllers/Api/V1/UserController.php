@@ -28,6 +28,10 @@ class UserController extends Controller
      *   summary="List users",
      *   description="Returns a paginated user list for administrative usage (admin only).",
      *
+     *   @OA\Parameter(name="status", in="query", @OA\Schema(type="string", enum={"active","suspend"})),
+     *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
+     *
      *   @OA\Response(response=200, description="Users retrieved successfully.",
      *
      *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Users retrieved successfully.", "data": {{"id": "01HZX9M1F45M2Z6K7T9K7Y8QRS", "name": "Admin User", "email": "admin@halositek.com", "role": "admin", "account_status": "active"}, {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRT", "name": "Regular User", "email": "user@halositek.com", "role": "user", "account_status": "active"}}, "meta": {"current_page": 1, "last_page": 1, "per_page": 15, "total": 2}, "links": {"first_page_url": "http://localhost:8000/api/v1/users?page=1", "last_page_url": "http://localhost:8000/api/v1/users?page=1", "next_page_url": null, "prev_page_url": null}})
@@ -48,7 +52,20 @@ class UserController extends Controller
         $query = User::query()->latest();
 
         if ($request->filled('status')) {
-            $query->where('account_status', $request->string('status')->toString());
+            $status = $request->string('status')->toString();
+
+            if (in_array($status, ['active', 'suspend'], true)) {
+                $query->where('account_status', $status);
+            }
+        }
+
+        if ($request->filled('search')) {
+            $search = trim($request->string('search')->toString());
+
+            $query->where(function ($builder) use ($search): void {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
         }
 
         $perPage = min(50, max(1, (int) $request->input('per_page', 15)));

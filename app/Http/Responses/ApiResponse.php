@@ -28,20 +28,22 @@ final class ApiResponse
 
     /**
      * Return a paginated success response.
+     *
+     * @param  array<string, int|string|float|bool|null>  $meta
      */
-    public static function paginated(LengthAwarePaginator $paginator, ?string $message = null, ApiStatus $status = ApiStatus::SUCCESS): JsonResponse
+    public static function paginated(LengthAwarePaginator $paginator, ?string $message = null, ApiStatus $status = ApiStatus::SUCCESS, array $meta = []): JsonResponse
     {
         $response = [
             'success' => true,
             'status_code' => $status->value,
             'message' => $status->message($message),
             'data' => $paginator->items(),
-            'meta' => [
+            'meta' => array_merge([
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),
                 'per_page' => $paginator->perPage(),
                 'total' => $paginator->total(),
-            ],
+            ], $meta),
             'links' => [
                 'first_page_url' => $paginator->url(1),
                 'last_page_url' => $paginator->url($paginator->lastPage()),

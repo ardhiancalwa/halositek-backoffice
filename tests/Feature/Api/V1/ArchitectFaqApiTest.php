@@ -1,11 +1,15 @@
 <?php
 
 use App\Models\ArchitectProfile;
+use App\Models\Award;
 use App\Models\Faq;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 afterEach(function () {
+    DB::connection('mongodb')->table('awards')->delete();
+    DB::connection('mongodb')->table('projects')->delete();
     DB::connection('mongodb')->table('architect_wishlists')->delete();
     DB::connection('mongodb')->table('architect_profiles')->delete();
     DB::connection('mongodb')->table('faqs')->delete();
@@ -24,6 +28,24 @@ it('returns only approved architects on public architect index', function () {
         'rating' => 4.7,
     ]);
 
+    Project::create([
+        'architect_id' => $approvedArchitect->id,
+        'name' => 'Project One',
+        'style' => 'Modern',
+        'estimated_cost' => 'Rp 2M - 3M',
+        'status' => 'approved',
+        'likes_count' => 0,
+    ]);
+
+    Award::create([
+        'architect_id' => $approvedArchitect->id,
+        'name' => 'Award One',
+        'project_name' => 'Project One',
+        'role' => 'Lead Architect',
+        'award_date' => '2026-03-20',
+        'status' => 'approved',
+    ]);
+
     ArchitectProfile::create([
         'user_id' => $pendingArchitect->id,
         'headline' => 'Pending architect',
@@ -37,7 +59,11 @@ it('returns only approved architects on public architect index', function () {
         ->assertJsonPath('success', true)
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $approvedArchitect->id)
-        ->assertJsonPath('data.0.status', 'approved');
+        ->assertJsonPath('data.0.status', 'approved')
+        ->assertJsonPath('data.0.total_projects', 1)
+        ->assertJsonPath('data.0.total_awards', 1)
+        ->assertJsonMissingPath('data.0.catalogs_file_url')
+        ->assertJsonMissingPath('data.0.awards_file_url');
 });
 
 it('can save and unsave architect wishlist for authenticated user', function () {

@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\Project\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,6 +26,8 @@ class ProjectController extends Controller
      *   description="Returns a paginated project list with optional status filtering.",
      *
      *   @OA\Parameter(name="status", in="query", @OA\Schema(type="string", enum={"pending","approved","declined"})),
+     *   @OA\Parameter(name="architect_id", in="query", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
      *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
      *
      *   @OA\Response(response=200, description="Projects retrieved successfully",
@@ -41,7 +44,25 @@ class ProjectController extends Controller
         $query = Project::with('architect')->latest();
 
         if ($request->filled('status')) {
-            $query->byStatus($request->string('status')->toString());
+            $status = $request->string('status')->toString();
+
+            if (in_array($status, ['pending', 'approved', 'declined'], true)) {
+                $query->byStatus($status);
+            }
+        }
+
+        if ($request->filled('architect_id')) {
+            $query->where('architect_id', $request->string('architect_id')->toString());
+        }
+
+        if ($request->filled('search')) {
+            $search = trim($request->string('search')->toString());
+
+            $query->where(function ($builder) use ($search): void {
+                // Design title is mapped to the existing project name field.
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('style', 'like', "%{$search}%");
+            });
         }
 
         $perPage = min(50, max(1, (int) $request->input('per_page', 12)));
@@ -207,6 +228,7 @@ class ProjectController extends Controller
     {
         $project = Project::findOrFail($id);
 
+        /** @var User|null $user */
         $user = Auth::user();
         if ($user === null) {
             return ApiResponse::unauthorized('Unauthorized.');
@@ -297,6 +319,7 @@ class ProjectController extends Controller
     {
         $project = Project::findOrFail($id);
 
+        /** @var User|null $user */
         $user = Auth::user();
         if ($user === null) {
             return ApiResponse::unauthorized('Unauthorized.');

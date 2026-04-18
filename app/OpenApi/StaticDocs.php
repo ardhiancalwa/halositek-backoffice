@@ -102,8 +102,8 @@ use OpenApi\Annotations as OA;
  *   @OA\Property(property="headline", type="string", nullable=true, example="Residential Specialist"),
  *   @OA\Property(property="bio", type="string", nullable=true, example="Experienced architect specializing in tropical modern homes."),
  *   @OA\Property(property="location", type="string", nullable=true, example="Jakarta"),
- *   @OA\Property(property="catalogs_file_url", type="string", nullable=true, example="https://cdn.halositek.com/catalogs/architect-user.pdf"),
- *   @OA\Property(property="awards_file_url", type="string", nullable=true, example="https://cdn.halositek.com/awards/architect-user.pdf"),
+ *   @OA\Property(property="total_projects", type="integer", example=8),
+ *   @OA\Property(property="total_awards", type="integer", example=4),
  *   @OA\Property(property="status", type="string", enum={"pending","approved","rejected"}, example="approved"),
  *   @OA\Property(property="specialization", type="string", nullable=true, example="Residential Design"),
  *   @OA\Property(property="rating", type="number", format="float", example=4.8)

@@ -10,9 +10,12 @@ use App\Http\Resources\ArchitectProfileResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\ArchitectProfile;
 use App\Models\ArchitectWishlist;
+use App\Models\Award;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use OpenApi\Annotations as OA;
 
@@ -47,6 +50,8 @@ class ArchitectController extends Controller
             ->with('architectProfile')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
+
+        $this->attachPortfolioTotals($architects->getCollection());
 
         $architects->setCollection(
             ArchitectProfileResource::collection($architects->getCollection())->collection
@@ -98,11 +103,46 @@ class ArchitectController extends Controller
             ->filter()
             ->values();
 
+        $this->attachPortfolioTotals($orderedArchitects);
+
         $wishlist->setCollection(
             ArchitectProfileResource::collection($orderedArchitects)->collection
         );
 
         return ApiResponse::paginated($wishlist, 'Daftar wishlist arsitek berhasil diambil.');
+    }
+
+    /**
+     * @param  Collection<int, User>  $architects
+     */
+    private function attachPortfolioTotals(Collection $architects): void
+    {
+        if ($architects->isEmpty()) {
+            return;
+        }
+
+        $architectIds = $architects
+            ->pluck('id')
+            ->filter()
+            ->values()
+            ->all();
+
+        $projectCounts = Project::query()
+            ->whereIn('architect_id', $architectIds)
+            ->get(['architect_id'])
+            ->groupBy('architect_id')
+            ->map(static fn (Collection $items): int => $items->count());
+
+        $awardCounts = Award::query()
+            ->whereIn('architect_id', $architectIds)
+            ->get(['architect_id'])
+            ->groupBy('architect_id')
+            ->map(static fn (Collection $items): int => $items->count());
+
+        $architects->each(function (User $architect) use ($projectCounts, $awardCounts): void {
+            $architect->setAttribute('total_projects', (int) ($projectCounts->get($architect->id) ?? 0));
+            $architect->setAttribute('total_awards', (int) ($awardCounts->get($architect->id) ?? 0));
+        });
     }
 
     /**

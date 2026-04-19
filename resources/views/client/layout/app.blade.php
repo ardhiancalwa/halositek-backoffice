@@ -6,7 +6,7 @@
     <style>
         /* Navbar scroll state */
         .navbar-scrolled {
-            background: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(80px);
             -webkit-backdrop-filter: blur(80px);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);

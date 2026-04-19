@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', [DashboardController::class, 'showDashboard'])->name('dashboard');
     Route::get('/dashboard/stats', [DashboardController::class, 'dashboardStats'])->name('dashboard.stats');
     Route::get('/dashboard/user-growth', [DashboardController::class, 'userGrowth'])->name('dashboard.user-growth');
+    Route::get('/dashboard/architect-growth', [DashboardController::class, 'architectGrowth'])->name('dashboard.architect-growth');
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/data', [UserController::class, 'data'])->name('users.data');
     Route::get('/architects', [ArchitectController::class, 'index'])->name('architects.index');

@@ -3,7 +3,13 @@
 @section('title', 'Dashboard - HaloSitek')
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-8 pb-12">
+<div
+    id="dashboard-growth"
+    class="max-w-7xl mx-auto space-y-8 pb-12"
+    data-stats-url="{{ route('dashboard.stats') }}"
+    data-user-growth-url="{{ route('dashboard.user-growth') }}"
+    data-architect-growth-url="{{ route('dashboard.architect-growth') }}"
+>
 
     <!-- Header Section -->
     <div>
@@ -41,70 +47,110 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.9fr)]">
-        <section class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <section class="min-w-0 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <div class="flex items-start justify-between gap-4">
                 <div>
-                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">User Growth</p>
-                    <div class="mt-3 flex items-end gap-3">
-                        <h2 id="user-growth-total" class="text-4xl font-bold tracking-tight text-slate-900">0</h2>
-                        <p id="user-growth-caption" class="pb-1 text-sm text-slate-500">new users in the last 7 days</p>
-                    </div>
+                    <p class="text-xl font-bold tracking-tight text-slate-900">User Growth</p>
+                    <h2 id="user-growth-total" class="mt-1 text-4xl font-bold tracking-tight text-slate-900">0</h2>
                 </div>
 
-                <div class="inline-flex rounded-full bg-slate-100 p-1">
+                <div class="relative">
                     <button
                         type="button"
-                        class="user-growth-period rounded-full px-4 py-2 text-sm font-semibold text-slate-500 transition data-[active=true]:bg-white data-[active=true]:text-[#E8820C] data-[active=true]:shadow-sm"
-                        data-period="7d"
-                        data-active="true"
+                        class="growth-menu-toggle inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                        data-target="user-growth-menu"
+                        aria-expanded="false"
+                        aria-haspopup="true"
                     >
-                        Last 7 days
+                        <span id="user-growth-selected-label">Last 7 days</span>
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
                     </button>
-                    <button
-                        type="button"
-                        class="user-growth-period rounded-full px-4 py-2 text-sm font-semibold text-slate-500 transition data-[active=true]:bg-white data-[active=true]:text-[#E8820C] data-[active=true]:shadow-sm"
-                        data-period="30d"
-                        data-active="false"
-                    >
-                        Last 30 days
-                    </button>
+                    <div id="user-growth-menu" class="growth-menu absolute right-0 top-full z-20 mt-2 hidden min-w-[144px] rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                        <button
+                            type="button"
+                            class="user-growth-period flex w-full items-center rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 data-[active=true]:bg-orange-50 data-[active=true]:text-[#E8820C]"
+                            data-period="7d"
+                            data-label="Last 7 days"
+                            data-active="true"
+                        >
+                            Last 7 days
+                        </button>
+                        <button
+                            type="button"
+                            class="user-growth-period flex w-full items-center rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 data-[active=true]:bg-orange-50 data-[active=true]:text-[#E8820C]"
+                            data-period="30d"
+                            data-label="Last 30 days"
+                            data-active="false"
+                        >
+                            Last 30 days
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-6 rounded-[28px] bg-gradient-to-b from-orange-50 via-white to-white p-4 md:p-6">
-                <div class="relative h-72">
+            <div class="mt-5">
+                <div class="relative h-48">
                     <svg id="user-growth-chart" class="h-full w-full" viewBox="0 0 640 240" preserveAspectRatio="none" role="img" aria-label="New user registrations over time"></svg>
-                    <div id="user-growth-empty" class="absolute inset-0 hidden items-center justify-center text-sm text-slate-400">
-                        No user registrations found for this period.
-                    </div>
+                    <div id="user-growth-empty" class="absolute inset-0 hidden"></div>
                 </div>
-                <div id="user-growth-labels" class="mt-4 grid gap-2 text-xs font-medium text-slate-400"></div>
+                <div id="user-growth-labels" class="mt-5 grid gap-2 text-xs font-semibold text-slate-400"></div>
             </div>
         </section>
 
-        <aside class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
-            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Quick Insight</p>
-            <h3 class="mt-3 text-2xl font-bold tracking-tight text-slate-900">Newest account activity</h3>
-            <p class="mt-3 text-sm leading-6 text-slate-500">
-                This chart tracks how many users were created each day, so we can spot spikes in acquisition and compare weekly momentum against a wider 30-day trend.
-            </p>
-
-            <div class="mt-6 space-y-4">
-                <div class="rounded-2xl border border-orange-100 bg-orange-50/70 p-4">
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#E8820C]">Best day</p>
-                    <p id="user-growth-peak" class="mt-2 text-3xl font-bold text-slate-900">0</p>
-                    <p class="mt-1 text-sm text-slate-500">highest number of newly created users in a single day</p>
+        <section class="min-w-0 bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-xl font-bold tracking-tight text-slate-900">Architect Growth</p>
+                    <h2 id="architect-growth-total" class="mt-1 text-4xl font-bold tracking-tight text-slate-900">0</h2>
                 </div>
 
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Available periods</p>
-                    <p class="mt-2 text-sm leading-6 text-slate-600">
-                        Use 7 days for short-term movement and 30 days for a broader monthly trend without overcrowding the dashboard.
-                    </p>
+                <div class="relative">
+                    <button
+                        type="button"
+                        class="growth-menu-toggle inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
+                        data-target="architect-growth-menu"
+                        aria-expanded="false"
+                        aria-haspopup="true"
+                    >
+                        <span id="architect-growth-selected-label">Last 7 days</span>
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="architect-growth-menu" class="growth-menu absolute right-0 top-full z-20 mt-2 hidden min-w-[144px] rounded-xl border border-slate-200 bg-white p-1 shadow-lg">
+                        <button
+                            type="button"
+                            class="architect-growth-period flex w-full items-center rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 data-[active=true]:bg-orange-50 data-[active=true]:text-[#E8820C]"
+                            data-period="7d"
+                            data-label="Last 7 days"
+                            data-active="true"
+                        >
+                            Last 7 days
+                        </button>
+                        <button
+                            type="button"
+                            class="architect-growth-period flex w-full items-center rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 data-[active=true]:bg-orange-50 data-[active=true]:text-[#E8820C]"
+                            data-period="30d"
+                            data-label="Last 30 days"
+                            data-active="false"
+                        >
+                            Last 30 days
+                        </button>
+                    </div>
                 </div>
             </div>
-        </aside>
+
+            <div class="mt-5">
+                <div class="relative h-48">
+                    <svg id="architect-growth-chart" class="h-full w-full" viewBox="0 0 640 240" preserveAspectRatio="none" role="img" aria-label="New approved architects over time"></svg>
+                    <div id="architect-growth-empty" class="absolute inset-0 hidden"></div>
+                </div>
+                <div id="architect-growth-labels" class="mt-5 grid gap-2 text-xs font-semibold text-slate-400"></div>
+            </div>
+        </section>
     </div>
 
     <!-- Design Gallery Section -->
@@ -143,156 +189,4 @@
     </div>
 
 </div>
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-    const userGrowthElements = {
-        chart: document.getElementById('user-growth-chart'),
-        empty: document.getElementById('user-growth-empty'),
-        total: document.getElementById('user-growth-total'),
-        caption: document.getElementById('user-growth-caption'),
-        labels: document.getElementById('user-growth-labels'),
-        peak: document.getElementById('user-growth-peak'),
-        buttons: Array.from(document.querySelectorAll('.user-growth-period')),
-    };
-
-    const userGrowthState = {
-        period: '7d',
-    };
-
-    const buildChartPath = (values, width, height, padding) => {
-        if (!values.length) {
-            return '';
-        }
-
-        if (values.length === 1) {
-            const centerY = height / 2;
-            return `M ${padding} ${centerY} L ${width - padding} ${centerY}`;
-        }
-
-        const minValue = Math.min(...values);
-        const maxValue = Math.max(...values);
-        const range = Math.max(maxValue - minValue, 1);
-        const chartWidth = width - (padding * 2);
-        const chartHeight = height - (padding * 2);
-
-        return values
-            .map((value, index) => {
-                const x = padding + (chartWidth * index) / (values.length - 1);
-                const normalized = (value - minValue) / range;
-                const y = height - padding - (normalized * chartHeight);
-
-                return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
-            })
-            .join(' ');
-    };
-
-    const buildAreaPath = (linePath, values, width, height, padding) => {
-        if (!linePath || !values.length) {
-            return '';
-        }
-
-        const chartWidth = width - (padding * 2);
-        const lastX = values.length === 1 ? width - padding : padding + chartWidth;
-
-        return `${linePath} L ${lastX.toFixed(2)} ${(height - padding).toFixed(2)} L ${padding} ${(height - padding).toFixed(2)} Z`;
-    };
-
-    const renderUserGrowthChart = (dataset) => {
-        const width = 640;
-        const height = 240;
-        const padding = 24;
-        const labels = Array.isArray(dataset?.chart?.labels) ? dataset.chart.labels : [];
-        const values = Array.isArray(dataset?.chart?.values) ? dataset.chart.values.map(Number) : [];
-        const totalNewUsers = Number(dataset?.summary?.total_new_users ?? 0);
-        const peakNewUsers = Number(dataset?.summary?.peak_new_users ?? 0);
-        const linePath = buildChartPath(values, width, height, padding);
-        const areaPath = buildAreaPath(linePath, values, width, height, padding);
-        const hasActivity = values.some((value) => value > 0);
-
-        userGrowthElements.total.textContent = totalNewUsers.toLocaleString();
-        userGrowthElements.peak.textContent = peakNewUsers.toLocaleString();
-        userGrowthElements.caption.textContent = userGrowthState.period === '30d'
-            ? 'new users in the last 30 days'
-            : 'new users in the last 7 days';
-
-        userGrowthElements.empty.classList.toggle('hidden', hasActivity);
-        userGrowthElements.empty.classList.toggle('flex', !hasActivity);
-
-        userGrowthElements.chart.innerHTML = `
-            <defs>
-                <linearGradient id="user-growth-fill" x1="0%" x2="0%" y1="0%" y2="100%">
-                    <stop offset="0%" stop-color="#E8820C" stop-opacity="0.28"></stop>
-                    <stop offset="100%" stop-color="#E8820C" stop-opacity="0"></stop>
-                </linearGradient>
-            </defs>
-            <g stroke="#E2E8F0" stroke-width="1">
-                <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}"></line>
-                <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}"></line>
-            </g>
-            ${hasActivity ? `<path d="${areaPath}" fill="url(#user-growth-fill)"></path>` : ''}
-            <path d="${linePath}" fill="none" stroke="#E8820C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
-        `;
-
-        userGrowthElements.labels.style.gridTemplateColumns = `repeat(${Math.max(labels.length, 1)}, minmax(0, 1fr))`;
-        userGrowthElements.labels.innerHTML = labels
-            .map((label) => `<span class="text-center">${label}</span>`)
-            .join('');
-    };
-
-    const loadUserGrowth = async (period) => {
-        userGrowthState.period = period;
-        userGrowthElements.buttons.forEach((button) => {
-            button.dataset.active = button.dataset.period === period ? 'true' : 'false';
-        });
-
-        try {
-            const response = await fetch(`${@js(route('dashboard.user-growth'))}?period=${period}`, {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                return;
-            }
-
-            const payload = await response.json();
-            renderUserGrowthChart(payload?.data ?? {});
-        } catch (error) {
-            console.error('Error fetching user growth data:', error);
-        }
-    };
-
-    userGrowthElements.buttons.forEach((button) => {
-        button.addEventListener('click', () => loadUserGrowth(button.dataset.period ?? '7d'));
-    });
-
-    try {
-        const response = await fetch(@js(route('dashboard.stats')), {
-            headers: {
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            return;
-        }
-
-        const payload = await response.json();
-        const stats = payload?.data ?? {};
-
-        document.getElementById('total-users').textContent = Number(stats.total_users ?? 0).toLocaleString();
-        document.getElementById('total-architects').textContent = Number(stats.total_architects ?? 0).toLocaleString();
-        document.getElementById('total-designs').textContent = Number(stats.total_designs ?? 0).toLocaleString();
-    } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
-    }
-
-    await loadUserGrowth(userGrowthState.period);
-});
-</script>
-@endpush
-
 @endsection

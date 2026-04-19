@@ -20,7 +20,7 @@
             const accessToken = window.localStorage.getItem('halositek.auth.access_token');
 
             if (!accessToken) {
-                window.location.replace(@js(route('login')));
+                window.location.replace(@js(route('admin.auth.login')));
                 return;
             }
 

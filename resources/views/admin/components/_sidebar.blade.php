@@ -5,8 +5,8 @@
             'items' => [
                 [
                     'label' => 'Dashboard',
-                    'route' => 'dashboard',
-                    'match' => ['dashboard', 'dashboard.*'],
+                    'route' => 'admin.dashboard.index',
+                    'match' => ['admin.dashboard.index'],
                     'icon' => 'dashboard',
                 ],
             ],
@@ -16,20 +16,20 @@
             'items' => [
                 [
                     'label' => 'User',
-                    'route' => 'users.index',
-                    'match' => ['users.*'],
+                    'route' => 'admin.dashboard.users.index',
+                    'match' => ['admin.dashboard.users.*'],
                     'icon' => 'user',
                 ],
                 [
                     'label' => 'Architect',
-                    'route' => 'architects.index',
-                    'match' => ['architects.*'],
+                    'route' => 'admin.dashboard.architects.index',
+                    'match' => ['admin.dashboard.architects.*'],
                     'icon' => 'architect',
                 ],
                 [
                     'label' => 'Design',
-                    'route' => 'designs.index',
-                    'match' => ['designs.*'],
+                    'route' => 'admin.dashboard.designs.index',
+                    'match' => ['admin.dashboard.designs.*'],
                     'icon' => 'design',
                 ],
             ],
@@ -39,14 +39,14 @@
             'items' => [
                 [
                     'label' => 'Consultations',
-                    'route' => 'consultations.index',
-                    'match' => ['consultations.*'],
+                    'route' => 'admin.dashboard.consultations.index',
+                    'match' => ['admin.dashboard.consultations.*'],
                     'icon' => 'consultation',
                 ],
                 [
                     'label' => 'AI Bots',
-                    'route' => 'ai-bots.index',
-                    'match' => ['ai-bots.*'],
+                    'route' => 'admin.dashboard.ai-bots.index',
+                    'match' => ['admin.dashboard.ai-bots.*'],
                     'icon' => 'bot',
                 ],
             ],
@@ -74,7 +74,7 @@
     class="hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col"
     data-sidebar-auth
     data-logout-url="{{ url('/api/v1/logout') }}"
-    data-login-url="{{ route('login') }}"
+    data-login-url="{{ route('admin.auth.login') }}"
 >
     <div class="flex min-h-0 flex-1 flex-col">
         <div class="flex h-20 items-center px-6">

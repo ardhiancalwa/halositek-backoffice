@@ -20,7 +20,7 @@
         data-auth-form
         data-auth-mode="login"
         data-auth-endpoint="{{ url('/api/v1/auth/login') }}"
-        data-auth-redirect="{{ route('dashboard') }}"
+        data-auth-redirect="{{ route('admin.dashboard.index') }}"
     >
 
         <div class="mb-5">
@@ -72,7 +72,7 @@
 
         <p class="auth-muted-text mt-6 text-center text-sm">
             Don't have any account?
-            <a href="{{ route('register') }}" class="auth-accent-link font-semibold">Register now</a>
+            <a href="{{ route('admin.auth.register') }}" class="auth-accent-link font-semibold">Register now</a>
         </p>
     </form>
 </div>

@@ -54,7 +54,7 @@
     <div class="pt-2">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-bold text-slate-900 tracking-tight">Design Gallery Overview</h2>
-            <a href="{{ route('designs.index') }}" class="text-sm font-semibold text-[#E8820C] hover:text-[#d4750a] transition-colors">View All</a>
+            <a href="{{ route('admin.dashboard.designs.index') }}" class="text-sm font-semibold text-[#E8820C] hover:text-[#d4750a] transition-colors">View All</a>
         </div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -39,7 +39,7 @@
 <div class="mx-auto max-w-7xl pb-12">
     <div class="mb-7 flex items-center gap-3">
         <a
-            href="{{ route('dashboard') }}"
+            href="{{ route('admin.dashboard.index') }}"
             class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:text-[#D97706]"
             aria-label="Back to dashboard"
         >

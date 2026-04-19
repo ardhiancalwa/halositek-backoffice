@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Web;
+namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\Factory;
@@ -18,18 +18,8 @@ class AuthController extends Controller
         return view('admin.pages.auth.register');
     }
 
-    public function showDashboard(): Factory|View
-    {
-        return view('admin.pages.dashboard.index');
-    }
-
     public function showDesigns(): Factory|View
     {
         return view('admin.pages.dashboard.design.index');
-    }
-
-    public function showConsultations(): Factory|View
-    {
-        return view('admin.pages.dashboard.consultations.index');
     }
 }

@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * @property string $id
+ * @property string $user_id
+ * @property string|null $status
+ * @property string|null $headline
+ * @property string|null $bio
+ * @property string|null $location
+ * @property string|null $specialization
+ * @property float|null $rating
+ */
 class ArchitectProfile extends Model
 {
     use HasFactory;

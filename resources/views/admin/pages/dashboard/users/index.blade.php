@@ -13,23 +13,23 @@
     </div>
 
     <!-- Filter Section -->
-    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm mb-6">
+    <div class="dashboard-filter-panel mb-6 p-6">
         <div class="flex items-center gap-3 flex-wrap">
             <button 
                 data-status-filter="all"
-                class="status-filter-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-[#E8820C] text-white"
+                class="status-filter-btn dashboard-filter-button is-active text-sm font-semibold"
             >
                 All Status
             </button>
             <button 
                 data-status-filter="active"
-                class="status-filter-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-slate-100 text-slate-700 hover:bg-slate-200"
+                class="status-filter-btn dashboard-filter-button text-sm font-semibold"
             >
                 Active
             </button>
             <button 
                 data-status-filter="suspend"
-                class="status-filter-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-slate-100 text-slate-700 hover:bg-slate-200"
+                class="status-filter-btn dashboard-filter-button text-sm font-semibold"
             >
                 Suspended
             </button>

@@ -237,13 +237,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusFilterBtns.forEach((btn) => {
         btn.addEventListener('click', async (event) => {
             statusFilterBtns.forEach((button) => {
-                button.classList.remove('bg-[#E8820C]', 'text-white');
-                button.classList.add('bg-slate-100', 'text-slate-700');
+                button.classList.remove('is-active');
             });
 
             const target = event.currentTarget;
-            target.classList.remove('bg-slate-100', 'text-slate-700');
-            target.classList.add('bg-[#E8820C]', 'text-white');
+            target.classList.add('is-active');
 
             selectedStatus = target.dataset.statusFilter;
             currentPage = 1;

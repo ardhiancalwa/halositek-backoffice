@@ -36,7 +36,11 @@
         </div>
     </div>
     <!-- Table Section -->
-    <div id="users-table-wrapper" data-users-url="{{ route('users.data') }}">
+    <div
+        id="users-table-wrapper"
+        data-users-url="{{ route('users.data') }}"
+        data-user-update-url-template="{{ url('/api/v1/users/__ID__') }}"
+    >
         @component('admin.components.table', ['headers' => [
             ['label' => 'Name', 'class' => 'text-left text-xs font-semibold uppercase tracking-wider text-slate-600'],
             ['label' => 'Email', 'class' => 'text-left text-xs font-semibold uppercase tracking-wider text-slate-600'],
@@ -73,8 +77,77 @@
         </div>
     </div>
 </div>
+
+<x-admin.modal id="user-status-modal" title="Action" width-class="max-w-md">
+    <div class="space-y-5">
+        <div class="rounded-2xl border border-[#F2E6D4] bg-[#FFFBF5] p-4">
+            <div class="flex items-center gap-3">
+                <div class="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-slate-200">
+                    <img
+                        id="user-status-modal-avatar"
+                        src=""
+                        alt=""
+                        class="h-full w-full object-cover"
+                    >
+                </div>
+
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" id="user-status-modal-dot"></span>
+                        <p id="user-status-modal-name" class="truncate text-base font-bold text-slate-900"></p>
+                    </div>
+                    <p id="user-status-modal-email" class="truncate text-sm font-medium text-slate-400"></p>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <p class="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400">Information</p>
+            <div class="space-y-2.5">
+                <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    <span class="font-semibold text-slate-900">Member since :</span>
+                    <span id="user-status-modal-member-since"></span>
+                </div>
+                <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+                    <span class="font-semibold text-slate-900">Email :</span>
+                    <span id="user-status-modal-email-detail"></span>
+                </div>
+            </div>
+        </div>
+
+        <form id="user-status-form" class="border-t border-slate-100 pt-4">
+            <input type="hidden" id="user-status-id" name="user_id">
+
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <label class="block">
+                    <span class="mb-2 block text-[11px] font-bold uppercase tracking-[0.18em] text-[#E8820C]">Account Status :</span>
+                    <select
+                        id="user-status-select"
+                        name="account_status"
+                        class="min-w-40 rounded-xl border border-[#F2C48B] bg-white px-4 py-3 text-sm font-semibold text-slate-700 outline-none transition focus:border-[#E8820C] focus:ring-4 focus:ring-orange-100"
+                    >
+                        <option value="active">ACTIVE</option>
+                        <option value="suspend">SUSPENDED</option>
+                    </select>
+                </label>
+
+                <div class="flex flex-col items-stretch gap-2 sm:items-end">
+                    <p id="user-status-feedback" class="text-sm text-slate-500"></p>
+                    <button
+                        type="submit"
+                        id="user-status-submit"
+                        class="inline-flex items-center justify-center rounded-xl bg-[#E8820C] px-5 py-3 text-sm font-bold uppercase tracking-[0.08em] text-white transition hover:bg-[#c8740b] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        Update Status
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</x-admin.modal>
+
 @push('scripts')
-<script src="{{ asset('js/admin/pages/dashboard/users/index.js') }}"></script>
+<script src="{{ asset('js/admin/pages/dashboard/users/index.js') }}?v={{ filemtime(public_path('js/admin/pages/dashboard/users/index.js')) }}"></script>
 @endpush
 
 @endsection

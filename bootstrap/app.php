@@ -30,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
         ]);
 
+        $middleware->statefulApi();
+
         $middleware->api(prepend: [
             ForceJsonResponse::class,
         ]);

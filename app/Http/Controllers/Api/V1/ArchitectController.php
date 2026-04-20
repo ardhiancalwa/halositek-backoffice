@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ArchitectProfileResource;
 use App\Http\Responses\ApiResponse;
+use App\Models\ArchitectProfile;
 use App\Models\ArchitectWishlist;
 use App\Models\Award;
 use App\Models\Project;
@@ -42,6 +43,9 @@ class ArchitectController extends Controller
 
         $architects = User::query()
             ->where('role', UserRole::Architect->value)
+            ->whereHas('architectProfile', function ($query): void {
+                $query->where('status', 'approved');
+            })
             ->with('architectProfile')
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
@@ -235,5 +239,42 @@ class ArchitectController extends Controller
         $wishlist->delete();
 
         return ApiResponse::success(message: 'Arsitek berhasil dihapus dari wishlist.');
+    }
+
+    public function verify(Request $request, string $userId): JsonResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:pending,approved,declined'],
+        ]);
+
+        $architect = User::query()
+            ->where('id', $userId)
+            ->where('role', UserRole::Architect->value)
+            ->first();
+
+        if (! $architect instanceof User) {
+            return ApiResponse::notFound('Arsitek tidak ditemukan.');
+        }
+
+        $profile = $architect->architectProfile;
+
+        if (! $profile instanceof ArchitectProfile) {
+            $profile = ArchitectProfile::create([
+                'user_id' => (string) $architect->id,
+                'status' => $validated['status'],
+            ]);
+        } else {
+            $profile->status = $validated['status'];
+            $profile->save();
+        }
+
+        $architect->setRelation('architectProfile', $profile);
+        $architect->setAttribute('total_projects', 0);
+        $architect->setAttribute('total_awards', 0);
+
+        return ApiResponse::success(
+            (new ArchitectProfileResource($architect))->resolve($request),
+            'Status arsitek berhasil diperbarui.',
+        );
     }
 }

@@ -23,6 +23,7 @@ class ArchitectProfile extends Model
     protected $fillable = [
         'id',
         'user_id',
+        'status',
         'headline',
         'bio',
         'location',
@@ -38,6 +39,7 @@ class ArchitectProfile extends Model
     protected function casts(): array
     {
         return [
+            'status' => 'string',
             'rating' => 'float',
         ];
     }

@@ -98,12 +98,15 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $role = UserRole::from($validated['role']);
+        $role = isset($validated['role']) ? UserRole::from((string) $validated['role']) : null;
 
-        $user = User::query()
-            ->where('email', $validated['email'])
-            ->where('role', $role->value)
-            ->first();
+        $query = User::query()->where('email', $validated['email']);
+
+        if ($role instanceof UserRole) {
+            $query->where('role', $role->value);
+        }
+
+        $user = $query->first();
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return ApiResponse::unauthorized('The provided credentials are incorrect.');

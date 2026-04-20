@@ -65,6 +65,7 @@ Route::prefix('v1')->group(function () {
 
         // Architect review helpers
         Route::get('/architects/unapproved', [ArchitectController::class, 'unapproved']);
+        Route::put('/architects/{userId}/verify', [ArchitectController::class, 'verify']);
 
         // Approval endpoints
         Route::put('/awards/{id}/approve', [AwardController::class, 'approve']);

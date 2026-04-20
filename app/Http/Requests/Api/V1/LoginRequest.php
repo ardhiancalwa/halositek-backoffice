@@ -20,7 +20,7 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
-            'role' => ['required', 'string', 'in:' . implode(',', array_map(static fn (UserRole $role): string => $role->value, UserRole::cases()))],
+            'role' => ['nullable', 'string', 'in:' . implode(',', array_map(static fn (UserRole $role): string => $role->value, UserRole::cases()))],
         ];
     }
 }

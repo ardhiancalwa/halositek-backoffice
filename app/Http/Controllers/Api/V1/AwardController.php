@@ -237,6 +237,39 @@ class AwardController extends Controller
     }
 
     /**
+     * @OA\Put(
+     *   path="/awards/{id}/approve",
+     *   tags={"Awards"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Approve award",
+     *   description="Approves an award by setting status to approved. Admin only endpoint.",
+     *
+     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(response=200, description="Award approved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Award approved successfully", "data": {"award": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QAW", "status": "approved"}}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function approve(string $id): JsonResponse
+    {
+        $award = Award::findOrFail($id);
+
+        $award->status = 'approved';
+        $award->save();
+
+        return ApiResponse::success([
+            'award' => new AwardResource($award->load('architect')),
+        ], 'Award approved successfully.');
+    }
+
+    /**
      * @OA\Delete(
      *   path="/awards/{id}",
      *   tags={"Awards"},

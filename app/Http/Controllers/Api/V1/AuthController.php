@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Actions\Auth\RegisterUserAction;
 use App\DTOs\Auth\RegisterUserDTO;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\LoginRequest;
 use App\Http\Requests\Api\V1\RefreshTokenRequest;
@@ -76,10 +77,11 @@ class AuthController extends Controller
      *     required=true,
      *
      *     @OA\JsonContent(
-     *       required={"email","password"},
+     *       required={"email","password","role"},
      *
      *       @OA\Property(property="email", type="string", format="email", example="user@halositek.com"),
-     *       @OA\Property(property="password", type="string", example="securepassword123")
+     *       @OA\Property(property="password", type="string", example="securepassword123"),
+     *       @OA\Property(property="role", type="string", enum={"user","architect","admin"}, example="user")
      *     )
      *   ),
      *
@@ -95,9 +97,15 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $user = User::where('email', $request->validated('email'))->first();
+        $validated = $request->validated();
+        $role = UserRole::from($validated['role']);
 
-        if (! $user || ! Hash::check($request->validated('password'), $user->password)) {
+        $user = User::query()
+            ->where('email', $validated['email'])
+            ->where('role', $role->value)
+            ->first();
+
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return ApiResponse::unauthorized('The provided credentials are incorrect.');
         }
 

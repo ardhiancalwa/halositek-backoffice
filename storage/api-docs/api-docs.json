@@ -12,13 +12,560 @@
         }
     ],
     "paths": {
+        "/chat/conversations": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "List user conversations",
+                "description": "Mengambil daftar percakapan milik user yang sedang login.",
+                "operationId": "3667e86421dee90606c6f3421d249484",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 15,
+                            "maximum": 50,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar percakapan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Daftar percakapan berhasil diambil.",
+                                    "data": [
+                                        {
+                                            "id": "01J2CHATCONVERSATION001",
+                                            "name": null,
+                                            "is_group": false,
+                                            "participant_ids": [
+                                                "01J2USERA",
+                                                "01J2USERB"
+                                            ],
+                                            "last_read_at": "2026-04-19T10:00:00+00:00",
+                                            "unread_count": 2,
+                                            "last_message": {
+                                                "id": "01J2MESSAGE001",
+                                                "conversation_id": "01J2CHATCONVERSATION001",
+                                                "user_id": "01J2USERB",
+                                                "body": "Halo, ada update project terbaru.",
+                                                "attachment": null,
+                                                "read_at": null,
+                                                "is_mine": false,
+                                                "created_at": "2026-04-19T09:59:00+00:00",
+                                                "updated_at": "2026-04-19T09:59:00+00:00"
+                                            },
+                                            "updated_at": "2026-04-19T09:59:00+00:00"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 15,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/chat/conversations?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/chat/conversations?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Create conversation",
+                "description": "Membuat percakapan baru (default private chat). Jika private chat sudah ada, data existing dapat dikembalikan.",
+                "operationId": "465fda86773b20ab7a5c811b9218e0ca",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "participant_ids"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "is_group": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "participant_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "01J2USERB"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Percakapan berhasil dibuat",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "Percakapan berhasil dibuat.",
+                                    "data": {
+                                        "id": "01J2CHATCONVERSATION001",
+                                        "name": null,
+                                        "is_group": false,
+                                        "participant_ids": [
+                                            "01J2USERA",
+                                            "01J2USERB"
+                                        ],
+                                        "last_read_at": "2026-04-19T10:00:00+00:00",
+                                        "created_at": "2026-04-19T10:00:00+00:00",
+                                        "updated_at": "2026-04-19T10:00:00+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/chat/conversations/{conversationId}": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Get conversation detail",
+                "description": "Mengambil detail percakapan berdasarkan ID conversation.",
+                "operationId": "b7dd22be6c213d44c15ecf7f9e398971",
+                "parameters": [
+                    {
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail percakapan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Detail percakapan berhasil diambil.",
+                                    "data": {
+                                        "id": "01J2CHATCONVERSATION001",
+                                        "name": null,
+                                        "is_group": false,
+                                        "participant_ids": [
+                                            "01J2USERA",
+                                            "01J2USERB"
+                                        ],
+                                        "last_read_at": "2026-04-19T10:00:00+00:00",
+                                        "created_at": "2026-04-19T10:00:00+00:00",
+                                        "updated_at": "2026-04-19T10:00:00+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/chat/conversations/{conversationId}/messages": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "List messages",
+                "description": "Mengambil daftar pesan pada conversation tertentu.",
+                "operationId": "cddfff9ec192fd4a494f54ac875cc7d6",
+                "parameters": [
+                    {
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Daftar pesan berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Daftar pesan berhasil diambil.",
+                                    "data": [
+                                        {
+                                            "id": "01J2MESSAGE001",
+                                            "conversation_id": "01J2CHATCONVERSATION001",
+                                            "user_id": "01J2USERA",
+                                            "body": "Halo!",
+                                            "attachment": null,
+                                            "read_at": null,
+                                            "is_mine": true,
+                                            "sender": {
+                                                "id": "01J2USERA",
+                                                "name": "Budi",
+                                                "email": "budi@example.com"
+                                            },
+                                            "created_at": "2026-04-19T10:00:00+00:00",
+                                            "updated_at": "2026-04-19T10:00:00+00:00"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 20,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/chat/conversations/01J2CHATCONVERSATION001/messages?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/chat/conversations/01J2CHATCONVERSATION001/messages?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/chat/messages": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Send message",
+                "description": "Mengirim pesan teks ke conversation dan men-trigger broadcast real-time.",
+                "operationId": "9aa4d4704f6729636d7fc9ae96c20e65",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "conversation_id",
+                                    "body"
+                                ],
+                                "properties": {
+                                    "conversation_id": {
+                                        "type": "string",
+                                        "example": "01J2CHATCONVERSATION001"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "example": "Halo, kabar kamu gimana?"
+                                    },
+                                    "attachment": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pesan berhasil dikirim",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "Pesan berhasil dikirim.",
+                                    "data": {
+                                        "id": "01J2MESSAGE001",
+                                        "conversation_id": "01J2CHATCONVERSATION001",
+                                        "user_id": "01J2USERA",
+                                        "body": "Halo, kabar kamu gimana?",
+                                        "attachment": null,
+                                        "read_at": null,
+                                        "is_mine": true,
+                                        "sender": {
+                                            "id": "01J2USERA",
+                                            "name": "Budi",
+                                            "email": "budi@example.com"
+                                        },
+                                        "created_at": "2026-04-19T10:00:00+00:00",
+                                        "updated_at": "2026-04-19T10:00:00+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/chat/conversations/{conversationId}/read": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Mark conversation as read",
+                "description": "Menandai seluruh pesan lawan bicara pada conversation sebagai sudah dibaca dan update last_read_at user.",
+                "operationId": "32675d0d310497ea9602a15c503778de",
+                "parameters": [
+                    {
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pesan berhasil ditandai sudah dibaca",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Pesan berhasil ditandai sudah dibaca.",
+                                    "data": {
+                                        "id": "01J2CHATCONVERSATION001",
+                                        "name": null,
+                                        "is_group": false,
+                                        "participant_ids": [
+                                            "01J2USERA",
+                                            "01J2USERB"
+                                        ],
+                                        "last_read_at": "2026-04-19T10:05:00+00:00",
+                                        "created_at": "2026-04-19T10:00:00+00:00",
+                                        "updated_at": "2026-04-19T10:05:00+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/chat/conversations/{conversationId}/typing": {
+            "post": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "Send typing indicator",
+                "description": "Mengirim status typing indicator ke private channel conversation.",
+                "operationId": "aa90bc5975ea4902f58cbdc108897e12",
+                "parameters": [
+                    {
+                        "name": "conversationId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "is_typing": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status mengetik berhasil dikirim",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Status mengetik berhasil dikirim."
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/architects": {
             "get": {
                 "tags": [
                     "Architects"
                 ],
                 "summary": "List architects",
-                "description": "Returns a list of verified architects for public browsing.",
+                "description": "Returns a list of architects for public browsing.",
                 "operationId": "d4ecab5f93bf0a5d922dd4a0070eba63",
                 "responses": {
                     "200": {
@@ -35,8 +582,7 @@
                                             "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
                                             "name": "Architect User",
                                             "email": "architect@halositek.com",
-                                            "headline": "Residential Specialist",
-                                            "status": "approved"
+                                            "headline": "Residential Specialist"
                                         }
                                     ],
                                     "meta": {
@@ -88,8 +634,7 @@
                                             "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
                                             "name": "Architect User",
                                             "email": "architect@halositek.com",
-                                            "headline": "Residential Specialist",
-                                            "status": "approved"
+                                            "headline": "Residential Specialist"
                                         }
                                     ],
                                     "meta": {
@@ -125,98 +670,17 @@
                 ]
             }
         },
-        "/architects/{id}/verify": {
-            "put": {
-                "tags": [
-                    "Architects"
-                ],
-                "summary": "Verify architect",
-                "description": "Validates and updates an architect status to approved or rejected by admin.",
-                "operationId": "6066745799d1274d94d4cedd610fabd3",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "status"
-                                ],
-                                "properties": {
-                                    "status": {
-                                        "type": "string",
-                                        "enum": [
-                                            "approved",
-                                            "rejected"
-                                        ]
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Architect status updated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Architect status updated successfully",
-                                    "data": {
-                                        "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
-                                        "status": "approved"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/architects/{id}/save": {
+        "/architects/{userId}/save": {
             "post": {
                 "tags": [
                     "Architects"
                 ],
                 "summary": "Save architect to wishlist",
                 "description": "Saves a specific architect to the authenticated user's wishlist.",
-                "operationId": "5faaea73ec73e2070ee252396e4b1304",
+                "operationId": "40e0529344634b303b282cd24652def4",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "userId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -264,10 +728,10 @@
                 ],
                 "summary": "Remove architect from wishlist",
                 "description": "Removes a specific architect from the authenticated user's wishlist.",
-                "operationId": "59b0eea4e7c60d70f58e32a7506004c3",
+                "operationId": "9c90fdf8eed43272e99f4fa93636f960",
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "userId",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -404,7 +868,8 @@
                             "schema": {
                                 "required": [
                                     "email",
-                                    "password"
+                                    "password",
+                                    "role"
                                 ],
                                 "properties": {
                                     "email": {
@@ -415,6 +880,15 @@
                                     "password": {
                                         "type": "string",
                                         "example": "securepassword123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "user",
+                                        "enum": [
+                                            "user",
+                                            "architect",
+                                            "admin"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -974,6 +1448,64 @@
                                     "status_code": 200,
                                     "message": "Award deleted successfully",
                                     "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/awards/{id}/approve": {
+            "put": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Approve award",
+                "description": "Approves an award by setting status to approved. Admin only endpoint.",
+                "operationId": "13c51a583ce6aa1212864ef73f379295",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Award approved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Award approved successfully",
+                                    "data": {
+                                        "award": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "status": "approved"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1790,6 +2322,64 @@
                                     "status_code": 200,
                                     "message": "Project deleted successfully",
                                     "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/approve": {
+            "put": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Approve project",
+                "description": "Approves a project by setting status to approved. Admin only endpoint.",
+                "operationId": "81cec884040181f3f7023f791c84924b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project approved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Project approved successfully",
+                                    "data": {
+                                        "project": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRP",
+                                            "status": "approved"
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -2647,6 +3237,135 @@
                 },
                 "type": "object"
             },
+            "ChatConversation": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "01J2CHATCONVERSATION001"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "is_group": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "participant_ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "01J2USERA",
+                            "01J2USERB"
+                        ]
+                    },
+                    "last_read_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-04-19T10:00:00+00:00",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ChatMessage": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "example": "01J2MESSAGE001"
+                    },
+                    "conversation_id": {
+                        "type": "string",
+                        "example": "01J2CHATCONVERSATION001"
+                    },
+                    "user_id": {
+                        "type": "string",
+                        "example": "01J2USERA"
+                    },
+                    "body": {
+                        "type": "string",
+                        "example": "Halo, kabar kamu gimana?"
+                    },
+                    "attachment": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "read_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "is_mine": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "sender": {
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "example": "01J2USERA"
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Budi"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "example": "budi@example.com"
+                            }
+                        },
+                        "type": "object",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "ChatListItem": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/ChatConversation"
+                    },
+                    {
+                        "properties": {
+                            "unread_count": {
+                                "type": "integer",
+                                "example": 0
+                            },
+                            "last_message": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ChatMessage"
+                                    }
+                                ],
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
             "ApiError": {
                 "properties": {
                     "success": {
@@ -2909,6 +3628,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Chat",
+            "description": "Chat"
+        },
         {
             "name": "Architects",
             "description": "Architects"

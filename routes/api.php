@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Chat\ConversationController;
+use App\Http\Controllers\Api\Chat\MessageController;
 use App\Http\Controllers\Api\V1\ArchitectController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\AwardController;
@@ -26,6 +28,17 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::put('/me', [UserController::class, 'updateProfile']);
 
+        Route::prefix('/chat')->group(function () {
+            Route::get('/conversations', [ConversationController::class, 'index']);
+            Route::post('/conversations', [ConversationController::class, 'store']);
+            Route::get('/conversations/{conversationId}', [ConversationController::class, 'show']);
+
+            Route::get('/conversations/{conversationId}/messages', [MessageController::class, 'index']);
+            Route::post('/messages', [MessageController::class, 'store']);
+            Route::post('/conversations/{conversationId}/read', [MessageController::class, 'markAsRead']);
+            Route::post('/conversations/{conversationId}/typing', [MessageController::class, 'typing']);
+        });
+
         // Project CRUD (Architect/Admin)
         Route::post('/projects', [ProjectController::class, 'store']);
         Route::put('/projects/{id}', [ProjectController::class, 'update']);
@@ -38,8 +51,8 @@ Route::prefix('v1')->group(function () {
 
         // Architect wishlist
         Route::get('/architects/wishlist', [ArchitectController::class, 'wishlist']);
-        Route::post('/architects/{id}/save', [ArchitectController::class, 'save']);
-        Route::delete('/architects/{id}/save', [ArchitectController::class, 'unsave']);
+        Route::post('/architects/{userId}/save', [ArchitectController::class, 'save']);
+        Route::delete('/architects/{userId}/save', [ArchitectController::class, 'unsave']);
     });
 
     // Admin only routes
@@ -50,8 +63,12 @@ Route::prefix('v1')->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-        // Architect Review/Verify
-        Route::put('/architects/{id}/verify', [ArchitectController::class, 'verify']);
+        // Architect review helpers
+        Route::get('/architects/unapproved', [ArchitectController::class, 'unapproved']);
+
+        // Approval endpoints
+        Route::put('/awards/{id}/approve', [AwardController::class, 'approve']);
+        Route::put('/projects/{id}/approve', [ProjectController::class, 'approve']);
 
         // FAQ management
         Route::post('/faqs', [FaqController::class, 'store']);

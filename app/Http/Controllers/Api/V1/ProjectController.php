@@ -295,6 +295,39 @@ class ProjectController extends Controller
     }
 
     /**
+     * @OA\Put(
+     *   path="/projects/{id}/approve",
+     *   tags={"Projects"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Approve project",
+     *   description="Approves a project by setting status to approved. Admin only endpoint.",
+     *
+     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(response=200, description="Project approved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Project approved successfully", "data": {"project": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRP", "status": "approved"}}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function approve(string $id): JsonResponse
+    {
+        $project = Project::findOrFail($id);
+
+        $project->status = 'approved';
+        $project->save();
+
+        return ApiResponse::success([
+            'project' => new ProjectResource($project->load('architect')),
+        ], 'Project approved successfully.');
+    }
+
+    /**
      * @OA\Delete(
      *   path="/projects/{id}",
      *   tags={"Projects"},

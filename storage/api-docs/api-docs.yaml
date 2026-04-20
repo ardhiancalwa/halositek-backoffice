@@ -8,25 +8,419 @@ servers:
     url: 'http://localhost:8000/api/v1'
     description: 'Local Development Server'
 paths:
+  /chat/conversations:
+    get:
+      tags:
+        - Chat
+      summary: 'List user conversations'
+      description: 'Mengambil daftar percakapan milik user yang sedang login.'
+      operationId: 3667e86421dee90606c6f3421d249484
+      parameters:
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 15
+            maximum: 50
+            minimum: 1
+      responses:
+        200:
+          description: 'Daftar percakapan berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Daftar percakapan berhasil diambil.'
+                data:
+                  -
+                    id: 01J2CHATCONVERSATION001
+                    name: null
+                    is_group: false
+                    participant_ids:
+                      - 01J2USERA
+                      - 01J2USERB
+                    last_read_at: '2026-04-19T10:00:00+00:00'
+                    unread_count: 2
+                    last_message:
+                      id: 01J2MESSAGE001
+                      conversation_id: 01J2CHATCONVERSATION001
+                      user_id: 01J2USERB
+                      body: 'Halo, ada update project terbaru.'
+                      attachment: null
+                      read_at: null
+                      is_mine: false
+                      created_at: '2026-04-19T09:59:00+00:00'
+                      updated_at: '2026-04-19T09:59:00+00:00'
+                    updated_at: '2026-04-19T09:59:00+00:00'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/chat/conversations?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/chat/conversations?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    post:
+      tags:
+        - Chat
+      summary: 'Create conversation'
+      description: 'Membuat percakapan baru (default private chat). Jika private chat sudah ada, data existing dapat dikembalikan.'
+      operationId: 465fda86773b20ab7a5c811b9218e0ca
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - participant_ids
+              properties:
+                name:
+                  type: string
+                  example: null
+                  nullable: true
+                is_group:
+                  type: boolean
+                  example: false
+                participant_ids:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - 01J2USERB
+              type: object
+      responses:
+        201:
+          description: 'Percakapan berhasil dibuat'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Percakapan berhasil dibuat.'
+                data:
+                  id: 01J2CHATCONVERSATION001
+                  name: null
+                  is_group: false
+                  participant_ids:
+                    - 01J2USERA
+                    - 01J2USERB
+                  last_read_at: '2026-04-19T10:00:00+00:00'
+                  created_at: '2026-04-19T10:00:00+00:00'
+                  updated_at: '2026-04-19T10:00:00+00:00'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/chat/conversations/{conversationId}':
+    get:
+      tags:
+        - Chat
+      summary: 'Get conversation detail'
+      description: 'Mengambil detail percakapan berdasarkan ID conversation.'
+      operationId: b7dd22be6c213d44c15ecf7f9e398971
+      parameters:
+        -
+          name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Detail percakapan berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Detail percakapan berhasil diambil.'
+                data:
+                  id: 01J2CHATCONVERSATION001
+                  name: null
+                  is_group: false
+                  participant_ids:
+                    - 01J2USERA
+                    - 01J2USERB
+                  last_read_at: '2026-04-19T10:00:00+00:00'
+                  created_at: '2026-04-19T10:00:00+00:00'
+                  updated_at: '2026-04-19T10:00:00+00:00'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/chat/conversations/{conversationId}/messages':
+    get:
+      tags:
+        - Chat
+      summary: 'List messages'
+      description: 'Mengambil daftar pesan pada conversation tertentu.'
+      operationId: cddfff9ec192fd4a494f54ac875cc7d6
+      parameters:
+        -
+          name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 20
+            maximum: 100
+            minimum: 1
+      responses:
+        200:
+          description: 'Daftar pesan berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Daftar pesan berhasil diambil.'
+                data:
+                  -
+                    id: 01J2MESSAGE001
+                    conversation_id: 01J2CHATCONVERSATION001
+                    user_id: 01J2USERA
+                    body: Halo!
+                    attachment: null
+                    read_at: null
+                    is_mine: true
+                    sender:
+                      id: 01J2USERA
+                      name: Budi
+                      email: budi@example.com
+                    created_at: '2026-04-19T10:00:00+00:00'
+                    updated_at: '2026-04-19T10:00:00+00:00'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 20
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/chat/conversations/01J2CHATCONVERSATION001/messages?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/chat/conversations/01J2CHATCONVERSATION001/messages?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /chat/messages:
+    post:
+      tags:
+        - Chat
+      summary: 'Send message'
+      description: 'Mengirim pesan teks ke conversation dan men-trigger broadcast real-time.'
+      operationId: 9aa4d4704f6729636d7fc9ae96c20e65
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - conversation_id
+                - body
+              properties:
+                conversation_id:
+                  type: string
+                  example: 01J2CHATCONVERSATION001
+                body:
+                  type: string
+                  example: 'Halo, kabar kamu gimana?'
+                attachment:
+                  type: string
+                  example: null
+                  nullable: true
+              type: object
+      responses:
+        201:
+          description: 'Pesan berhasil dikirim'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Pesan berhasil dikirim.'
+                data:
+                  id: 01J2MESSAGE001
+                  conversation_id: 01J2CHATCONVERSATION001
+                  user_id: 01J2USERA
+                  body: 'Halo, kabar kamu gimana?'
+                  attachment: null
+                  read_at: null
+                  is_mine: true
+                  sender:
+                    id: 01J2USERA
+                    name: Budi
+                    email: budi@example.com
+                  created_at: '2026-04-19T10:00:00+00:00'
+                  updated_at: '2026-04-19T10:00:00+00:00'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/chat/conversations/{conversationId}/read':
+    post:
+      tags:
+        - Chat
+      summary: 'Mark conversation as read'
+      description: 'Menandai seluruh pesan lawan bicara pada conversation sebagai sudah dibaca dan update last_read_at user.'
+      operationId: 32675d0d310497ea9602a15c503778de
+      parameters:
+        -
+          name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Pesan berhasil ditandai sudah dibaca'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Pesan berhasil ditandai sudah dibaca.'
+                data:
+                  id: 01J2CHATCONVERSATION001
+                  name: null
+                  is_group: false
+                  participant_ids:
+                    - 01J2USERA
+                    - 01J2USERB
+                  last_read_at: '2026-04-19T10:05:00+00:00'
+                  created_at: '2026-04-19T10:00:00+00:00'
+                  updated_at: '2026-04-19T10:05:00+00:00'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/chat/conversations/{conversationId}/typing':
+    post:
+      tags:
+        - Chat
+      summary: 'Send typing indicator'
+      description: 'Mengirim status typing indicator ke private channel conversation.'
+      operationId: aa90bc5975ea4902f58cbdc108897e12
+      parameters:
+        -
+          name: conversationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                is_typing:
+                  type: boolean
+                  example: true
+              type: object
+      responses:
+        200:
+          description: 'Status mengetik berhasil dikirim'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Status mengetik berhasil dikirim.'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   /architects:
     get:
       tags:
         - Architects
       summary: 'List architects'
-      description: 'Returns a list of verified architects for public browsing.'
+      description: 'Returns a list of architects for public browsing.'
       operationId: d4ecab5f93bf0a5d922dd4a0070eba63
       responses:
-        '200':
+        200:
           description: 'Architect list retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Architect list retrieved successfully'
                 data:
-                  - { id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Architect User', email: architect@halositek.com, profile_picture: null, email_verified_at: null, role: architect, created_at: '2026-04-13T10:00:00Z', updated_at: '2026-04-13T10:00:00Z', headline: 'Residential Specialist', bio: 'Experienced architect specializing in tropical modern homes.', location: Jakarta, total_projects: 8, total_awards: 4, status: approved, specialization: 'Residential Design', rating: 4.8 }
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Architect User'
+                    email: architect@halositek.com
+                    headline: 'Residential Specialist'
                 meta:
                   current_page: 1
                   last_page: 1
@@ -37,9 +431,9 @@ paths:
                   last_page_url: 'http://localhost:8000/api/v1/architects?page=1'
                   next_page_url: null
                   prev_page_url: null
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security: []
   /architects/wishlist:
@@ -50,17 +444,21 @@ paths:
       description: "Returns the authenticated user's saved architect wishlist."
       operationId: 5740e73b9215dc96daaa1798730b86fe
       responses:
-        '200':
+        200:
           description: 'Wishlist architects retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Wishlist architects retrieved successfully'
                 data:
-                  - { id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Architect User', email: architect@halositek.com, profile_picture: null, email_verified_at: null, role: architect, created_at: '2026-04-13T10:00:00Z', updated_at: '2026-04-13T10:00:00Z', headline: 'Residential Specialist', bio: 'Experienced architect specializing in tropical modern homes.', location: Jakarta, total_projects: 8, total_awards: 4, status: approved, specialization: 'Residential Design', rating: 4.8 }
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Architect User'
+                    email: architect@halositek.com
+                    headline: 'Residential Specialist'
                 meta:
                   current_page: 1
                   last_page: 1
@@ -71,99 +469,47 @@ paths:
                   last_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
                   next_page_url: null
                   prev_page_url: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
           BearerAuth: []
-  '/architects/{id}/verify':
-    put:
-      tags:
-        - Architects
-      summary: 'Verify architect'
-      description: 'Validates and updates an architect status to approved or rejected by admin.'
-      operationId: 6066745799d1274d94d4cedd610fabd3
-      parameters:
-        -
-          name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              required:
-                - status
-              properties:
-                status:
-                  type: string
-                  enum: [approved, rejected]
-              type: object
-      responses:
-        '200':
-          description: 'Architect status updated successfully'
-          content:
-            application/json:
-              schema: {  }
-              example:
-                success: true
-                status_code: 200
-                message: 'Architect status updated successfully'
-                data:
-                  architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
-                  status: approved
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-        '403':
-          $ref: '#/components/responses/ForbiddenError'
-        '404':
-          $ref: '#/components/responses/NotFoundError'
-        '422':
-          $ref: '#/components/responses/ValidationError'
-        '500':
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-  '/architects/{id}/save':
+  '/architects/{userId}/save':
     post:
       tags:
         - Architects
       summary: 'Save architect to wishlist'
       description: "Saves a specific architect to the authenticated user's wishlist."
-      operationId: 5faaea73ec73e2070ee252396e4b1304
+      operationId: 40e0529344634b303b282cd24652def4
       parameters:
         -
-          name: id
+          name: userId
           in: path
           required: true
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'Architect saved to wishlist successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Architect saved to wishlist successfully'
                 data: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '409':
+        409:
           $ref: '#/components/responses/ConflictError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -173,30 +519,30 @@ paths:
         - Architects
       summary: 'Remove architect from wishlist'
       description: "Removes a specific architect from the authenticated user's wishlist."
-      operationId: 59b0eea4e7c60d70f58e32a7506004c3
+      operationId: 9c90fdf8eed43272e99f4fa93636f960
       parameters:
         -
-          name: id
+          name: userId
           in: path
           required: true
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'Architect removed from wishlist successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Architect removed from wishlist successfully'
                 data: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -239,11 +585,11 @@ paths:
                   example: user
               type: object
       responses:
-        '201':
+        201:
           description: 'Registration successful'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 201
@@ -257,9 +603,9 @@ paths:
                   refresh_token: 2|plain-refresh-token
                   token_type: Bearer
                   expires_in: 3600
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
   /auth/login:
     post:
@@ -276,6 +622,7 @@ paths:
               required:
                 - email
                 - password
+                - role
               properties:
                 email:
                   type: string
@@ -284,13 +631,20 @@ paths:
                 password:
                   type: string
                   example: securepassword123
+                role:
+                  type: string
+                  example: user
+                  enum:
+                    - user
+                    - architect
+                    - admin
               type: object
       responses:
-        '200':
+        200:
           description: 'Login successful'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
@@ -304,11 +658,11 @@ paths:
                   refresh_token: 2|plain-refresh-token
                   token_type: Bearer
                   expires_in: 3600
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
   /auth/refresh-token:
     post:
@@ -328,11 +682,11 @@ paths:
                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
               type: object
       responses:
-        '200':
+        200:
           description: 'Token refreshed successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
@@ -342,11 +696,11 @@ paths:
                   refresh_token: 4|plain-refresh-token
                   token_type: Bearer
                   expires_in: 3600
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
   /logout:
     post:
@@ -365,19 +719,19 @@ paths:
                   type: string
               type: object
       responses:
-        '200':
+        200:
           description: 'Logout successful'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Logout successful'
                 data: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -390,11 +744,11 @@ paths:
       description: 'Returns the profile data of the currently authenticated user.'
       operationId: 0fadd24761c66bfa1bfdc46dea94c0dd
       responses:
-        '200':
+        200:
           description: 'Profile retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
@@ -407,11 +761,11 @@ paths:
                   account_status: active
                   created_at: '2026-04-13T10:00:00Z'
                   updated_at: '2026-04-13T10:00:00Z'
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -441,24 +795,29 @@ paths:
                   example: password123
               type: object
       responses:
-        '200':
+        200:
           description: 'Profile updated successfully.'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Profile updated successfully.'
                 data:
-                  user: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRT, name: 'Updated User Name', email: user@halositek.com, role: user, account_status: active }
-        '401':
+                  user:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Updated User Name'
+                    email: user@halositek.com
+                    role: user
+                    account_status: active
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -496,32 +855,34 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        200:
           description: 'Awards retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Awards retrieved successfully'
                 data:
-                  - { id: 01HZX9M1F45M2Z6K7T9K7Y8QAW, name: 'Best Residential Design', project_name: 'Modern House', status: approved }
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    name: 'Best Residential Design'
+                    project_name: 'Modern House'
+                    status: approved
                 meta:
                   current_page: 1
                   last_page: 1
                   per_page: 12
                   total: 1
-                  pending_count: 1
-                  approved_count: 1
                 links:
                   first_page_url: 'http://localhost:8000/api/v1/awards?page=1'
                   last_page_url: 'http://localhost:8000/api/v1/awards?page=1'
                   next_page_url: null
                   prev_page_url: null
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security: []
     post:
@@ -533,58 +894,30 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
-            schema:
-              type: object
-              required:
-                - name
-                - project_name
-                - role
-                - award_date
-                - verification_file
-              properties:
-                name:
-                  type: string
-                  description: 'Maximum 12 words.'
-                  example: 'Best Residential Design'
-                project_name:
-                  type: string
-                  description: 'Maximum 12 words.'
-                  example: 'Villa Aster'
-                role:
-                  type: string
-                  example: 'Lead Architect'
-                award_date:
-                  type: string
-                  format: date
-                  example: '2026-04-01'
-                description:
-                  type: string
-                  nullable: true
-                  description: 'Maximum 30 words.'
-                  example: 'Winning entry for contemporary residential design category.'
-                verification_file:
-                  type: string
-                  format: binary
+          multipart/form-data: []
       responses:
-        '201':
+        201:
           description: 'Award created successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 201
                 message: 'Award created successfully'
                 data:
-                  award: { id: 01HZX9M1F45M2Z6K7T9K7Y8QAW, name: 'Best Residential Design', project_name: 'Modern House', status: pending }
-        '401':
+                  award:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    name: 'Best Residential Design'
+                    project_name: 'Modern House'
+                    status: pending
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -604,20 +937,24 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'Award retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Award retrieved successfully'
                 data:
-                  award: { id: 01HZX9M1F45M2Z6K7T9K7Y8QAW, name: 'Best Residential Design', project_name: 'Modern House', status: approved }
-        '404':
+                  award:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    name: 'Best Residential Design'
+                    project_name: 'Modern House'
+                    status: approved
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security: []
     put:
@@ -636,57 +973,32 @@ paths:
       requestBody:
         required: true
         content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                status:
-                  type: string
-                  enum:
-                    - pending
-                    - approved
-                    - declined
-                name:
-                  type: string
-                  example: 'Best Residential Design Updated'
-                project_name:
-                  type: string
-                  example: 'Villa Aster 2'
-                role:
-                  type: string
-                  example: 'Principal Architect'
-                award_date:
-                  type: string
-                  format: date
-                  example: '2026-04-15'
-                description:
-                  type: string
-                  nullable: true
-                  example: 'Updated supporting details.'
-                verification_file:
-                  type: string
-                  format: binary
+          multipart/form-data: []
       responses:
-        '200':
+        200:
           description: 'Award updated successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Award updated successfully'
                 data:
-                  award: { id: 01HZX9M1F45M2Z6K7T9K7Y8QAW, name: 'Best Residential Design', project_name: 'Modern House', status: pending }
-        '401':
+                  award:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    name: 'Best Residential Design'
+                    project_name: 'Modern House'
+                    status: pending
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -705,23 +1017,62 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'Award deleted successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Award deleted successfully'
                 data: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/awards/{id}/approve':
+    put:
+      tags:
+        - Awards
+      summary: 'Approve award'
+      description: 'Approves an award by setting status to approved. Admin only endpoint.'
+      operationId: 13c51a583ce6aa1212864ef73f379295
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Award approved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Award approved successfully'
+                data:
+                  award:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    status: approved
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -734,17 +1085,21 @@ paths:
       description: 'Returns FAQ items; public users can only see active entries.'
       operationId: 2a7f89e5292d6d76c4704457f09b497a
       responses:
-        '200':
+        200:
           description: 'FAQ list retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'FAQ list retrieved successfully'
                 data:
-                  - { id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ, question: 'How do I become an architect on this platform?', answer: 'Register and complete your architect profile.', is_active: true }
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
+                    question: 'How do I become an architect on this platform?'
+                    answer: 'Register and complete your architect profile.'
+                    is_active: true
                 meta:
                   current_page: 1
                   last_page: 1
@@ -755,9 +1110,9 @@ paths:
                   last_page_url: 'http://localhost:8000/api/v1/faqs?page=1'
                   next_page_url: null
                   prev_page_url: null
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security: []
     post:
@@ -783,11 +1138,11 @@ paths:
                   type: boolean
               type: object
       responses:
-        '201':
+        201:
           description: 'FAQ created successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 201
@@ -797,13 +1152,13 @@ paths:
                   question: 'How do I become an architect on this platform?'
                   answer: 'Register and complete your architect profile.'
                   is_active: true
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -823,11 +1178,11 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'FAQ retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
@@ -837,9 +1192,9 @@ paths:
                   question: 'How do I become an architect on this platform?'
                   answer: 'Register and complete your architect profile.'
                   is_active: true
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security: []
     put:
@@ -869,11 +1224,11 @@ paths:
                   type: boolean
               type: object
       responses:
-        '200':
+        200:
           description: 'FAQ updated successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
@@ -883,15 +1238,15 @@ paths:
                   question: 'How do I become an architect on this platform?'
                   answer: 'Your architect profile has been updated.'
                   is_active: true
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -910,23 +1265,23 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'FAQ deleted successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'FAQ deleted successfully'
                 data: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -964,17 +1319,41 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        200:
           description: 'Projects retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Projects retrieved successfully'
                 data:
-                  - { id: 01HZX9M1F45M2Z6K7T9K7Y8QRP, architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Modern House', style: Modern, description: 'Two-story tropical house with natural lighting.', images: ['projects/images/project-1.jpg'], image_urls: ['http://localhost:8000/storage/projects/images/project-1.jpg'], estimated_cost: 'Rp 2M - 3M', layout_images: ['projects/layouts/layout-1.jpg'], layout_image_urls: ['http://localhost:8000/storage/projects/layouts/layout-1.jpg'], highlight_features: 'Void area, skylight, and rooftop garden.', area: '120 m2', likes_count: 12, status: approved, architect: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Architect User', email: architect@halositek.com }, created_at: '2026-04-13T10:00:00Z', updated_at: '2026-04-13T10:00:00Z' }
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Modern House'
+                    style: Modern
+                    description: 'Two-story tropical house with natural lighting.'
+                    images:
+                      - projects/images/project-1.jpg
+                    image_urls:
+                      - 'http://localhost:8000/storage/projects/images/project-1.jpg'
+                    estimated_cost: 'Rp 2M - 3M'
+                    layout_images:
+                      - projects/layouts/layout-1.jpg
+                    layout_image_urls:
+                      - 'http://localhost:8000/storage/projects/layouts/layout-1.jpg'
+                    highlight_features: 'Void area, skylight, and rooftop garden.'
+                    area: '120 m2'
+                    likes_count: 12
+                    status: approved
+                    architect:
+                      id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                      name: 'Architect User'
+                      email: architect@halositek.com
+                    created_at: '2026-04-13T10:00:00Z'
+                    updated_at: '2026-04-13T10:00:00Z'
                 meta:
                   current_page: 1
                   last_page: 1
@@ -985,9 +1364,9 @@ paths:
                   last_page_url: 'http://localhost:8000/api/v1/projects?page=1'
                   next_page_url: null
                   prev_page_url: null
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
     post:
       tags:
@@ -1000,7 +1379,6 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
               required:
                 - name
                 - style
@@ -1014,12 +1392,10 @@ paths:
                   example: Modern
                 description:
                   type: string
-                  nullable: true
                   example: 'Two-story tropical house with natural lighting.'
+                  nullable: true
                 images:
                   type: array
-                  minItems: 1
-                  maxItems: 10
                   items:
                     type: string
                     format: binary
@@ -1028,38 +1404,61 @@ paths:
                   example: 'Rp 2M - 3M'
                 layout_images:
                   type: array
-                  minItems: 1
-                  maxItems: 10
                   items:
                     type: string
                     format: binary
                 highlight_features:
                   type: string
-                  nullable: true
                   example: 'Void area, skylight, and rooftop garden.'
+                  nullable: true
                 area:
                   type: string
-                  nullable: true
                   example: '120 m2'
+                  nullable: true
+              type: object
       responses:
-        '201':
+        201:
           description: 'Project created successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 201
                 message: 'Project created successfully'
                 data:
-                  project: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRP, architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Modern House', style: Modern, description: 'Two-story tropical house with natural lighting.', images: ['projects/images/project-1.jpg'], image_urls: ['http://localhost:8000/storage/projects/images/project-1.jpg'], estimated_cost: 'Rp 2M - 3M', layout_images: ['projects/layouts/layout-1.jpg'], layout_image_urls: ['http://localhost:8000/storage/projects/layouts/layout-1.jpg'], highlight_features: 'Void area, skylight, and rooftop garden.', area: '120 m2', likes_count: 0, status: pending, architect: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Architect User', email: architect@halositek.com }, created_at: '2026-04-13T10:00:00Z', updated_at: '2026-04-13T10:00:00Z' }
-        '401':
+                  project:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Modern House'
+                    style: Modern
+                    description: 'Two-story tropical house with natural lighting.'
+                    images:
+                      - projects/images/project-1.jpg
+                    image_urls:
+                      - 'http://localhost:8000/storage/projects/images/project-1.jpg'
+                    estimated_cost: 'Rp 2M - 3M'
+                    layout_images:
+                      - projects/layouts/layout-1.jpg
+                    layout_image_urls:
+                      - 'http://localhost:8000/storage/projects/layouts/layout-1.jpg'
+                    highlight_features: 'Void area, skylight, and rooftop garden.'
+                    area: '120 m2'
+                    likes_count: 0
+                    status: pending
+                    architect:
+                      id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                      name: 'Architect User'
+                      email: architect@halositek.com
+                    created_at: '2026-04-13T10:00:00Z'
+                    updated_at: '2026-04-13T10:00:00Z'
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -1079,20 +1478,44 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'Project retrieved successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Project retrieved successfully'
                 data:
-                  project: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRP, architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Modern House', style: Modern, description: 'Two-story tropical house with natural lighting.', images: ['projects/images/project-1.jpg'], image_urls: ['http://localhost:8000/storage/projects/images/project-1.jpg'], estimated_cost: 'Rp 2M - 3M', layout_images: ['projects/layouts/layout-1.jpg'], layout_image_urls: ['http://localhost:8000/storage/projects/layouts/layout-1.jpg'], highlight_features: 'Void area, skylight, and rooftop garden.', area: '120 m2', likes_count: 12, status: approved, architect: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Architect User', email: architect@halositek.com }, created_at: '2026-04-13T10:00:00Z', updated_at: '2026-04-13T10:00:00Z' }
-        '404':
+                  project:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Modern House'
+                    style: Modern
+                    description: 'Two-story tropical house with natural lighting.'
+                    images:
+                      - projects/images/project-1.jpg
+                    image_urls:
+                      - 'http://localhost:8000/storage/projects/images/project-1.jpg'
+                    estimated_cost: 'Rp 2M - 3M'
+                    layout_images:
+                      - projects/layouts/layout-1.jpg
+                    layout_image_urls:
+                      - 'http://localhost:8000/storage/projects/layouts/layout-1.jpg'
+                    highlight_features: 'Void area, skylight, and rooftop garden.'
+                    area: '120 m2'
+                    likes_count: 12
+                    status: approved
+                    architect:
+                      id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                      name: 'Architect User'
+                      email: architect@halositek.com
+                    created_at: '2026-04-13T10:00:00Z'
+                    updated_at: '2026-04-13T10:00:00Z'
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
     put:
       tags:
@@ -1112,7 +1535,6 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
               properties:
                 status:
                   type: string
@@ -1128,12 +1550,10 @@ paths:
                   example: Modern
                 description:
                   type: string
-                  nullable: true
                   example: 'Updated description for the project.'
+                  nullable: true
                 images:
                   type: array
-                  minItems: 1
-                  maxItems: 10
                   items:
                     type: string
                     format: binary
@@ -1142,40 +1562,63 @@ paths:
                   example: 'Rp 2M - 3M'
                 layout_images:
                   type: array
-                  minItems: 1
-                  maxItems: 10
                   items:
                     type: string
                     format: binary
                 highlight_features:
                   type: string
-                  nullable: true
                   example: 'Updated highlight features.'
+                  nullable: true
                 area:
                   type: string
-                  nullable: true
                   example: '120 m2'
+                  nullable: true
+              type: object
       responses:
-        '200':
+        200:
           description: 'Project updated successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Project updated successfully'
                 data:
-                  project: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRP, architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Modern House Updated', style: Modern, description: 'Updated description for the project.', images: ['projects/images/project-1-updated.jpg'], image_urls: ['http://localhost:8000/storage/projects/images/project-1-updated.jpg'], estimated_cost: 'Rp 2M - 3M', layout_images: ['projects/layouts/layout-1-updated.jpg'], layout_image_urls: ['http://localhost:8000/storage/projects/layouts/layout-1-updated.jpg'], highlight_features: 'Updated highlight features.', area: '120 m2', likes_count: 12, status: pending, architect: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRA, name: 'Architect User', email: architect@halositek.com }, created_at: '2026-04-13T10:00:00Z', updated_at: '2026-04-13T11:00:00Z' }
-        '401':
+                  project:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Modern House Updated'
+                    style: Modern
+                    description: 'Updated description for the project.'
+                    images:
+                      - projects/images/project-1-updated.jpg
+                    image_urls:
+                      - 'http://localhost:8000/storage/projects/images/project-1-updated.jpg'
+                    estimated_cost: 'Rp 2M - 3M'
+                    layout_images:
+                      - projects/layouts/layout-1-updated.jpg
+                    layout_image_urls:
+                      - 'http://localhost:8000/storage/projects/layouts/layout-1-updated.jpg'
+                    highlight_features: 'Updated highlight features.'
+                    area: '120 m2'
+                    likes_count: 12
+                    status: pending
+                    architect:
+                      id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                      name: 'Architect User'
+                      email: architect@halositek.com
+                    created_at: '2026-04-13T10:00:00Z'
+                    updated_at: '2026-04-13T11:00:00Z'
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -1194,23 +1637,62 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'Project deleted successfully'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Project deleted successfully'
                 data: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/projects/{id}/approve':
+    put:
+      tags:
+        - Projects
+      summary: 'Approve project'
+      description: 'Approves a project by setting status to approved. Admin only endpoint.'
+      operationId: 81cec884040181f3f7023f791c84924b
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Project approved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Project approved successfully'
+                data:
+                  project:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    status: approved
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -1242,18 +1724,28 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        200:
           description: 'Users retrieved successfully.'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'Users retrieved successfully.'
                 data:
-                  - { id: 01HZX9M1F45M2Z6K7T9K7Y8QRS, name: 'Admin User', email: admin@halositek.com, role: admin, account_status: active }
-                  - { id: 01HZX9M1F45M2Z6K7T9K7Y8QRT, name: 'Regular User', email: user@halositek.com, role: user, account_status: active }
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
+                    name: 'Admin User'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: active
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Regular User'
+                    email: user@halositek.com
+                    role: user
+                    account_status: active
                 meta:
                   current_page: 1
                   last_page: 1
@@ -1264,13 +1756,13 @@ paths:
                   last_page_url: 'http://localhost:8000/api/v1/users?page=1'
                   next_page_url: null
                   prev_page_url: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -1282,10 +1774,10 @@ paths:
       description: 'Creates a new user account from the administrative panel.'
       operationId: 381804010d0bc76cac24bab8ac5f1707
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
               required:
                 - name
                 - email
@@ -1304,42 +1796,42 @@ paths:
                   example: password123
                 role:
                   type: string
+                  example: user
                   enum:
                     - user
                     - architect
                     - admin
-                  example: user
                 account_status:
                   type: string
+                  example: active
                   enum:
                     - active
                     - suspend
-                  example: active
-            example:
-              name: 'New User'
-              email: new_user@halositek.com
-              password: password123
-              role: user
-              account_status: active
+              type: object
       responses:
-        '201':
+        201:
           description: 'User created successfully.'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 201
                 message: 'User created successfully.'
                 data:
-                  user: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRU, name: 'New User', email: new_user@halositek.com, role: user, account_status: active }
-        '401':
+                  user:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRU
+                    name: 'New User'
+                    email: new_user@halositek.com
+                    role: user
+                    account_status: active
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -1359,24 +1851,29 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'User retrieved successfully.'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'User retrieved successfully.'
                 data:
-                  user: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRT, name: 'Regular User', email: user@halositek.com, role: user, account_status: active }
-        '401':
+                  user:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Regular User'
+                    email: user@halositek.com
+                    role: user
+                    account_status: active
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -1404,29 +1901,36 @@ paths:
               properties:
                 account_status:
                   type: string
-                  enum: [active, suspend]
+                  enum:
+                    - active
+                    - suspend
               type: object
       responses:
-        '200':
+        200:
           description: 'User status updated successfully.'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'User status updated successfully.'
                 data:
-                  user: { id: 01HZX9M1F45M2Z6K7T9K7Y8QRT, name: 'Regular User', email: user@halositek.com, role: user, account_status: suspend }
-        '401':
+                  user:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Regular User'
+                    email: user@halositek.com
+                    role: user
+                    account_status: suspend
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '422':
+        422:
           $ref: '#/components/responses/ValidationError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -1445,23 +1949,23 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        200:
           description: 'User deleted successfully.'
           content:
             application/json:
-              schema: {  }
+              schema: []
               example:
                 success: true
                 status_code: 200
                 message: 'User deleted successfully.'
                 data: null
-        '401':
+        401:
           $ref: '#/components/responses/UnauthorizedError'
-        '403':
+        403:
           $ref: '#/components/responses/ForbiddenError'
-        '404':
+        404:
           $ref: '#/components/responses/NotFoundError'
-        '500':
+        500:
           $ref: '#/components/responses/ServerError'
       security:
         -
@@ -1590,18 +2094,18 @@ components:
           example: architect@halositek.com
         profile_picture:
           type: string
-          nullable: true
           example: null
+          nullable: true
         email_verified_at:
           type: string
           format: date-time
-          nullable: true
           example: null
+          nullable: true
         role:
           type: string
+          example: architect
           enum:
             - architect
-          example: architect
         created_at:
           type: string
           format: date-time
@@ -1612,16 +2116,16 @@ components:
           example: '2026-04-13T10:00:00Z'
         headline:
           type: string
-          nullable: true
           example: 'Residential Specialist'
+          nullable: true
         bio:
           type: string
-          nullable: true
           example: 'Experienced architect specializing in tropical modern homes.'
+          nullable: true
         location:
           type: string
-          nullable: true
           example: Jakarta
+          nullable: true
         total_projects:
           type: integer
           example: 8
@@ -1637,8 +2141,8 @@ components:
             - rejected
         specialization:
           type: string
-          nullable: true
           example: 'Residential Design'
+          nullable: true
         rating:
           type: number
           format: float
@@ -1789,6 +2293,99 @@ components:
           type: string
           format: date-time
       type: object
+    ChatConversation:
+      properties:
+        id:
+          type: string
+          example: 01J2CHATCONVERSATION001
+        name:
+          type: string
+          example: null
+          nullable: true
+        is_group:
+          type: boolean
+          example: false
+        participant_ids:
+          type: array
+          items:
+            type: string
+          example:
+            - 01J2USERA
+            - 01J2USERB
+        last_read_at:
+          type: string
+          format: date-time
+          example: '2026-04-19T10:00:00+00:00'
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      type: object
+    ChatMessage:
+      properties:
+        id:
+          type: string
+          example: 01J2MESSAGE001
+        conversation_id:
+          type: string
+          example: 01J2CHATCONVERSATION001
+        user_id:
+          type: string
+          example: 01J2USERA
+        body:
+          type: string
+          example: 'Halo, kabar kamu gimana?'
+        attachment:
+          type: string
+          example: null
+          nullable: true
+        read_at:
+          type: string
+          format: date-time
+          example: null
+          nullable: true
+        is_mine:
+          type: boolean
+          example: true
+        sender:
+          properties:
+            id:
+              type: string
+              example: 01J2USERA
+            name:
+              type: string
+              example: Budi
+            email:
+              type: string
+              format: email
+              example: budi@example.com
+          type: object
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      type: object
+    ChatListItem:
+      allOf:
+        -
+          $ref: '#/components/schemas/ChatConversation'
+        -
+          properties:
+            unread_count:
+              type: integer
+              example: 0
+            last_message:
+              oneOf:
+                -
+                  $ref: '#/components/schemas/ChatMessage'
+              nullable: true
+          type: object
     ApiError:
       properties:
         success:
@@ -1816,10 +2413,19 @@ components:
                 $ref: '#/components/schemas/ApiError'
               -
                 properties:
-                  success: { type: boolean, example: false }
-                  status_code: { type: integer, example: 401 }
-                  message: { type: string, example: 'Unauthorized. Access token is missing or invalid.' }
-                  errors: { type: object, example: null, nullable: true }
+                  success:
+                    type: boolean
+                    example: false
+                  status_code:
+                    type: integer
+                    example: 401
+                  message:
+                    type: string
+                    example: 'Unauthorized. Access token is missing or invalid.'
+                  errors:
+                    type: object
+                    example: null
+                    nullable: true
                 type: object
     ForbiddenError:
       description: 'Forbidden - user does not have permission for this action.'
@@ -1832,10 +2438,19 @@ components:
                 $ref: '#/components/schemas/ApiError'
               -
                 properties:
-                  success: { type: boolean, example: false }
-                  status_code: { type: integer, example: 403 }
-                  message: { type: string, example: 'Forbidden. You are not allowed to perform this action.' }
-                  errors: { type: object, example: null, nullable: true }
+                  success:
+                    type: boolean
+                    example: false
+                  status_code:
+                    type: integer
+                    example: 403
+                  message:
+                    type: string
+                    example: 'Forbidden. You are not allowed to perform this action.'
+                  errors:
+                    type: object
+                    example: null
+                    nullable: true
                 type: object
     NotFoundError:
       description: 'Not Found - requested resource was not found.'
@@ -1848,10 +2463,19 @@ components:
                 $ref: '#/components/schemas/ApiError'
               -
                 properties:
-                  success: { type: boolean, example: false }
-                  status_code: { type: integer, example: 404 }
-                  message: { type: string, example: 'Resource not found.' }
-                  errors: { type: object, example: null, nullable: true }
+                  success:
+                    type: boolean
+                    example: false
+                  status_code:
+                    type: integer
+                    example: 404
+                  message:
+                    type: string
+                    example: 'Resource not found.'
+                  errors:
+                    type: object
+                    example: null
+                    nullable: true
                 type: object
     ConflictError:
       description: 'Conflict - resource already exists or state conflict occurred.'
@@ -1864,10 +2488,19 @@ components:
                 $ref: '#/components/schemas/ApiError'
               -
                 properties:
-                  success: { type: boolean, example: false }
-                  status_code: { type: integer, example: 409 }
-                  message: { type: string, example: 'Conflict. Resource state already exists.' }
-                  errors: { type: object, example: null, nullable: true }
+                  success:
+                    type: boolean
+                    example: false
+                  status_code:
+                    type: integer
+                    example: 409
+                  message:
+                    type: string
+                    example: 'Conflict. Resource state already exists.'
+                  errors:
+                    type: object
+                    example: null
+                    nullable: true
                 type: object
     ValidationError:
       description: 'Validation Error - request input is invalid.'
@@ -1880,10 +2513,22 @@ components:
                 $ref: '#/components/schemas/ApiError'
               -
                 properties:
-                  success: { type: boolean, example: false }
-                  status_code: { type: integer, example: 422 }
-                  message: { type: string, example: 'Validation error.' }
-                  errors: { type: object, example: { email: ['The email field is required.'], password: ['The password must be at least 8 characters.'] } }
+                  success:
+                    type: boolean
+                    example: false
+                  status_code:
+                    type: integer
+                    example: 422
+                  message:
+                    type: string
+                    example: 'Validation error.'
+                  errors:
+                    type: object
+                    example:
+                      email:
+                        - 'The email field is required.'
+                      password:
+                        - 'The password must be at least 8 characters.'
                 type: object
     ServerError:
       description: 'Internal Server Error - an unexpected server error occurred.'
@@ -1896,10 +2541,19 @@ components:
                 $ref: '#/components/schemas/ApiError'
               -
                 properties:
-                  success: { type: boolean, example: false }
-                  status_code: { type: integer, example: 500 }
-                  message: { type: string, example: 'Internal server error.' }
-                  errors: { type: object, example: null, nullable: true }
+                  success:
+                    type: boolean
+                    example: false
+                  status_code:
+                    type: integer
+                    example: 500
+                  message:
+                    type: string
+                    example: 'Internal server error.'
+                  errors:
+                    type: object
+                    example: null
+                    nullable: true
                 type: object
   securitySchemes:
     BearerAuth:
@@ -1908,6 +2562,9 @@ components:
       bearerFormat: JWT
       scheme: bearer
 tags:
+  -
+    name: Chat
+    description: Chat
   -
     name: Architects
     description: Architects

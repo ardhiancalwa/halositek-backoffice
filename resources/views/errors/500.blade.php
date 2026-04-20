@@ -69,7 +69,7 @@
     <main class="flex-1 flex items-center justify-center px-6">
         <div class="max-w-2xl mx-auto text-center py-20">
             {{-- Decorative SVG --}}
-            <div class="relative mb-4 flex justify-center">
+            <div class="relative mb-2 flex justify-center">
                 <svg class="shake w-48 h-48 md:w-64 md:h-64" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
                     {{-- Blueprint grid --}}
                     <line x1="20" y1="40" x2="180" y2="40" stroke="#e2e8f0" stroke-width="0.5"/>

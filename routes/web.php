@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Web\Admin\AiBotsController;
 use App\Http\Controllers\Web\Admin\AuthController;
 use App\Http\Controllers\Web\Admin\ConsultationsController;
 use App\Http\Controllers\Web\Admin\DashboardController;
@@ -23,4 +24,5 @@ Route::prefix('dashboard')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard.index');
     Route::get('/designs', [AuthController::class, 'showDesigns'])->name('admin.dashboard.designs.index');
     Route::get('/consultations', [ConsultationsController::class, 'index'])->name('admin.dashboard.consultations.index');
+    Route::get('/ai-bots', [AiBotsController::class, 'index'])->name('admin.dashboard.ai-bots.index');
 });

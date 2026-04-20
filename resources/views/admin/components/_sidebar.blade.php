@@ -54,11 +54,21 @@
     ];
 
     $renderSidebarIcon = function (string $icon, bool $isActive): string {
+        if ($icon === 'user') {
+            return '
+                <span class="sidebar-user-icon-wrap relative block h-5 w-5">
+                    <img src="' . asset('images/dashboard/user-icon.png') . '" class="sidebar-user-icon sidebar-user-icon-default absolute inset-0 h-5 w-5" alt="User">
+                    <img src="' . asset('images/dashboard/user-icon-orange.png') . '" class="sidebar-user-icon sidebar-user-icon-hover absolute inset-0 h-5 w-5" alt="User">
+                    <img src="' . asset('images/dashboard/user-icon-white.png') . '" class="sidebar-user-icon sidebar-user-icon-active absolute inset-0 h-5 w-5" alt="User">
+                </span>
+            ';
+        }
+
         $iconName = $icon;
-        if (in_array($icon, ['user', 'architect', 'design']) && $isActive) {
+        if (in_array($icon, ['architect', 'design'], true) && $isActive) {
             $iconName .= '-orange';
         }
-        
+
         return match ($icon) {
             'dashboard' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>',
             'user', 'architect', 'design', 'consultation' => '<img src="' . asset("images/dashboard/{$iconName}-icon.png") . '" class="h-5 w-5" alt="'.ucfirst($icon).'">',
@@ -103,7 +113,7 @@
                         <a
                             href="{{ $href }}"
                             @unless($routeExists) aria-disabled="true" @endunless
-                            class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all {{ $stateClasses }}"
+                            class="sidebar-nav-link group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all {{ $isActive ? 'is-active' : '' }} {{ $stateClasses }}"
                         >
                             <span class="flex h-8 w-8 items-center justify-center rounded-lg {{ $isActive ? 'bg-white/15' : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-[#E8820C]' }}">
                                 {!! $iconMarkup !!}

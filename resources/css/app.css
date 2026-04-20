@@ -258,6 +258,36 @@
         color: rgb(148 163 184);
     }
 
+    .sidebar-user-icon {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        aspect-ratio: 1 / 1;
+        transition: opacity 150ms ease;
+    }
+
+    .sidebar-user-icon-hover,
+    .sidebar-user-icon-active {
+        opacity: 0;
+    }
+
+    .sidebar-nav-link:hover .sidebar-user-icon-default {
+        opacity: 0;
+    }
+
+    .sidebar-nav-link:hover .sidebar-user-icon-hover {
+        opacity: 1;
+    }
+
+    .sidebar-nav-link.is-active .sidebar-user-icon-default,
+    .sidebar-nav-link.is-active:hover .sidebar-user-icon-hover {
+        opacity: 0;
+    }
+
+    .sidebar-nav-link.is-active .sidebar-user-icon-active {
+        opacity: 1;
+    }
+
     @media (min-width: 768px) {
         .dashboard-stat-grid,
         .dashboard-growth-grid {

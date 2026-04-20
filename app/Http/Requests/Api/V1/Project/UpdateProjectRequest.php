@@ -2,13 +2,29 @@
 
 namespace App\Http\Requests\Api\V1\Project;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 
 class UpdateProjectRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $images = $this->file('images');
+        if ($images instanceof UploadedFile) {
+            $this->files->set('images', [$images]);
+        }
+
+        $layoutImages = $this->file('layout_images');
+        if ($layoutImages instanceof UploadedFile) {
+            $this->files->set('layout_images', [$layoutImages]);
+        }
+    }
+
     public function authorize(): bool
     {
+        /** @var User|null $user */
         $user = Auth::user();
 
         return $user !== null && ($user->isArchitect() || $user->isAdmin());

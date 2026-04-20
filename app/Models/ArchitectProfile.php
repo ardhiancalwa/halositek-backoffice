@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * @property string $id
+ * @property string $user_id
+ * @property string|null $status
+ * @property string|null $headline
+ * @property string|null $bio
+ * @property string|null $location
+ * @property string|null $specialization
+ * @property float|null $rating
+ */
 class ArchitectProfile extends Model
 {
     use HasFactory;
@@ -23,10 +33,10 @@ class ArchitectProfile extends Model
     protected $fillable = [
         'id',
         'user_id',
+        'status',
         'headline',
         'bio',
         'location',
-        'status',
         'specialization',
         'rating',
     ];
@@ -39,6 +49,7 @@ class ArchitectProfile extends Model
     protected function casts(): array
     {
         return [
+            'status' => 'string',
             'rating' => 'float',
         ];
     }

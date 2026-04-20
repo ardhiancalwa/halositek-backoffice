@@ -118,4 +118,12 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Award::class, 'architect_id');
     }
+
+    /**
+     * @return HasMany<Message, self>
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'user_id');
+    }
 }

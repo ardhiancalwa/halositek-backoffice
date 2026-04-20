@@ -45,11 +45,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function getStatusBadge(status) {
         if (status === 'active') {
-            return '<span class="inline-flex items-center gap-2 text-xs font-semibold"><span class="h-2 w-2 rounded-full bg-green-500"></span> ACTIVE</span>';
+            return `
+                <span class="dashboard-status-badge dashboard-status-badge-active">
+                    <span class="dashboard-status-badge-icon">
+                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </span>
+                    <span>Active</span>
+                </span>
+            `;
         }
 
         if (status === 'suspend') {
-            return '<span class="inline-flex items-center gap-2 text-xs font-semibold text-red-600"><span class="h-2 w-2 rounded-full bg-red-500"></span> SUSPENDED</span>';
+            return `
+                <span class="dashboard-status-badge dashboard-status-badge-suspended">
+                    <span class="dashboard-status-badge-icon">
+                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 6l12 12M18 6L6 18"></path>
+                        </svg>
+                    </span>
+                    <span>Suspended</span>
+                </span>
+            `;
         }
 
         return `<span class="text-xs font-semibold">${status?.toUpperCase()}</span>`;
@@ -185,7 +203,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${getStatusBadge(user.account_status)}
                 </td>
                 <td class="px-6 py-4 text-center">
-                    <button type="button" class="view-user-btn p-2 text-slate-400 hover:text-slate-600 transition" title="View user" data-user-id="${user.id}">
+                    <button type="button" class="view-user-btn dashboard-table-action-button p-2 text-slate-400 hover:text-slate-600 transition" title="View user" data-user-id="${user.id}">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -212,11 +230,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         for (let i = 1; i <= Math.min(totalPages, 5); i += 1) {
             const btn = document.createElement('button');
             btn.textContent = i;
-            btn.className = `px-3 py-2 rounded-lg text-sm font-medium transition ${
-                i === currentPageNum
-                    ? 'bg-[#E8820C] text-white'
-                    : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
-            }`;
+            btn.type = 'button';
+            btn.className = `dashboard-pagination-number text-sm font-medium ${i === currentPageNum ? 'is-active' : ''}`;
             btn.addEventListener('click', () => {
                 loadPage(i);
             });

@@ -2,7 +2,7 @@
 
 namespace App\DTOs\Chat;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Chat\CreateConversationRequest;
 
 final readonly class CreateConversationDTO
 {
@@ -16,14 +16,18 @@ final readonly class CreateConversationDTO
     ) {
     }
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(CreateConversationRequest $request): self
     {
-        $participantIds = $request->validated('participant_ids', []);
+        /** @var array{participant_ids?: mixed, name?: mixed, is_group?: mixed} $validated */
+        $validated = $request->validated();
+        $participantIds = $validated['participant_ids'] ?? [];
+        $name = $validated['name'] ?? null;
+        $isGroup = $validated['is_group'] ?? false;
 
         return new self(
             participantIds: array_values(array_unique(array_map('strval', $participantIds))),
-            name: $request->validated('name'),
-            isGroup: (bool) $request->validated('is_group', false),
+            name: is_string($name) ? $name : null,
+            isGroup: (bool) $isGroup,
         );
     }
 }

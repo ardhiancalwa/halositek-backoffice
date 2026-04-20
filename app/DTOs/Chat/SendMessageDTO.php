@@ -2,7 +2,7 @@
 
 namespace App\DTOs\Chat;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Chat\SendMessageRequest;
 
 final readonly class SendMessageDTO
 {
@@ -13,12 +13,17 @@ final readonly class SendMessageDTO
     ) {
     }
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(SendMessageRequest $request): self
     {
+        /** @var array{conversation_id?: mixed, body?: mixed, attachment?: mixed} $validated */
+        $validated = $request->validated();
+
         return new self(
-            conversationId: (string) $request->validated('conversation_id'),
-            body: (string) $request->validated('body'),
-            attachment: $request->validated('attachment'),
+            conversationId: (string) ($validated['conversation_id'] ?? ''),
+            body: (string) ($validated['body'] ?? ''),
+            attachment: isset($validated['attachment']) && is_string($validated['attachment'])
+                ? $validated['attachment']
+                : null,
         );
     }
 }

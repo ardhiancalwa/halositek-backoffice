@@ -9,6 +9,9 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 final class GetUserConversationsAction
 {
+    /**
+     * @return LengthAwarePaginator<int, Conversation>
+     */
     public function execute(User $user, int $perPage = 15): LengthAwarePaginator
     {
         $userId = (string) $user->getKey();

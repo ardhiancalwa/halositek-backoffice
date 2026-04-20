@@ -17,7 +17,7 @@ class ChatListResource extends JsonResource
         $conversation = $this->resource;
 
         $authUserId = (string) $request->user()?->getKey();
-        $participantIds = array_values(array_map('strval', $conversation->participant_ids ?? []));
+        $participantIds = array_map('strval', $conversation->participant_ids ?? []);
         $lastReadAt = $conversation->last_read_at ?? [];
 
         return [

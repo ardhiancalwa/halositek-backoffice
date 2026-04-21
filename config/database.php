@@ -34,7 +34,7 @@ return [
 
         'mongodb' => [
             'driver' => 'mongodb',
-            'dsn' => env('DB_DSN'), // set DB_DSN untuk Atlas / URI lengkap
+            'dsn' => env('DB_DSN') ?: null, // set DB_DSN untuk Atlas / URI lengkap
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => (int) env('DB_PORT', 27017),
             'database' => env('DB_DATABASE', 'halositek_backoffice'),

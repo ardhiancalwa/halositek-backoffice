@@ -102,8 +102,8 @@ use OpenApi\Annotations as OA;
  *   @OA\Property(property="headline", type="string", nullable=true, example="Residential Specialist"),
  *   @OA\Property(property="bio", type="string", nullable=true, example="Experienced architect specializing in tropical modern homes."),
  *   @OA\Property(property="location", type="string", nullable=true, example="Jakarta"),
- *   @OA\Property(property="catalogs_file_url", type="string", nullable=true, example="https://cdn.halositek.com/catalogs/architect-user.pdf"),
- *   @OA\Property(property="awards_file_url", type="string", nullable=true, example="https://cdn.halositek.com/awards/architect-user.pdf"),
+ *   @OA\Property(property="total_projects", type="integer", example=8),
+ *   @OA\Property(property="total_awards", type="integer", example=4),
  *   @OA\Property(property="status", type="string", enum={"pending","approved","rejected"}, example="approved"),
  *   @OA\Property(property="specialization", type="string", nullable=true, example="Residential Design"),
  *   @OA\Property(property="rating", type="number", format="float", example=4.8)
@@ -169,6 +169,52 @@ use OpenApi\Annotations as OA;
  *   @OA\Property(property="is_active", type="boolean", example=true),
  *   @OA\Property(property="created_at", type="string", format="date-time"),
  *   @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ *
+ * @OA\Schema(
+ *   schema="ChatConversation",
+ *   type="object",
+ *
+ *   @OA\Property(property="id", type="string", example="01J2CHATCONVERSATION001"),
+ *   @OA\Property(property="name", type="string", nullable=true, example=null),
+ *   @OA\Property(property="is_group", type="boolean", example=false),
+ *   @OA\Property(property="participant_ids", type="array", @OA\Items(type="string"), example={"01J2USERA", "01J2USERB"}),
+ *   @OA\Property(property="last_read_at", type="string", format="date-time", nullable=true, example="2026-04-19T10:00:00+00:00"),
+ *   @OA\Property(property="created_at", type="string", format="date-time"),
+ *   @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ *
+ * @OA\Schema(
+ *   schema="ChatMessage",
+ *   type="object",
+ *
+ *   @OA\Property(property="id", type="string", example="01J2MESSAGE001"),
+ *   @OA\Property(property="conversation_id", type="string", example="01J2CHATCONVERSATION001"),
+ *   @OA\Property(property="user_id", type="string", example="01J2USERA"),
+ *   @OA\Property(property="body", type="string", example="Halo, kabar kamu gimana?"),
+ *   @OA\Property(property="attachment", type="string", nullable=true, example=null),
+ *   @OA\Property(property="read_at", type="string", format="date-time", nullable=true, example=null),
+ *   @OA\Property(property="is_mine", type="boolean", example=true),
+ *   @OA\Property(property="sender", type="object", nullable=true,
+ *     @OA\Property(property="id", type="string", example="01J2USERA"),
+ *     @OA\Property(property="name", type="string", example="Budi"),
+ *     @OA\Property(property="email", type="string", format="email", example="budi@example.com")
+ *   ),
+ *   @OA\Property(property="created_at", type="string", format="date-time"),
+ *   @OA\Property(property="updated_at", type="string", format="date-time")
+ * )
+ *
+ * @OA\Schema(
+ *   schema="ChatListItem",
+ *   allOf={
+ *     @OA\Schema(ref="#/components/schemas/ChatConversation"),
+ *     @OA\Schema(
+ *       type="object",
+ *
+ *       @OA\Property(property="unread_count", type="integer", example=0),
+ *       @OA\Property(property="last_message", ref="#/components/schemas/ChatMessage", nullable=true)
+ *     )
+ *   }
  * )
  *
  * @OA\Schema(

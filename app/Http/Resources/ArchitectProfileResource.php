@@ -30,9 +30,9 @@ class ArchitectProfileResource extends JsonResource
             'headline' => $profile?->headline,
             'bio' => $profile?->bio,
             'location' => $profile?->location,
-            'catalogs_file_url' => $profile?->catalogs_file_url,
-            'awards_file_url' => $profile?->awards_file_url,
             'status' => $profile?->status,
+            'total_projects' => (int) ($this->total_projects ?? 0),
+            'total_awards' => (int) ($this->total_awards ?? 0),
             'specialization' => $profile?->specialization,
             'rating' => (float) ($profile?->rating ?? 0),
         ];

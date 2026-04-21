@@ -11,7 +11,7 @@ class ExampleTest extends TestCase
      */
     public function testTheApplicationReturnsASuccessfulResponse(): void
     {
-        $response = $this->get('/login');
+        $response = $this->get('/up');
 
         $response->assertOk();
     }

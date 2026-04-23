@@ -53,14 +53,26 @@
         ],
     ];
 
-    $renderSidebarIcon = function (string $icon): string {
+    $renderSidebarIcon = function (string $icon, bool $isActive): string {
+        if ($icon === 'user') {
+            return '
+                <span class="sidebar-user-icon-wrap relative block h-5 w-5">
+                    <img src="' . asset('images/dashboard/user-icon.png') . '" class="sidebar-user-icon sidebar-user-icon-default absolute inset-0 h-5 w-5" alt="User">
+                    <img src="' . asset('images/dashboard/user-icon-orange.png') . '" class="sidebar-user-icon sidebar-user-icon-hover absolute inset-0 h-5 w-5" alt="User">
+                    <img src="' . asset('images/dashboard/user-icon-white.png') . '" class="sidebar-user-icon sidebar-user-icon-active absolute inset-0 h-5 w-5" alt="User">
+                </span>
+            ';
+        }
+
+        $iconName = $icon;
+        if (in_array($icon, ['architect', 'design'], true) && $isActive) {
+            $iconName .= '-orange';
+        }
+
         return match ($icon) {
             'dashboard' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>',
-            'user' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 19a4 4 0 0 0-8 0"></path><circle cx="12" cy="10" r="3"></circle><path d="M19 19a3 3 0 0 0-2.2-2.9"></path><path d="M18 7.5a2.5 2.5 0 1 1 0 5"></path><path d="M5 19a3 3 0 0 1 2.2-2.9"></path><path d="M6 7.5a2.5 2.5 0 1 0 0 5"></path></svg>',
-            'architect' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"></path><path d="M6 19V9l6-4 6 4v10"></path><path d="M9 19v-4h6v4"></path><path d="M9 11h.01"></path><path d="M15 11h.01"></path></svg>',
-            'design' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5h16"></path><path d="M6 17V6.5A1.5 1.5 0 0 1 7.5 5h3A1.5 1.5 0 0 1 12 6.5V17"></path><path d="M12 17V9.5A1.5 1.5 0 0 1 13.5 8H17a1.5 1.5 0 0 1 1.5 1.5V17"></path></svg>',
-            'consultation' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6.5h14A1.5 1.5 0 0 1 20.5 8v8A1.5 1.5 0 0 1 19 17.5H9l-4.5 3V8A1.5 1.5 0 0 1 5 6.5Z"></path></svg>',
-            'bot' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"></path><path d="M12 3v3"></path><rect x="4.5" y="8" width="15" height="10" rx="3"></rect><path d="M9 13h.01"></path><path d="M15 13h.01"></path><path d="M8 18v2"></path><path d="M16 18v2"></path><path d="M4.5 12H3"></path><path d="M21 12h-1.5"></path></svg>',
+            'user', 'architect', 'design', 'consultation' => '<img src="' . asset("images/dashboard/{$iconName}-icon.png") . '" class="h-5 w-5" alt="'.ucfirst($icon).'">',
+            'bot' => '<img src="' . asset("images/dashboard/ai-icon.png") . '" class="h-5 w-5" alt="AI Bot">',
             default => '',
         };
     };
@@ -81,10 +93,7 @@
 @endphp
 
 <aside
-    class="hidden h-screen w-64 shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col"
-    data-sidebar-auth
-    data-logout-url="{{ url('/api/v1/logout') }}"
-    data-login-url="{{ route('admin.auth.login') }}"
+    class="hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-white md:flex md:flex-col"
 >
     <div class="flex min-h-0 flex-1 flex-col">
         {{-- Brand --}}
@@ -101,7 +110,10 @@
                         $isActive = request()->routeIs(...$navItem['match']);
                         $routeExists = \Illuminate\Support\Facades\Route::has($navItem['route']);
                         $href = $routeExists ? route($navItem['route']) : '#';
-                        $iconMarkup = $renderSidebarIcon($navItem['icon']);
+                        $stateClasses = $isActive
+                                ? 'bg-[#E8820C] text-white shadow-[0_10px_30px_-18px_rgba(232,130,12,0.95)]'
+                                : 'text-slate-500 hover:bg-[#FFF5EA] hover:text-[#E8820C]';
+                        $iconMarkup = $renderSidebarIcon($navItem['icon'], $isActive);
                     @endphp
 
                     <a
@@ -148,7 +160,7 @@
                                     $isChildActive = request()->routeIs(...$child['match']);
                                     $childRouteExists = \Illuminate\Support\Facades\Route::has($child['route']);
                                     $childHref = $childRouteExists ? route($child['route']) : '#';
-                                    $childIconMarkup = $renderSidebarIcon($child['icon']);
+                                    $childIconMarkup = $renderSidebarIcon($child['icon'], $isChildActive);
                                 @endphp
 
                                 <a
@@ -193,18 +205,20 @@
                 </div>
             </div>
 
-            <button
-                type="button"
-                class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
-                data-sidebar-logout
-                aria-label="Logout"
-            >
-                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <path d="M16 17l5-5-5-5"></path>
-                    <path d="M21 12H9"></path>
-                </svg>
-            </button>
+            <form method="POST" action="{{ route('admin.dashboard.logout') }}">
+                @csrf
+                <button
+                    type="submit"
+                    class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white hover:text-slate-600"
+                    aria-label="Logout"
+                >
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <path d="M16 17l5-5-5-5"></path>
+                        <path d="M21 12H9"></path>
+                    </svg>
+                </button>
+            </form>
         </div>
     </div>
 </aside>

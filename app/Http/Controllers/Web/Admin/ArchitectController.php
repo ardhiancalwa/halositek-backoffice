@@ -7,12 +7,14 @@ use App\Http\Resources\AwardResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Award;
 use App\Models\Project;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ArchitectController extends Controller
 {
-    public function index()
+    public function index(): Factory|View
     {
         return view('admin.pages.dashboard.architects.index');
     }

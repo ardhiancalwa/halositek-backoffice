@@ -7,21 +7,33 @@
     <h1 class="auth-title mb-1 text-2xl font-bold">Welcome Back</h1>
     <p class="auth-subtitle mb-8 text-sm">Please enter your details to access your dashboard</p>
 
-    <div
-        data-auth-alert
-        class="mb-4 hidden rounded-lg border px-3 py-3 text-sm"
-        role="alert"
-        aria-live="polite"
-    ></div>
+    @if ($errors->any())
+        <div
+            class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-600"
+            role="alert"
+            aria-live="polite"
+        >
+            {{ $errors->first() }}
+        </div>
+    @elseif (session('status'))
+        <div
+            class="mb-4 rounded-lg border border-green-200 bg-green-50 px-3 py-3 text-sm text-green-700"
+            role="alert"
+            aria-live="polite"
+        >
+            {{ session('status') }}
+        </div>
+    @endif
 
     <form
         method="POST"
-        action="{{ url('/api/v1/auth/login') }}"
+        action="{{ route('admin.auth.login.submit') }}"
         data-auth-form
         data-auth-mode="login"
-        data-auth-endpoint="{{ url('/api/v1/auth/login') }}"
+        data-auth-endpoint="{{ route('admin.auth.login.submit') }}"
         data-auth-redirect="{{ route('admin.dashboard.index') }}"
     >
+        @csrf
 
         <div class="mb-5">
             <label for="email" class="auth-label mb-2 block text-sm font-semibold">Email</label>

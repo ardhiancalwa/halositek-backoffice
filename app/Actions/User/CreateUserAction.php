@@ -16,6 +16,7 @@ final class CreateUserAction
             'password' => Hash::make($dto->password),
             'role' => $dto->role->value,
             'account_status' => $dto->accountStatus->value,
+            'photo_profile' => $dto->photo_profile,
         ]);
     }
 }

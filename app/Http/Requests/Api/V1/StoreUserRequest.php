@@ -11,6 +11,13 @@ class StoreUserRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('photo_profile') && ! $this->file('photo_profile')) {
+            $this->request->remove('photo_profile');
+        }
+    }
+
     /**
      * @return array<string, array<int, string>>
      */
@@ -22,6 +29,7 @@ class StoreUserRequest extends FormRequest
             'password' => ['required', 'string', 'min:8'],
             'role' => ['sometimes', 'string', 'in:user,architect,admin'],
             'account_status' => ['sometimes', 'string', 'in:active,suspend'],
+            'photo_profile' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];
     }
 }

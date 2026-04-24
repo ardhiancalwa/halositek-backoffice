@@ -37,6 +37,8 @@ class AwardResource extends JsonResource
                     'id' => $award->architect->id,
                     'name' => $award->architect->name,
                     'email' => $award->architect->email,
+                    'photo_profile' => $award->architect->photo_profile,
+                    'photo_profile_url' => $award->architect->photo_profile ? Storage::url($award->architect->photo_profile) : null,
                 ];
             }),
             'created_at' => $award->created_at?->toIso8601String(),

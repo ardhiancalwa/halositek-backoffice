@@ -241,32 +241,47 @@ class AwardController extends Controller
      *   path="/awards/{id}/approve",
      *   tags={"Awards"},
      *   security={{"BearerAuth":{}}},
-     *   summary="Approve award",
-     *   description="Approves an award by setting status to approved. Admin only endpoint.",
+     *   summary="Review award approval",
+     *   description="Approves or declines an award by setting status to approved or declined. Admin only endpoint.",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
-     *   @OA\Response(response=200, description="Award approved successfully",
+     *   @OA\RequestBody(
+     *     required=true,
      *
-     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Award approved successfully", "data": {"award": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QAW", "status": "approved"}}})
+     *     @OA\JsonContent(
+     *       required={"status"},
+     *
+     *       @OA\Property(property="status", type="string", enum={"approved","declined"}, example="approved")
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=200, description="Award status updated successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Award status updated successfully.", "data": {"award": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QAW", "status": "approved"}}})
      * ),
      *
      *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
      *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
      *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
-    public function approve(string $id): JsonResponse
+    public function approve(Request $request, string $id): JsonResponse
     {
         $award = Award::findOrFail($id);
 
-        $award->status = 'approved';
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:approved,declined'],
+        ]);
+
+        $award->status = $validated['status'];
         $award->save();
 
         return ApiResponse::success([
             'award' => new AwardResource($award->load('architect')),
-        ], 'Award approved successfully.');
+        ], 'Award status updated successfully.');
     }
 
     /**

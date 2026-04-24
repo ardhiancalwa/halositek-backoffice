@@ -559,6 +559,219 @@
                 ]
             }
         },
+        "/analytics/overview": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get analytics overview",
+                "description": "Returns overview metrics for registered users, approved architects, and active projects.",
+                "operationId": "eaa211f102e7a4b69b6fd956443d8642",
+                "responses": {
+                    "200": {
+                        "description": "Analytics overview retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Analytics overview retrieved successfully.",
+                                    "data": {
+                                        "registered_user": 120,
+                                        "registered_architect": 42,
+                                        "active_projects": 88
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/analytics/user-growth": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get user growth",
+                "description": "Returns user growth series based on selected range.",
+                "operationId": "e1bb267ca48e27ac7e146fbc37c3911c",
+                "parameters": [
+                    {
+                        "name": "range",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "last_7_days",
+                            "enum": [
+                                "today",
+                                "last_7_days",
+                                "last_month"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User growth retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "User growth retrieved successfully.",
+                                    "data": {
+                                        "range": "last_7_days",
+                                        "labels": [
+                                            "2026-04-20",
+                                            "2026-04-21",
+                                            "2026-04-22",
+                                            "2026-04-23",
+                                            "2026-04-24",
+                                            "2026-04-25",
+                                            "2026-04-26"
+                                        ],
+                                        "series": [
+                                            2,
+                                            1,
+                                            0,
+                                            3,
+                                            1,
+                                            2,
+                                            1
+                                        ],
+                                        "cumulative_series": [
+                                            2,
+                                            3,
+                                            3,
+                                            6,
+                                            7,
+                                            9,
+                                            10
+                                        ],
+                                        "total": 10
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/analytics/architect-growth": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get architect growth",
+                "description": "Returns approved architect growth series based on selected range.",
+                "operationId": "c17cd20dd5d859613e57b2805b22e330",
+                "parameters": [
+                    {
+                        "name": "range",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "last_7_days",
+                            "enum": [
+                                "today",
+                                "last_7_days",
+                                "last_month"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Architect growth retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect growth retrieved successfully.",
+                                    "data": {
+                                        "range": "last_month",
+                                        "labels": [
+                                            "Apr 1 - Apr 7",
+                                            "Apr 8 - Apr 14",
+                                            "Apr 15 - Apr 21",
+                                            "Apr 22 - Apr 24"
+                                        ],
+                                        "series": [
+                                            0,
+                                            1,
+                                            0,
+                                            2
+                                        ],
+                                        "cumulative_series": [
+                                            0,
+                                            1,
+                                            1,
+                                            3
+                                        ],
+                                        "total": 3
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/architects": {
             "get": {
                 "tags": [
@@ -782,7 +995,7 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
                                     "name",
@@ -813,6 +1026,10 @@
                                     "role": {
                                         "type": "string",
                                         "example": "user"
+                                    },
+                                    "photo_profile": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 },
                                 "type": "object"
@@ -1087,17 +1304,17 @@
                     }
                 ]
             },
-            "put": {
+            "post": {
                 "tags": [
                     "Users"
                 ],
                 "summary": "Update current profile",
                 "description": "Updates the profile of the currently authenticated user.",
-                "operationId": "5705eaa8e3358048290c90ac2f975ae1",
+                "operationId": "f813ed4e56a4c6cea9bd1264cc7b8b4e",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "properties": {
                                     "name": {
@@ -1113,6 +1330,10 @@
                                         "type": "string",
                                         "format": "password",
                                         "example": "password123"
+                                    },
+                                    "photo_profile": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 },
                                 "type": "object"
@@ -1477,8 +1698,8 @@
                 "tags": [
                     "Awards"
                 ],
-                "summary": "Approve award",
-                "description": "Approves an award by setting status to approved. Admin only endpoint.",
+                "summary": "Review award approval",
+                "description": "Approves or declines an award by setting status to approved or declined. Admin only endpoint.",
                 "operationId": "13c51a583ce6aa1212864ef73f379295",
                 "parameters": [
                     {
@@ -1490,16 +1711,39 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "approved",
+                                        "enum": [
+                                            "approved",
+                                            "declined"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Award approved successfully",
+                        "description": "Award status updated successfully",
                         "content": {
                             "application/json": {
                                 "schema": {},
                                 "example": {
                                     "success": true,
                                     "status_code": 200,
-                                    "message": "Award approved successfully",
+                                    "message": "Award status updated successfully.",
                                     "data": {
                                         "award": {
                                             "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
@@ -1518,6 +1762,9 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
                     },
                     "500": {
                         "$ref": "#/components/responses/ServerError"
@@ -1861,6 +2108,20 @@
                         }
                     },
                     {
+                        "name": "style",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "modern",
+                                "traditional",
+                                "minimalist",
+                                "futuristik",
+                                "industrial"
+                            ]
+                        }
+                    },
+                    {
                         "name": "search",
                         "in": "query",
                         "schema": {
@@ -1957,7 +2218,9 @@
                                 "required": [
                                     "name",
                                     "style",
-                                    "estimated_cost"
+                                    "estimated_cost",
+                                    "images[]",
+                                    "layout_images[]"
                                 ],
                                 "properties": {
                                     "name": {
@@ -1966,14 +2229,21 @@
                                     },
                                     "style": {
                                         "type": "string",
-                                        "example": "Modern"
+                                        "example": "modern",
+                                        "enum": [
+                                            "modern",
+                                            "traditional",
+                                            "minimalist",
+                                            "futuristik",
+                                            "industrial"
+                                        ]
                                     },
                                     "description": {
                                         "type": "string",
                                         "example": "Two-story tropical house with natural lighting.",
                                         "nullable": true
                                     },
-                                    "images": {
+                                    "images[]": {
                                         "type": "array",
                                         "items": {
                                             "type": "string",
@@ -1984,7 +2254,7 @@
                                         "type": "string",
                                         "example": "Rp 2M - 3M"
                                     },
-                                    "layout_images": {
+                                    "layout_images[]": {
                                         "type": "array",
                                         "items": {
                                             "type": "string",
@@ -2184,7 +2454,14 @@
                                     },
                                     "style": {
                                         "type": "string",
-                                        "example": "Modern"
+                                        "example": "modern",
+                                        "enum": [
+                                            "modern",
+                                            "traditional",
+                                            "minimalist",
+                                            "futuristik",
+                                            "industrial"
+                                        ]
                                     },
                                     "description": {
                                         "type": "string",
@@ -2351,8 +2628,8 @@
                 "tags": [
                     "Projects"
                 ],
-                "summary": "Approve project",
-                "description": "Approves a project by setting status to approved. Admin only endpoint.",
+                "summary": "Review project approval",
+                "description": "Approves or declines a project by setting status to approved or declined. Admin only endpoint.",
                 "operationId": "81cec884040181f3f7023f791c84924b",
                 "parameters": [
                     {
@@ -2364,16 +2641,39 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "approved",
+                                        "enum": [
+                                            "approved",
+                                            "declined"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Project approved successfully",
+                        "description": "Project status updated successfully",
                         "content": {
                             "application/json": {
                                 "schema": {},
                                 "example": {
                                     "success": true,
                                     "status_code": 200,
-                                    "message": "Project approved successfully",
+                                    "message": "Project status updated successfully.",
                                     "data": {
                                         "project": {
                                             "id": "01HZX9M1F45M2Z6K7T9K7Y8QRP",
@@ -2389,6 +2689,113 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/like": {
+            "post": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Like a project",
+                "description": "Adds a like to the specified project for the authenticated user.",
+                "operationId": "23883080b1c9fd26e3271d81f1dfc432",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project liked successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Project liked successfully.",
+                                    "data": {
+                                        "liked": true,
+                                        "like_count": 21
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Unlike a project",
+                "description": "Removes a like from the specified project for the authenticated user.",
+                "operationId": "f954429c27e5cd4e658cc4b3276bc88a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project unliked successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Project unliked successfully.",
+                                    "data": {
+                                        "liked": false,
+                                        "like_count": 20
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFoundError"
@@ -2510,7 +2917,7 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
                                     "name",
@@ -2548,6 +2955,10 @@
                                             "active",
                                             "suspend"
                                         ]
+                                    },
+                                    "photo_profile": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 },
                                 "type": "object"
@@ -3631,6 +4042,10 @@
         {
             "name": "Chat",
             "description": "Chat"
+        },
+        {
+            "name": "Analytics",
+            "description": "Analytics"
         },
         {
             "name": "Architects",

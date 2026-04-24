@@ -80,6 +80,36 @@ it('filters projects by status architect id and search keyword', function () {
         ->assertJsonPath('data.0.name', 'Modern Alpha House');
 });
 
+it('filters projects by style', function () {
+    $architect = User::factory()->architect()->create();
+
+    Project::create([
+        'architect_id' => $architect->id,
+        'name' => 'Modern House',
+        'style' => 'Modern',
+        'estimated_cost' => 'Rp 2M - 3M',
+        'status' => 'approved',
+        'likes_count' => 0,
+    ]);
+
+    Project::create([
+        'architect_id' => $architect->id,
+        'name' => 'Classic Residence',
+        'style' => 'Classic',
+        'estimated_cost' => 'Rp 1M - 2M',
+        'status' => 'approved',
+        'likes_count' => 0,
+    ]);
+
+    $response = $this->getJson('/api/v1/projects?style=Modern');
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('meta.total', 1)
+        ->assertJsonPath('data.0.style', 'Modern')
+        ->assertJsonPath('data.0.name', 'Modern House');
+});
+
 it('filters awards and includes pending and approved counts in meta', function () {
     $architectA = User::factory()->architect()->create();
     $architectB = User::factory()->architect()->create();

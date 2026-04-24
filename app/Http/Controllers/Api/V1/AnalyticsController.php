@@ -150,14 +150,14 @@ class AnalyticsController extends Controller
             $start = $now->copy()->startOfDay();
             $end = $now->copy()->endOfDay();
             $unit = '3hour';
-        } elseif ($range === 'last_7_days') {
-            $start = $now->copy()->startOfWeek();
-            $end = $now->copy()->endOfWeek();
-            $unit = 'day';
         } elseif ($range === 'last_month') {
             $start = $now->copy()->startOfMonth();
             $end = $now->copy();
             $unit = 'week';
+        } else {
+            $start = $now->copy()->startOfWeek();
+            $end = $now->copy()->endOfWeek();
+            $unit = 'day';
         }
 
         $labels = $this->buildLabels($start, $end, $unit);

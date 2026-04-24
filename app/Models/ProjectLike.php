@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * @property Carbon|null $created_at
+ */
 class ProjectLike extends Model
 {
-    use HasFactory;
     use HasUuids;
 
     protected $connection = 'mongodb';
@@ -38,11 +40,17 @@ class ProjectLike extends Model
         });
     }
 
+    /**
+     * @return BelongsTo<User, self>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Project, self>
+     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

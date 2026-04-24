@@ -19,7 +19,7 @@ it('allows admin to update project status only', function () {
     $project = Project::create([
         'architect_id' => $architect->id,
         'name' => 'Project Alpha',
-        'style' => 'Modern',
+        'style' => 'modern',
         'description' => 'Sample description',
         'images' => ['projects/images/a.jpg'],
         'layout_images' => ['projects/layouts/a.jpg'],
@@ -47,7 +47,7 @@ it('rejects admin when updating project fields other than status', function () {
     $project = Project::create([
         'architect_id' => $architect->id,
         'name' => 'Project Beta',
-        'style' => 'Minimalist',
+        'style' => 'minimalist',
         'estimated_cost' => 'Rp 2M - 3M',
         'status' => 'pending',
         'likes_count' => 0,
@@ -69,7 +69,7 @@ it('allows architect owner to update project details and resets status to pendin
     $project = Project::create([
         'architect_id' => $architect->id,
         'name' => 'Project Gamma',
-        'style' => 'Industrial',
+        'style' => 'industrial',
         'estimated_cost' => 'Rp 1,5M - 2M',
         'status' => 'approved',
         'likes_count' => 0,
@@ -94,7 +94,7 @@ it('forbids non-owner architect from updating project', function () {
     $project = Project::create([
         'architect_id' => $owner->id,
         'name' => 'Project Delta',
-        'style' => 'Modern',
+        'style' => 'modern',
         'estimated_cost' => 'Rp 2M - 2,5M',
         'status' => 'pending',
         'likes_count' => 0,
@@ -163,7 +163,7 @@ it('allows user to update own profile via me endpoint', function () {
     ]);
 
     $response = $this->actingAs($user, 'sanctum')
-        ->putJson('/api/v1/me', [
+        ->postJson('/api/v1/me', [
             'name' => 'After Name',
         ]);
 

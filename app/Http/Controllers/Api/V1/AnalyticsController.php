@@ -196,7 +196,7 @@ class AnalyticsController extends Controller
         } else {
             $period = CarbonPeriod::create($start->copy()->startOfDay(), '1 day', $end->copy()->startOfDay());
             foreach ($period as $date) {
-                $labels[] = $date->format('D');
+                $labels[] = $date->format('Y-m-d');
             }
         }
 
@@ -232,7 +232,7 @@ class AnalyticsController extends Controller
                         return sprintf('%02d:00', $bucketHour);
                     }
 
-                    return $item->created_at->format('D');
+                    return $item->created_at->format('Y-m-d');
                 })
                 ->map(static fn (Collection $group): int => $group->count());
         }

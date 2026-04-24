@@ -45,7 +45,7 @@ it('filters projects by status architect id and search keyword', function () {
     Project::create([
         'architect_id' => $architectA->id,
         'name' => 'Modern Alpha House',
-        'style' => 'Tropical Modern',
+        'style' => 'modern',
         'estimated_cost' => 'Rp 2M - 3M',
         'status' => 'approved',
         'likes_count' => 0,
@@ -54,7 +54,7 @@ it('filters projects by status architect id and search keyword', function () {
     Project::create([
         'architect_id' => $architectA->id,
         'name' => 'Classic Residence',
-        'style' => 'Classic',
+        'style' => 'traditional',
         'estimated_cost' => 'Rp 1M - 2M',
         'status' => 'approved',
         'likes_count' => 0,
@@ -63,7 +63,7 @@ it('filters projects by status architect id and search keyword', function () {
     Project::create([
         'architect_id' => $architectB->id,
         'name' => 'Modern Beta House',
-        'style' => 'Modern',
+        'style' => 'modern',
         'estimated_cost' => 'Rp 2M - 3M',
         'status' => 'approved',
         'likes_count' => 0,
@@ -86,7 +86,7 @@ it('filters projects by style', function () {
     Project::create([
         'architect_id' => $architect->id,
         'name' => 'Modern House',
-        'style' => 'Modern',
+        'style' => 'modern',
         'estimated_cost' => 'Rp 2M - 3M',
         'status' => 'approved',
         'likes_count' => 0,
@@ -95,18 +95,18 @@ it('filters projects by style', function () {
     Project::create([
         'architect_id' => $architect->id,
         'name' => 'Classic Residence',
-        'style' => 'Classic',
+        'style' => 'traditional',
         'estimated_cost' => 'Rp 1M - 2M',
         'status' => 'approved',
         'likes_count' => 0,
     ]);
 
-    $response = $this->getJson('/api/v1/projects?style=Modern');
+    $response = $this->getJson('/api/v1/projects?style=modern');
 
     $response->assertOk()
         ->assertJsonPath('success', true)
         ->assertJsonPath('meta.total', 1)
-        ->assertJsonPath('data.0.style', 'Modern')
+        ->assertJsonPath('data.0.style', 'modern')
         ->assertJsonPath('data.0.name', 'Modern House');
 });
 

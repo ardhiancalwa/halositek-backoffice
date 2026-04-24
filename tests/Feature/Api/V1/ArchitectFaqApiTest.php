@@ -31,7 +31,7 @@ it('returns only approved architects on public architect index', function () {
     Project::create([
         'architect_id' => $approvedArchitect->id,
         'name' => 'Project One',
-        'style' => 'Modern',
+        'style' => 'modern',
         'estimated_cost' => 'Rp 2M - 3M',
         'status' => 'approved',
         'likes_count' => 0,

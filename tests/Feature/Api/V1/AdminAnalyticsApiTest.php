@@ -34,7 +34,7 @@ it('returns analytics overview for admin with expected counts', function () {
     Project::create([
         'architect_id' => $approvedArchitect->id,
         'name' => 'Project Active',
-        'style' => 'Modern',
+        'style' => 'modern',
         'estimated_cost' => 'Rp 2M - 3M',
         'status' => 'approved',
         'likes_count' => 0,
@@ -43,7 +43,7 @@ it('returns analytics overview for admin with expected counts', function () {
     Project::create([
         'architect_id' => $approvedArchitect->id,
         'name' => 'Project Pending',
-        'style' => 'Modern',
+        'style' => 'modern',
         'estimated_cost' => 'Rp 2M - 3M',
         'status' => 'pending',
         'likes_count' => 0,

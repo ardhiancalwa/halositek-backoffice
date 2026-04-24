@@ -1,0 +1,2 @@
+<!-- Bottom Scripts -->
+@stack('scripts')

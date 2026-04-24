@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\ProjectStyle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Project\StoreProjectRequest;
 use App\Http\Requests\Api\V1\Project\UpdateProjectRequest;
@@ -27,6 +28,7 @@ class ProjectController extends Controller
      *
      *   @OA\Parameter(name="status", in="query", @OA\Schema(type="string", enum={"pending","approved","declined"})),
      *   @OA\Parameter(name="architect_id", in="query", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="style", in="query", @OA\Schema(type="string", enum={"modern","traditional","minimalist","futuristik","industrial"})),
      *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
      *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
      *
@@ -53,6 +55,14 @@ class ProjectController extends Controller
 
         if ($request->filled('architect_id')) {
             $query->where('architect_id', $request->string('architect_id')->toString());
+        }
+
+        if ($request->filled('style')) {
+            $style = strtolower($request->string('style')->toString());
+
+            if (ProjectStyle::tryFrom($style)) {
+                $query->where('style', $style);
+            }
         }
 
         if ($request->filled('search')) {
@@ -88,14 +98,14 @@ class ProjectController extends Controller
      *
      *       @OA\Schema(
      *         type="object",
-     *         required={"name","style","estimated_cost"},
+     *         required={"name","style","estimated_cost","images[]", "layout_images[]"},
      *
      *         @OA\Property(property="name", type="string", example="Modern House"),
-     *         @OA\Property(property="style", type="string", example="Modern"),
+     *         @OA\Property(property="style", type="string", enum={"modern","traditional","minimalist","futuristik","industrial"}, example="modern"),
      *         @OA\Property(property="description", type="string", nullable=true, example="Two-story tropical house with natural lighting."),
-     *         @OA\Property(property="images", type="array", @OA\Items(type="string", format="binary")),
+     *         @OA\Property(property="images[]", type="array", @OA\Items(type="string", format="binary")),
      *         @OA\Property(property="estimated_cost", type="string", example="Rp 2M - 3M"),
-     *         @OA\Property(property="layout_images", type="array", @OA\Items(type="string", format="binary")),
+     *         @OA\Property(property="layout_images[]", type="array", @OA\Items(type="string", format="binary")),
      *         @OA\Property(property="highlight_features", type="string", nullable=true, example="Void area, skylight, and rooftop garden."),
      *         @OA\Property(property="area", type="string", nullable=true, example="120 m2")
      *       )
@@ -201,7 +211,7 @@ class ProjectController extends Controller
      *
      *         @OA\Property(property="status", type="string", enum={"pending","approved","declined"}),
      *         @OA\Property(property="name", type="string", example="Modern House Updated"),
-     *         @OA\Property(property="style", type="string", example="Modern"),
+     *         @OA\Property(property="style", type="string", enum={"modern","traditional","minimalist","futuristik","industrial"}, example="modern"),
      *         @OA\Property(property="description", type="string", nullable=true, example="Updated description for the project."),
      *         @OA\Property(property="images", type="array", @OA\Items(type="string", format="binary")),
      *         @OA\Property(property="estimated_cost", type="string", example="Rp 2M - 3M"),
@@ -299,32 +309,47 @@ class ProjectController extends Controller
      *   path="/projects/{id}/approve",
      *   tags={"Projects"},
      *   security={{"BearerAuth":{}}},
-     *   summary="Approve project",
-     *   description="Approves a project by setting status to approved. Admin only endpoint.",
+     *   summary="Review project approval",
+     *   description="Approves or declines a project by setting status to approved or declined. Admin only endpoint.",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
-     *   @OA\Response(response=200, description="Project approved successfully",
+     *   @OA\RequestBody(
+     *     required=true,
      *
-     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Project approved successfully", "data": {"project": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRP", "status": "approved"}}})
+     *     @OA\JsonContent(
+     *       required={"status"},
+     *
+     *       @OA\Property(property="status", type="string", enum={"approved","declined"}, example="approved")
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=200, description="Project status updated successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Project status updated successfully.", "data": {"project": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRP", "status": "approved"}}})
      * ),
      *
      *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
      *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
      *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
-    public function approve(string $id): JsonResponse
+    public function approve(Request $request, string $id): JsonResponse
     {
         $project = Project::findOrFail($id);
 
-        $project->status = 'approved';
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:approved,declined'],
+        ]);
+
+        $project->status = $validated['status'];
         $project->save();
 
         return ApiResponse::success([
             'project' => new ProjectResource($project->load('architect')),
-        ], 'Project approved successfully.');
+        ], 'Project status updated successfully.');
     }
 
     /**
@@ -373,5 +398,96 @@ class ProjectController extends Controller
         $project->delete();
 
         return ApiResponse::success(null, 'Project deleted successfully.');
+    }
+
+    /**
+     * @OA\Post(
+     *   path="/projects/{id}/like",
+     *   tags={"Projects"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Like a project",
+     *   description="Adds a like to the specified project for the authenticated user.",
+     *
+     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(response=200, description="Project liked successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Project liked successfully.", "data": {"liked": true, "like_count": 21}})
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function like(string $id): JsonResponse
+    {
+        $project = Project::findOrFail($id);
+
+        /** @var User|null $user */
+        $user = Auth::user();
+        if ($user === null) {
+            return ApiResponse::unauthorized('Unauthorized.');
+        }
+
+        $existingLike = $project->likes()->where('user_id', $user->id)->first();
+
+        if (! $existingLike) {
+            $project->likes()->create([
+                'user_id' => $user->id,
+            ]);
+            $project->increment('likes_count');
+        }
+
+        return ApiResponse::success([
+            'liked' => true,
+            'like_count' => (int) $project->likes_count,
+        ], 'Project liked successfully.');
+    }
+
+    /**
+     * @OA\Delete(
+     *   path="/projects/{id}/like",
+     *   tags={"Projects"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Unlike a project",
+     *   description="Removes a like from the specified project for the authenticated user.",
+     *
+     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(response=200, description="Project unliked successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Project unliked successfully.", "data": {"liked": false, "like_count": 20}})
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function unlike(string $id): JsonResponse
+    {
+        $project = Project::findOrFail($id);
+
+        /** @var User|null $user */
+        $user = Auth::user();
+        if ($user === null) {
+            return ApiResponse::unauthorized('Unauthorized.');
+        }
+
+        $existingLike = $project->likes()->where('user_id', $user->id)->first();
+
+        if ($existingLike) {
+            $existingLike->delete();
+            // Prevent negative likes_count
+            if ($project->likes_count > 0) {
+                $project->decrement('likes_count');
+            }
+        }
+
+        return ApiResponse::success([
+            'liked' => false,
+            'like_count' => (int) $project->likes_count,
+        ], 'Project unliked successfully.');
     }
 }

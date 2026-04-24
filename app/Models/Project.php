@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Enums\ProjectStatus;
+use App\Enums\ProjectStyle;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use MongoDB\Laravel\Eloquent\Model;
 
@@ -48,6 +50,7 @@ class Project extends Model
             'images' => 'array',
             'layout_images' => 'array',
             'status' => ProjectStatus::class,
+            'style' => ProjectStyle::class,
             'likes_count' => 'integer',
         ];
     }
@@ -58,6 +61,14 @@ class Project extends Model
     public function architect(): BelongsTo
     {
         return $this->belongsTo(User::class, 'architect_id');
+    }
+
+    /**
+     * @return HasMany<ProjectLike, self>
+     */
+    public function likes()
+    {
+        return $this->hasMany(ProjectLike::class);
     }
 
     /**

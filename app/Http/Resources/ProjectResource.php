@@ -56,12 +56,17 @@ class ProjectResource extends JsonResource
             'highlight_features' => $project->highlight_features,
             'area' => $project->area,
             'likes_count' => (int) ($project->likes_count ?? 0),
+            'liked' => $request->user()
+                ? $project->likes()->where('user_id', $request->user()->id)->exists()
+                : false,
             'status' => $project->status,
             'architect' => $this->whenLoaded('architect', function () use ($project) {
                 return [
                     'id' => $project->architect->id,
                     'name' => $project->architect->name,
                     'email' => $project->architect->email,
+                    'photo_profile' => $project->architect->photo_profile,
+                    'photo_profile_url' => $project->architect->photo_profile ? Storage::url($project->architect->photo_profile) : null,
                 ];
             }),
             'created_at' => $project->created_at?->toIso8601String(),

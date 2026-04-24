@@ -14,10 +14,11 @@ final readonly class CreateUserDTO
         public string $password,
         public UserRole $role = UserRole::User,
         public AccountStatus $accountStatus = AccountStatus::Active,
+        public ?string $photo_profile = null,
     ) {
     }
 
-    public static function fromRequest(Request $request): self
+    public static function fromRequest(Request $request, ?string $photoProfilePath = null): self
     {
         return new self(
             name: $request->validated('name'),
@@ -25,6 +26,7 @@ final readonly class CreateUserDTO
             password: $request->validated('password'),
             role: UserRole::tryFrom($request->validated('role', 'user')) ?? UserRole::User,
             accountStatus: AccountStatus::tryFrom($request->validated('account_status', 'active')) ?? AccountStatus::Active,
+            photo_profile: $photoProfilePath,
         );
     }
 
@@ -40,6 +42,7 @@ final readonly class CreateUserDTO
             accountStatus: isset($data['account_status'])
             ? (is_string($data['account_status']) ? AccountStatus::tryFrom($data['account_status']) ?? AccountStatus::Active : $data['account_status'])
             : AccountStatus::Active,
+            photo_profile: $data['photo_profile'] ?? null,
         );
     }
 }

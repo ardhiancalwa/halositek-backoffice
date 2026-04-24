@@ -14,6 +14,8 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 class UserController extends Controller
@@ -88,15 +90,20 @@ class UserController extends Controller
      *   @OA\RequestBody(
      *     required=true,
      *
-     *     @OA\JsonContent(
-     *       type="object",
-     *       required={"name","email","password"},
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
      *
-     *       @OA\Property(property="name", type="string", example="New User"),
-     *       @OA\Property(property="email", type="string", format="email", example="new_user@halositek.com"),
-     *       @OA\Property(property="password", type="string", format="password", example="password123"),
-     *       @OA\Property(property="role", type="string", enum={"user","architect","admin"}, example="user"),
-     *       @OA\Property(property="account_status", type="string", enum={"active","suspend"}, example="active")
+     *       @OA\Schema(
+     *         type="object",
+     *         required={"name","email","password"},
+     *
+     *         @OA\Property(property="name", type="string", example="New User"),
+     *         @OA\Property(property="email", type="string", format="email", example="new_user@halositek.com"),
+     *         @OA\Property(property="password", type="string", format="password", example="password123"),
+     *         @OA\Property(property="role", type="string", enum={"user","architect","admin"}, example="user"),
+     *         @OA\Property(property="account_status", type="string", enum={"active","suspend"}, example="active"),
+     *         @OA\Property(property="photo_profile", type="string", format="binary")
+     *       )
      *     )
      *   ),
      *
@@ -117,7 +124,12 @@ class UserController extends Controller
             return ApiResponse::forbidden('You are not allowed to create user.');
         }
 
-        $dto = CreateUserDTO::fromRequest($request);
+        $photoProfilePath = null;
+        if ($request->hasFile('photo_profile')) {
+            $photoProfilePath = $request->file('photo_profile')->store('users/profiles', 'public');
+        }
+
+        $dto = CreateUserDTO::fromRequest($request, $photoProfilePath);
         $user = $action->execute($dto);
 
         return ApiResponse::created([
@@ -214,7 +226,7 @@ class UserController extends Controller
     /**
      * Update profile of current authenticated user.
      *
-     * @OA\Put(
+     * @OA\Post(
      *   path="/me",
      *   tags={"Users"},
      *   security={{"BearerAuth":{}}},
@@ -224,11 +236,17 @@ class UserController extends Controller
      *   @OA\RequestBody(
      *     required=true,
      *
-     *     @OA\JsonContent(
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
      *
-     *       @OA\Property(property="name", type="string", example="Budi Santoso"),
-     *       @OA\Property(property="email", type="string", format="email", example="budi@example.com"),
-     *       @OA\Property(property="password", type="string", format="password", example="password123")
+     *       @OA\Schema(
+     *         type="object",
+     *
+     *         @OA\Property(property="name", type="string", example="Budi Santoso"),
+     *         @OA\Property(property="email", type="string", format="email", example="budi@example.com"),
+     *         @OA\Property(property="password", type="string", format="password", example="password123"),
+     *         @OA\Property(property="photo_profile", type="string", format="binary")
+     *       )
      *     )
      *   ),
      *
@@ -255,6 +273,18 @@ class UserController extends Controller
         }
 
         $data = $request->validated();
+
+        if ($request->hasFile('photo_profile')) {
+            if ($user->photo_profile) {
+                Storage::disk('public')->delete($user->photo_profile);
+            }
+            $data['photo_profile'] = $request->file('photo_profile')->store('users/profiles', 'public');
+        }
+
+        if (isset($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        }
+
         $user->fill($data);
         $user->save();
 

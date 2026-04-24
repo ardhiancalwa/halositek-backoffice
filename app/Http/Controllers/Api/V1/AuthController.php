@@ -31,14 +31,20 @@ class AuthController extends Controller
      *   @OA\RequestBody(
      *     required=true,
      *
-     *     @OA\JsonContent(
-     *       required={"name","email","password","password_confirmation"},
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
      *
-     *       @OA\Property(property="name", type="string", example="Budi Santoso"),
-     *       @OA\Property(property="email", type="string", format="email", example="budi_santoso@gmail.com"),
-     *       @OA\Property(property="password", type="string", format="password", example="password123"),
-     *       @OA\Property(property="password_confirmation", type="string", format="password", example="password123"),
-     *       @OA\Property(property="role", type="string", example="user")
+     *       @OA\Schema(
+     *         type="object",
+     *         required={"name","email","password","password_confirmation"},
+     *
+     *         @OA\Property(property="name", type="string", example="Budi Santoso"),
+     *         @OA\Property(property="email", type="string", format="email", example="budi_santoso@gmail.com"),
+     *         @OA\Property(property="password", type="string", format="password", example="password123"),
+     *         @OA\Property(property="password_confirmation", type="string", format="password", example="password123"),
+     *         @OA\Property(property="role", type="string", example="user"),
+     *         @OA\Property(property="photo_profile", type="string", format="binary")
+     *       )
      *     )
      *   ),
      *
@@ -53,7 +59,12 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request, RegisterUserAction $action): JsonResponse
     {
-        $dto = RegisterUserDTO::fromRequest($request);
+        $photoProfilePath = null;
+        if ($request->hasFile('photo_profile')) {
+            $photoProfilePath = $request->file('photo_profile')->store('users/profiles', 'public');
+        }
+
+        $dto = RegisterUserDTO::fromRequest($request, $photoProfilePath);
         $user = $action->execute($dto);
 
         $tokens = $this->issueTokenPair($user);

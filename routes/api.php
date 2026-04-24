@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Chat\ConversationController;
 use App\Http\Controllers\Api\Chat\MessageController;
+use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\ArchitectController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\AwardController;
@@ -26,7 +27,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
-        Route::put('/me', [UserController::class, 'updateProfile']);
+        Route::post('/me', [UserController::class, 'updateProfile']);
 
         Route::prefix('/chat')->group(function () {
             Route::get('/conversations', [ConversationController::class, 'index']);
@@ -44,6 +45,10 @@ Route::prefix('v1')->group(function () {
         Route::put('/projects/{id}', [ProjectController::class, 'update']);
         Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
 
+        // Project interactions
+        Route::post('/projects/{id}/like', [ProjectController::class, 'like']);
+        Route::delete('/projects/{id}/like', [ProjectController::class, 'unlike']);
+
         // Award CRUD (Architect/Admin)
         Route::post('/awards', [AwardController::class, 'store']);
         Route::put('/awards/{id}', [AwardController::class, 'update']);
@@ -57,6 +62,10 @@ Route::prefix('v1')->group(function () {
 
     // Admin only routes
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::get('/analytics/overview', [AnalyticsController::class, 'overview']);
+        Route::get('/analytics/user-growth', [AnalyticsController::class, 'userGrowth']);
+        Route::get('/analytics/architect-growth', [AnalyticsController::class, 'architectGrowth']);
+
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}', [UserController::class, 'show']);

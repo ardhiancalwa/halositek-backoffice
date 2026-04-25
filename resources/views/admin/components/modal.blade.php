@@ -1,10 +1,9 @@
-@props([
-    'id',
-    'title' => 'Modal',
-    'widthClass' => 'max-w-lg',
-    'panelClass' => '',
-    'closeLabel' => 'Close modal',
-])
+@php
+    $title = $title ?? 'Modal';
+    $widthClass = $widthClass ?? 'max-w-lg';
+    $panelClass = $panelClass ?? '';
+    $closeLabel = $closeLabel ?? 'Close modal';
+@endphp
 
 <div
     id="{{ $id }}"

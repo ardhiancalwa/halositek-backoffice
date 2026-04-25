@@ -1,7 +1,3 @@
-@props([
-    'project',
-])
-
 @php
     $images = $project->images;
     if (is_string($images)) {
@@ -37,7 +33,7 @@
     ])->filter()->implode(' - ');
 @endphp
 
-<article {{ $attributes->class('group overflow-hidden rounded-2xl border border-[#EEF1F5] bg-white shadow-[0_12px_30px_-26px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(15,23,42,0.65)]') }}>
+<article class="group overflow-hidden rounded-2xl border border-[#EEF1F5] bg-white shadow-[0_12px_30px_-26px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(15,23,42,0.65)]">
     <div class="relative h-44 overflow-hidden bg-[linear-gradient(135deg,#fff7ed_0%,#ffedd5_35%,#fdba74_100%)]">
         @if ($imageUrl)
             <img

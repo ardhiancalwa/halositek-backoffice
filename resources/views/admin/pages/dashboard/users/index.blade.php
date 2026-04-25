@@ -78,7 +78,7 @@
     </div>
 </div>
 
-<x-admin.modal id="user-status-modal" title="Action" width-class="max-w-md">
+@component('admin.components.modal', ['id' => 'user-status-modal', 'title' => 'Action', 'widthClass' => 'max-w-md'])
     <div class="space-y-5">
         <div class="dashboard-modal-highlight">
             <div class="flex items-center gap-3">
@@ -144,7 +144,7 @@
             </div>
         </form>
     </div>
-</x-admin.modal>
+@endcomponent
 
 @push('scripts')
 <script src="{{ asset('js/admin/pages/dashboard/users/index.js') }}?v={{ filemtime(public_path('js/admin/pages/dashboard/users/index.js')) }}"></script>

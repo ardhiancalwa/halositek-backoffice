@@ -20,4 +20,13 @@ class DesignController extends Controller
             'projects' => $projects,
         ]);
     }
+
+    public function show(Project $project): Factory|View
+    {
+        $project->load('architect');
+
+        return view('admin.pages.dashboard.design.show', [
+            'project' => $project,
+        ]);
+    }
 }

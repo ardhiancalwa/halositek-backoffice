@@ -17,7 +17,8 @@
             : \Illuminate\Support\Facades\Storage::url($image);
     }
 
-    $style = filled($project->style) ? strtoupper((string) $project->style) : 'UNTITLED';
+    $styleValue = $project->style?->value ?? $project->style;
+    $style = filled($styleValue) ? strtoupper((string) $styleValue) : 'UNTITLED';
     $status = $project->status?->value ?? (string) $project->status;
     $architectName = $project->architect?->name;
 
@@ -75,14 +76,14 @@
             <p class="mt-3 text-sm font-semibold text-slate-700">{{ $project->estimated_cost }}</p>
         @endif
 
-        <button
-            type="button"
+        <a
+            href="{{ route('admin.dashboard.designs.show', $project) }}"
             class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-100 bg-white py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
         >
             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
             </svg>
             Manage
-        </button>
+        </a>
     </div>
 </article>

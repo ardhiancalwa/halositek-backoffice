@@ -3,6 +3,30 @@
 @section('title', 'Design - HaloSitek')
 
 @section('content')
+@php
+    $currentPage = $projects->currentPage();
+    $lastPage = $projects->lastPage();
+    $pageStart = max(1, $currentPage - 1);
+    $pageEnd = min($lastPage, $currentPage + 1);
+    $pageLinks = [];
+
+    if (($pageEnd - $pageStart) < 2) {
+        if ($pageStart === 1) {
+            $pageEnd = min($lastPage, $pageStart + 2);
+        } elseif ($pageEnd === $lastPage) {
+            $pageStart = max(1, $pageEnd - 2);
+        }
+    }
+
+    for ($page = $pageStart; $page <= $pageEnd; $page++) {
+        $pageLinks[] = [
+            'label' => $page,
+            'url' => $projects->url($page),
+            'isActive' => $page === $currentPage,
+        ];
+    }
+@endphp
+
 <div class="mx-auto max-w-7xl pb-12">
     <div class="mb-7 flex items-center gap-3">
         <a
@@ -41,9 +65,18 @@
             @endforeach
         </div>
 
-        <div class="mt-8">
-            {{ $projects->links() }}
-        </div>
+        @component('admin.components.pagination-footer', [
+            'currentPage' => $currentPage,
+            'totalPages' => $lastPage,
+            'pageLinks' => $pageLinks,
+            'previousUrl' => $projects->previousPageUrl(),
+            'nextUrl' => $projects->nextPageUrl(),
+            'previousDisabled' => $projects->onFirstPage(),
+            'nextDisabled' => ! $projects->hasMorePages(),
+            'wrapperClass' => 'mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm',
+            'footerClass' => 'border-t-0',
+        ])
+        @endcomponent
     @endif
 </div>
 @endsection

@@ -17,7 +17,8 @@
             : \Illuminate\Support\Facades\Storage::url($image);
     }
 
-    $style = filled($project->style) ? strtoupper((string) $project->style) : 'UNTITLED';
+    $styleValue = $project->style?->value ?? $project->style;
+    $style = filled($styleValue) ? strtoupper((string) $styleValue) : 'UNTITLED';
     $status = $project->status?->value ?? (string) $project->status;
     $architectName = $project->architect?->name;
 

@@ -124,6 +124,25 @@
         const modal = document.querySelector('[data-delete-modal]');
         const openButton = document.querySelector('[data-delete-modal-open]');
         const closeButtons = document.querySelectorAll('[data-delete-modal-close]');
+        const counterInputs = document.querySelectorAll('[data-char-input]');
+
+        const formatCount = (count) => String(count).padStart(2, '0');
+
+        counterInputs.forEach((input) => {
+            const counter = input.parentElement?.querySelector('[data-char-count]');
+            const max = input.dataset.charMax;
+
+            if (!counter || !max) {
+                return;
+            }
+
+            const updateCounter = () => {
+                counter.textContent = `${formatCount(input.value.length)}/${max}`;
+            };
+
+            updateCounter();
+            input.addEventListener('input', updateCounter);
+        });
 
         if (!modal || !openButton) {
             return;

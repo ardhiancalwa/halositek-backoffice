@@ -40,9 +40,10 @@
         ->implode('');
     $uploadedAt = $project->created_at?->format('Y/m/d') ?? '-';
     $description = filled($project->description) ? $project->description : 'No project description has been added yet.';
-    $status = strtoupper((string) ($project->status?->value ?? $project->status ?? 'pending'));
     $likeCount = number_format((int) ($project->likes_count ?? 0));
     $styleOptions = ProjectStyle::cases();
+    $titleValue = old('name', $project->name ?? '');
+    $descriptionValue = old('description', $project->description ?? '');
 @endphp
 
 <div class="space-y-7">
@@ -71,10 +72,13 @@
                                     <input
                                         type="text"
                                         name="name"
+                                        maxlength="64"
+                                        data-char-input
+                                        data-char-max="64"
                                         class="w-full border-0 bg-transparent text-sm font-semibold text-slate-900 outline-none focus:ring-0"
-                                        value="{{ old('name', $project->name) }}"
+                                        value="{{ $titleValue }}"
                                     >
-                                    <span class="ml-2 text-xs font-medium text-slate-400">{{ str_pad((string) strlen(old('name', $project->name ?? '')), 2, '0', STR_PAD_LEFT) }}/255</span>
+                                    <span class="ml-2 text-xs font-medium text-slate-400" data-char-count>{{ str_pad((string) strlen($titleValue), 2, '0', STR_PAD_LEFT) }}/64</span>
                                 </div>
                                 <div class="flex w-[22%] items-center justify-center">
                                     <p class="text-sm font-semibold tracking-tight text-slate-900">{{ $uploadedAt }}</p>
@@ -102,8 +106,8 @@
                 <div class="flex flex-col">
                     <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">Description</p>
                     <div class="mt-2 flex justify-between rounded-lg border border-slate-300 bg-white px-4 py-3 hover:border-[#D97706] focus-within:border-[#D97706] focus-within:ring-1 focus-within:ring-[#D97706]">
-                        <textarea name="description" class="w-full resize-none border-0 bg-transparent text-sm font-medium leading-relaxed text-slate-700 outline-none focus:ring-0" rows="3">{{ old('description', $project->description) }}</textarea>
-                        <span class="ml-4 mt-auto text-xs font-medium text-slate-400">{{ str_pad((string) strlen(old('description', $project->description ?? '')), 2, '0', STR_PAD_LEFT) }}/5000</span>
+                        <textarea name="description" maxlength="255" data-char-input data-char-max="255" class="w-full resize-none border-0 bg-transparent text-sm font-medium leading-relaxed text-slate-700 outline-none focus:ring-0" rows="3">{{ $descriptionValue }}</textarea>
+                        <span class="ml-4 mt-auto text-xs font-medium text-slate-400" data-char-count>{{ str_pad((string) strlen($descriptionValue), 2, '0', STR_PAD_LEFT) }}/255</span>
                     </div>
                     @error('description')
                         <p class="mt-2 text-xs font-medium text-red-500">{{ $message }}</p>

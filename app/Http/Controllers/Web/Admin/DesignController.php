@@ -38,9 +38,9 @@ class DesignController extends Controller
     public function update(Request $request, Project $project): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:64'],
             'style' => ['required', new Enum(ProjectStyle::class)],
-            'description' => ['nullable', 'string', 'max:5000'],
+            'description' => ['nullable', 'string', 'max:255'],
             'estimated_cost' => ['required', 'string', 'max:255'],
             'highlight_features' => ['nullable', 'string', 'max:255'],
             'area' => ['nullable', 'string', 'max:100'],

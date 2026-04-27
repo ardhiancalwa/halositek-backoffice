@@ -238,6 +238,15 @@
                         input.files = dt.files;
                         
                         div.remove();
+                        
+                        // Handle empty state visibility
+                        if (emptyState) {
+                            if (input.files.length > 0 || container.querySelectorAll('.existing-preview:not(.marked-deleted)').length > 0) {
+                                emptyState.classList.add('hidden');
+                            } else {
+                                emptyState.classList.remove('hidden');
+                            }
+                        }
                     });
                     
                     container.insertBefore(div, label);
@@ -248,7 +257,7 @@
 
                 // Handle empty state visibility for layout images
                 if (emptyState) {
-                    if (input.files.length > 0 || container.querySelectorAll('.relative.group').length > 0) {
+                    if (input.files.length > 0 || container.querySelectorAll('.existing-preview:not(.marked-deleted)').length > 0) {
                         emptyState.classList.add('hidden');
                     } else {
                         emptyState.classList.remove('hidden');
@@ -259,6 +268,85 @@
 
         handleImagePreview('design-images-input', 'h-48');
         handleImagePreview('layout-images-input', 'h-64');
+        
+        // Handle existing image deletions
+        document.querySelectorAll('.delete-existing-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const container = this.closest('.existing-preview');
+                const isMainDesign = container.classList.contains('h-[360px]');
+                const img = container.querySelector('img');
+                const path = this.dataset.path;
+                const inputName = this.dataset.inputName;
+                const form = document.getElementById('design-update-form');
+                
+                const isDeleted = container.classList.contains('marked-deleted');
+                const parentGrid = container.closest('div[id$="-grid"]');
+                const emptyState = parentGrid ? parentGrid.querySelector('.col-span-full') : null;
+                
+                if (isDeleted) {
+                    // Undo deletion
+                    container.classList.remove('marked-deleted');
+                    img.classList.remove('opacity-40', 'grayscale');
+                    
+                    // Remove hidden input
+                    const hiddenInput = form.querySelector(`input[name="${inputName}"][value="${path}"]`);
+                    if (hiddenInput) hiddenInput.remove();
+                    
+                    // Remove deleted badge
+                    const badge = container.querySelector('.deleted-badge');
+                    if (badge) badge.remove();
+                    
+                    // Restore button icon
+                    this.innerHTML = `
+                        <svg class="h-${isMainDesign ? '4' : '3'} w-${isMainDesign ? '4' : '3'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
+                        </svg>
+                    `;
+                    this.classList.replace('text-slate-500', 'text-red-500');
+                } else {
+                    // Mark as deleted
+                    container.classList.add('marked-deleted');
+                    img.classList.add('opacity-40', 'grayscale');
+                    
+                    // Add hidden input to form
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = inputName;
+                    hiddenInput.value = path;
+                    form.appendChild(hiddenInput);
+                    
+                    // Add deleted badge
+                    const badge = document.createElement('span');
+                    badge.className = 'deleted-badge absolute top-3 left-3 rounded-md bg-slate-800 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm';
+                    badge.textContent = 'Deleted (Pending Save)';
+                    container.appendChild(badge);
+                    
+                    // Change button to an undo icon
+                    this.innerHTML = `
+                        <svg class="h-${isMainDesign ? '4' : '3'} w-${isMainDesign ? '4' : '3'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                            <path d="M3 3v5h5" />
+                        </svg>
+                    `;
+                    this.classList.replace('text-red-500', 'text-slate-500');
+                }
+                
+                // Toggle empty state if present
+                if (emptyState && parentGrid) {
+                    const inputWrap = parentGrid.nextElementSibling;
+                    const hasNewFiles = inputWrap && inputWrap.files && inputWrap.files.length > 0;
+                    
+                    if (hasNewFiles || parentGrid.querySelectorAll('.existing-preview:not(.marked-deleted)').length > 0) {
+                        emptyState.classList.add('hidden');
+                    } else {
+                        emptyState.classList.remove('hidden');
+                    }
+                }
+            });
+        });
     });
 </script>
 @endpush

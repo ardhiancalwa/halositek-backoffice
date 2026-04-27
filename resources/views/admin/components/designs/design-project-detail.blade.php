@@ -2,7 +2,7 @@
     use App\Enums\ProjectStyle;
     use Illuminate\Support\Facades\Storage;
 
-    $resolveMediaUrls = static function (mixed $media): array {
+    $resolveMediaConfig = static function (mixed $media): array {
         $items = $media;
 
         if (is_string($items)) {
@@ -15,20 +15,26 @@
 
         return collect($items)
             ->filter(fn ($value) => is_string($value) && filled($value))
-            ->map(function (string $value): string {
+            ->map(function (string $value): array {
                 if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
-                    return $value;
+                    return ['url' => $value, 'path' => $value];
                 }
 
-                return Storage::url($value);
+                return ['url' => Storage::url($value), 'path' => $value];
             })
             ->values()
             ->all();
     };
 
-    $imageUrls = $resolveMediaUrls($project->images);
-    $layoutImageUrls = $resolveMediaUrls($project->layout_images);
-    $heroImage = $imageUrls[0] ?? null;
+    $imagesConfig = $resolveMediaConfig($project->images);
+    $layoutImagesConfig = $resolveMediaConfig($project->layout_images);
+    $heroImageConfig = $imagesConfig[0] ?? null;
+    $heroImage = $heroImageConfig['url'] ?? null;
+    $heroImagePath = $heroImageConfig['path'] ?? null;
+    
+    // For legacy usages if any, extract the URLs back
+    $imageUrls = array_column($imagesConfig, 'url');
+    $layoutImageUrls = array_column($layoutImagesConfig, 'url');
     $styleValue = $project->style?->value ?? $project->style;
     $styleLabel = filled($styleValue) ? ucfirst((string) $styleValue) : 'Not set';
     $architect = $project->architect;
@@ -192,13 +198,13 @@
 
         <div class="mt-6">
             @if ($heroImage)
-                <div class="relative group">
+                <div class="relative group existing-preview">
                     <img
                         src="{{ $heroImage }}"
                         alt="{{ $project->name }} main design"
                         class="h-[360px] w-full rounded-2xl object-cover"
                     >
-                    <button type="button" class="absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-red-500 shadow-md transition hover:bg-red-50">
+                    <button type="button" class="delete-existing-btn absolute bottom-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white text-red-500 shadow-md transition hover:bg-red-50" data-path="{{ $heroImagePath }}" data-input-name="delete_images[]">
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 6h18" />
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4" />
@@ -213,16 +219,16 @@
                 </div>
             @endif
 
-            <div class="mt-4 grid gap-4 grid-cols-2 md:grid-cols-4">
-                @if (count($imageUrls) > 1)
-                    @foreach (array_slice($imageUrls, 1) as $mediaUrl)
-                        <div class="relative group h-48">
+            <div class="mt-4 grid gap-4 grid-cols-2 md:grid-cols-4" id="design-images-grid">
+                @if (count($imagesConfig) > 1)
+                    @foreach (array_slice($imagesConfig, 1) as $mediaConfig)
+                        <div class="relative group h-48 existing-preview">
                             <img
-                                src="{{ $mediaUrl }}"
+                                src="{{ $mediaConfig['url'] }}"
                                 alt="{{ $project->name }} media {{ $loop->iteration + 1 }}"
                                 class="h-full w-full rounded-2xl object-cover"
                             >
-                            <button type="button" class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-500 shadow-sm transition hover:bg-red-50">
+                            <button type="button" class="delete-existing-btn absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-500 shadow-sm transition hover:bg-red-50" data-path="{{ $mediaConfig['path'] }}" data-input-name="delete_images[]">
                                 <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M3 6h18" />
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4" />
@@ -261,15 +267,15 @@
             <h2 class="text-xl font-bold tracking-tight">Layout Design</h2>
         </div>
 
-        <div class="mt-6 grid gap-4 grid-cols-2 md:grid-cols-4">
-            @forelse ($layoutImageUrls as $layoutUrl)
-                <div class="relative group h-64">
+        <div class="mt-6 grid gap-4 grid-cols-2 md:grid-cols-4" id="layout-images-grid">
+            @forelse ($layoutImagesConfig as $layoutConfig)
+                <div class="relative group h-64 existing-preview">
                     <img
-                        src="{{ $layoutUrl }}"
+                        src="{{ $layoutConfig['url'] }}"
                         alt="{{ $project->name }} layout {{ $loop->iteration }}"
                         class="h-full w-full rounded-2xl object-cover border border-slate-200"
                     >
-                    <button type="button" class="absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-500 shadow-sm transition hover:bg-red-50">
+                    <button type="button" class="delete-existing-btn absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-500 shadow-sm transition hover:bg-red-50" data-path="{{ $layoutConfig['path'] }}" data-input-name="delete_layout_images[]">
                         <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 6h18" />
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4" />

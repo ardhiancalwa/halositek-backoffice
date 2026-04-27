@@ -61,7 +61,7 @@
     @else
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
             @foreach ($projects as $project)
-                @include('admin.components.design-card', ['project' => $project])
+                @include('admin.components.designs.design-card', ['project' => $project])
             @endforeach
         </div>
 

@@ -32,6 +32,8 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
 
     Route::get('/designs', [DesignController::class, 'index'])->name('admin.dashboard.designs.index');
     Route::get('/designs/{project}', [DesignController::class, 'show'])->name('admin.dashboard.designs.show');
+    Route::put('/projects/{project}', [DesignController::class, 'update'])->name('admin.projects.update');
+    Route::delete('/projects/{project}', [DesignController::class, 'destroy'])->name('admin.projects.destroy');
     Route::get('/consultations', [ConsultationsController::class, 'index'])->name('admin.dashboard.consultations.index');
     Route::get('/ai-bots', [AiBotsController::class, 'index'])->name('admin.dashboard.ai-bots.index');
     Route::post('/logout', [AuthController::class, 'logout'])->name('admin.dashboard.logout');

@@ -19,14 +19,7 @@
 
     $styleValue = $project->style?->value ?? $project->style;
     $style = filled($styleValue) ? strtoupper((string) $styleValue) : 'UNTITLED';
-    $status = $project->status?->value ?? (string) $project->status;
     $architectName = $project->architect?->name;
-
-    $badgeClasses = match ($status) {
-        'approved' => 'bg-emerald-500/90 text-white',
-        'declined' => 'bg-rose-500/90 text-white',
-        default => 'bg-amber-400/90 text-slate-900',
-    };
 
     $meta = collect([
         filled($project->area) ? (string) $project->area : null,
@@ -51,8 +44,8 @@
             </div>
         @endif
 
-        <span class="absolute right-3 top-3 rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.24em] {{ $badgeClasses }}">
-            {{ strtoupper($status ?: 'pending') }}
+        <span class="absolute right-3 top-3 rounded-full bg-white/92 px-3 py-1 text-[10px] font-bold tracking-[0.24em] text-slate-900 shadow-sm">
+            {{ $style }}
         </span>
     </div>
 

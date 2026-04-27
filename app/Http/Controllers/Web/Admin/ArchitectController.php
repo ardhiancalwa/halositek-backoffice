@@ -14,9 +14,50 @@ use Illuminate\View\View;
 
 class ArchitectController extends Controller
 {
-    public function index(): Factory|View
+    public function index(Request $request): Factory|View
     {
-        return view('admin.pages.dashboard.architects.index');
+        $type = $request->input('type', 'award');
+        $status = $request->input('status') ?? '';
+        $perPage = 10;
+
+        // Statistics
+        $awardStats = [
+            'pending' => Award::query()->where('status', 'pending')->count(),
+            'approved' => Award::query()->where('status', 'approved')->count(),
+            'declined' => Award::query()->where('status', 'declined')->count(),
+        ];
+
+        $designStats = [
+            'pending' => Project::query()->where('status', 'pending')->count(),
+            'approved' => Project::query()->where('status', 'approved')->count(),
+            'declined' => Project::query()->where('status', 'declined')->count(),
+        ];
+
+        if ($type === 'design') {
+            $query = Project::with('architect')->latest();
+
+            if ($status && \in_array($status, ['pending', 'approved', 'declined'], true)) {
+                $query->where('status', $status);
+            }
+
+            $items = $query->paginate($perPage)->withQueryString();
+        } else {
+            $query = Award::with('architect')->latest();
+
+            if ($status && \in_array($status, ['pending', 'approved', 'declined'], true)) {
+                $query->where('status', $status);
+            }
+
+            $items = $query->paginate($perPage)->withQueryString();
+        }
+
+        return view('admin.pages.dashboard.architects.index', compact(
+            'items',
+            'awardStats',
+            'designStats',
+            'type',
+            'status',
+        ));
     }
 
     public function awards(Request $request): JsonResponse
@@ -26,7 +67,7 @@ class ArchitectController extends Controller
         if ($request->filled('status')) {
             $status = $request->string('status')->toString();
 
-            if (in_array($status, ['pending', 'approved', 'declined'], true)) {
+            if (\in_array($status, ['pending', 'approved', 'declined'], true)) {
                 $query->where('status', $status);
             }
         }

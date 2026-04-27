@@ -6,15 +6,15 @@
 @php
     $currentPage = $projects->currentPage();
     $lastPage = $projects->lastPage();
-    $pageStart = max(1, $currentPage - 1);
-    $pageEnd = min($lastPage, $currentPage + 1);
+    $pageStart = max(1, $currentPage - 2);
+    $pageEnd = min($lastPage, $currentPage + 2);
     $pageLinks = [];
 
-    if (($pageEnd - $pageStart) < 2) {
+    if (($pageEnd - $pageStart) < 4) {
         if ($pageStart === 1) {
-            $pageEnd = min($lastPage, $pageStart + 2);
+            $pageEnd = min($lastPage, $pageStart + 4);
         } elseif ($pageEnd === $lastPage) {
-            $pageStart = max(1, $pageEnd - 2);
+            $pageStart = max(1, $pageEnd - 4);
         }
     }
 
@@ -29,25 +29,32 @@
 
 <div class="mx-auto max-w-7xl pb-12">
     <div class="mb-7 flex items-center gap-3">
-        <a
-            href="{{ route('admin.dashboard.index') }}"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:text-[#D97706]"
-            aria-label="Back to dashboard"
-        >
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 18l-6-6 6-6" />
-            </svg>
-        </a>
-
         <div class="flex-1">
             <h1 class="text-[28px] font-bold tracking-tight text-slate-900">Design Gallery Overview</h1>
-            <p class="mt-1 text-sm text-slate-500">Explore project submissions from the database in a reusable card layout.</p>
         </div>
 
         <div class="hidden rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3 text-right sm:block">
             <p class="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#E8820C]">Total projects</p>
             <p class="mt-1 text-2xl font-bold tracking-tight text-slate-900">{{ number_format($projects->total()) }}</p>
         </div>
+    </div>
+
+    <div class="mb-7 flex flex-wrap items-center gap-2">
+        <a
+            href="{{ route('admin.dashboard.designs.index') }}"
+            class="inline-flex items-center rounded-full border px-4 py-2 text-xs font-semibold transition {{ $selectedStyle === null ? 'border-[#D97706] bg-[#D97706] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900' }}"
+        >
+            All Design
+        </a>
+
+        @foreach ($styleFilters as $styleFilter)
+            <a
+                href="{{ route('admin.dashboard.designs.index', ['style' => $styleFilter['value']]) }}"
+                class="inline-flex items-center rounded-full border px-4 py-2 text-xs font-semibold transition {{ $selectedStyle === $styleFilter['value'] ? 'border-[#D97706] bg-[#D97706] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900' }}"
+            >
+                {{ $styleFilter['label'] }}
+            </a>
+        @endforeach
     </div>
 
     @if ($projects->isEmpty())

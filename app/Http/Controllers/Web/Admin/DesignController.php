@@ -14,15 +14,35 @@ use Illuminate\View\View;
 
 class DesignController extends Controller
 {
-    public function index(): Factory|View
+    public function index(Request $request): Factory|View
     {
-        $projects = Project::query()
+        $selectedStyle = strtolower(trim((string) $request->query('style', '')));
+        $selectedStyle = ProjectStyle::tryFrom($selectedStyle)?->value;
+
+        $styleFilters = array_map(
+            static fn (ProjectStyle $style): array => [
+                'value' => $style->value,
+                'label' => $style->name,
+            ],
+            ProjectStyle::cases()
+        );
+
+        $query = Project::query()
             ->with('architect')
-            ->latest()
-            ->paginate(12);
+            ->latest();
+
+        if ($selectedStyle !== null) {
+            $query->where('style', $selectedStyle);
+        }
+
+        $projects = $query
+            ->paginate(12)
+            ->withQueryString();
 
         return view('admin.pages.dashboard.design.index', [
             'projects' => $projects,
+            'selectedStyle' => $selectedStyle,
+            'styleFilters' => $styleFilters,
         ]);
     }
 

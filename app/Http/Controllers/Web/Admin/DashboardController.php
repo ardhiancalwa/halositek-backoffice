@@ -22,13 +22,12 @@ class DashboardController extends Controller
 
     public function dashboardStats(): JsonResponse
     {
-        $totalUsers = User::query()->count();
+        $totalUsers = User::query()
+            ->where('role', UserRole::User->value)
+            ->count();
 
         $totalArchitects = User::query()
             ->where('role', UserRole::Architect->value)
-            ->whereHas('architectProfile', function ($query): void {
-                $query->where('status', 'approved');
-            })
             ->count();
 
         $totalDesigns = Project::query()->count();

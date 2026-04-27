@@ -12,6 +12,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -32,8 +33,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureUserHasRole::class,
         ]);
 
-        $middleware->statefulApi();
-
         $middleware->api(prepend: [
             ForceJsonResponse::class,
         ]);
@@ -46,6 +45,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 // 1. Validation Error
                 if ($e instanceof ValidationException) {
                     return ApiResponse::validationError($e->errors(), 'Validasi gagal.');
+                }
+
+                // 1.5 CSRF Error (usually SPA cookie auth or web middleware leaking into API)
+                if ($e instanceof TokenMismatchException) {
+                    return ApiResponse::error('CSRF token mismatch.', ApiStatus::CSRF_TOKEN_MISMATCH);
                 }
 
                 // 2. Authentication Error (Not logged in / invalid token)

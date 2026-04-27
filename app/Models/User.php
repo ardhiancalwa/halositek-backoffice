@@ -130,4 +130,36 @@ class User extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Message::class, 'user_id');
     }
+
+    /**
+     * @return HasMany<Consultation, self>
+     */
+    public function consultationsAsUser(): HasMany
+    {
+        return $this->hasMany(Consultation::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<Consultation, self>
+     */
+    public function consultationsAsArchitect(): HasMany
+    {
+        return $this->hasMany(Consultation::class, 'architect_id');
+    }
+
+    /**
+     * @return HasMany<ConsultationReport, self>
+     */
+    public function consultationReports(): HasMany
+    {
+        return $this->hasMany(ConsultationReport::class, 'requester_id');
+    }
+
+    /**
+     * @return HasMany<AiChatbotLog, self>
+     */
+    public function aiChatbotLogs(): HasMany
+    {
+        return $this->hasMany(AiChatbotLog::class, 'user_id');
+    }
 }

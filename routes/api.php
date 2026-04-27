@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\Api\AiChatbotManagementController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\ArchitectController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AwardController;
+use App\Http\Controllers\Api\ConsultationManagementController;
 use App\Http\Controllers\Api\ConversationController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\MessageController;
@@ -84,6 +86,21 @@ Route::prefix('v1')->group(function () {
         Route::post('/faqs', [FaqController::class, 'store']);
         Route::put('/faqs/{id}', [FaqController::class, 'update']);
         Route::delete('/faqs/{id}', [FaqController::class, 'destroy']);
+
+        // Consultation management
+        Route::get('/consultations/reports/stats', [ConsultationManagementController::class, 'reportStats']);
+        Route::get('/consultations/reports', [ConsultationManagementController::class, 'reportList']);
+        Route::put('/consultations/reports/{reportId}/action', [ConsultationManagementController::class, 'updateReportAction']);
+
+        Route::get('/consultations/payroll/summary', [ConsultationManagementController::class, 'payrollSummary']);
+        Route::get('/consultations/payroll/queue', [ConsultationManagementController::class, 'payrollQueue']);
+        Route::get('/consultations/payroll/queue/{architectId}', [ConsultationManagementController::class, 'payrollReleaseDetail']);
+        Route::post('/consultations/payroll/queue/{architectId}/release', [ConsultationManagementController::class, 'releasePayroll']);
+
+        // AI chatbot management
+        Route::get('/ai-chatbot/performance', [AiChatbotManagementController::class, 'performance']);
+        Route::get('/ai-chatbot/logs', [AiChatbotManagementController::class, 'activityLogs']);
+        Route::get('/ai-chatbot/logs/{logId}', [AiChatbotManagementController::class, 'showActivityLog']);
     });
 
     // Public routes (down here to avoid intercepting wishlist if grouped)

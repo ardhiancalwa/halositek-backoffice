@@ -30,15 +30,17 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
-            <form method="POST" action="{{ route('admin.projects.destroy', $project) }}" onsubmit="return confirm('Delete this design permanently?');">
+            <button
+                type="button"
+                class="inline-flex items-center justify-center rounded-lg border border-red-200 bg-white px-5 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50"
+                data-delete-modal-open
+            >
+                Delete Design
+            </button>
+
+            <form method="POST" action="{{ route('admin.projects.destroy', $project) }}" id="design-delete-form">
                 @csrf
                 @method('DELETE')
-                <button
-                    type="submit"
-                    class="inline-flex items-center justify-center rounded-lg border border-red-200 bg-white px-5 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50"
-                >
-                    Delete Design
-                </button>
             </form>
 
             <button
@@ -63,8 +65,99 @@
         @csrf
         @method('PUT')
 
-        @include('admin.components.design-project-detail', ['project' => $project])
+        @include('admin.components.designs.design-project-detail', ['project' => $project])
     </form>
+
+    <div
+        class="dashboard-confirm-overlay hidden"
+        data-delete-modal
+        aria-hidden="true"
+    >
+        <div
+            class="dashboard-confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-design-modal-title"
+        >
+            <div class="dashboard-confirm-header">
+                <div class="dashboard-confirm-icon">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 9v4" />
+                        <path d="M12 17h.01" />
+                        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h2 id="delete-design-modal-title" class="dashboard-confirm-title text-lg font-bold tracking-tight">
+                        Are you sure?
+                    </h2>
+                    <p class="dashboard-confirm-copy text-sm leading-6">
+                        This will permanently delete <span class="font-semibold text-slate-900">{{ $project->name }}</span> and remove its saved design media.
+                    </p>
+                </div>
+            </div>
+
+            <div class="px-6 pt-5">
+                <div class="dashboard-modal-highlight">
+                    <p class="text-sm font-medium text-slate-700">
+                        This action cannot be undone.
+                    </p>
+                </div>
+            </div>
+
+            <div class="dashboard-confirm-actions">
+                <button type="button" class="dashboard-confirm-secondary-button text-sm font-semibold" data-delete-modal-close>
+                    Cancel
+                </button>
+                <button type="submit" form="design-delete-form" class="dashboard-confirm-danger-button text-sm font-semibold">
+                    Yes, Delete Design
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
-php artisan migrate:fresh
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.querySelector('[data-delete-modal]');
+        const openButton = document.querySelector('[data-delete-modal-open]');
+        const closeButtons = document.querySelectorAll('[data-delete-modal-close]');
+
+        if (!modal || !openButton) {
+            return;
+        }
+
+        const openModal = () => {
+            modal.classList.remove('hidden');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('overflow-hidden');
+        };
+
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('overflow-hidden');
+        };
+
+        openButton.addEventListener('click', openModal);
+
+        closeButtons.forEach((button) => {
+            button.addEventListener('click', closeModal);
+        });
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+                closeModal();
+            }
+        });
+    });
+</script>
+@endpush

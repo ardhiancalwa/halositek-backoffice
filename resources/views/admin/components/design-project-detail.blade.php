@@ -1,4 +1,5 @@
 @php
+    use App\Enums\ProjectStyle;
     use Illuminate\Support\Facades\Storage;
 
     $resolveMediaUrls = static function (mixed $media): array {
@@ -41,6 +42,7 @@
     $description = filled($project->description) ? $project->description : 'No project description has been added yet.';
     $status = strtoupper((string) ($project->status?->value ?? $project->status ?? 'pending'));
     $likeCount = number_format((int) ($project->likes_count ?? 0));
+    $styleOptions = ProjectStyle::cases();
 @endphp
 
 <div class="space-y-7">
@@ -66,13 +68,21 @@
                             </div>
                             <div class="mt-2 flex items-center justify-between">
                                 <div class="flex w-3/4 items-center justify-between rounded-lg border border-slate-300 bg-white px-4 py-2 hover:border-[#D97706] focus-within:border-[#D97706] focus-within:ring-1 focus-within:ring-[#D97706]">
-                                    <input type="text" class="w-full border-0 bg-transparent text-sm font-semibold text-slate-900 outline-none focus:ring-0" value="{{ $project->name }}">
-                                    <span class="ml-2 text-xs font-medium text-slate-400">{{ str_pad((string) strlen($project->name ?? ''), 2, '0', STR_PAD_LEFT) }}/12</span>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        class="w-full border-0 bg-transparent text-sm font-semibold text-slate-900 outline-none focus:ring-0"
+                                        value="{{ old('name', $project->name) }}"
+                                    >
+                                    <span class="ml-2 text-xs font-medium text-slate-400">{{ str_pad((string) strlen(old('name', $project->name ?? '')), 2, '0', STR_PAD_LEFT) }}/255</span>
                                 </div>
                                 <div class="flex w-[22%] items-center justify-center">
                                     <p class="text-sm font-semibold tracking-tight text-slate-900">{{ $uploadedAt }}</p>
                                 </div>
                             </div>
+                            @error('name')
+                                <p class="mt-2 text-xs font-medium text-red-500">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -92,9 +102,12 @@
                 <div class="flex flex-col">
                     <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">Description</p>
                     <div class="mt-2 flex justify-between rounded-lg border border-slate-300 bg-white px-4 py-3 hover:border-[#D97706] focus-within:border-[#D97706] focus-within:ring-1 focus-within:ring-[#D97706]">
-                        <textarea class="w-full resize-none border-0 bg-transparent text-sm font-medium leading-relaxed text-slate-700 outline-none focus:ring-0" rows="3">{{ $description }}</textarea>
-                        <span class="ml-4 mt-auto text-xs font-medium text-slate-400">{{ str_pad((string) strlen($description), 2, '0', STR_PAD_LEFT) }}/30</span>
+                        <textarea name="description" class="w-full resize-none border-0 bg-transparent text-sm font-medium leading-relaxed text-slate-700 outline-none focus:ring-0" rows="3">{{ old('description', $project->description) }}</textarea>
+                        <span class="ml-4 mt-auto text-xs font-medium text-slate-400">{{ str_pad((string) strlen(old('description', $project->description ?? '')), 2, '0', STR_PAD_LEFT) }}/5000</span>
                     </div>
+                    @error('description')
+                        <p class="mt-2 text-xs font-medium text-red-500">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
         </div>
@@ -114,8 +127,12 @@
                 <div class="w-full flex-1 rounded-lg border border-slate-300 bg-white px-4 py-3 cursor-pointer hover:border-[#D97706] focus-within:border-[#D97706] focus-within:ring-1 focus-within:ring-[#D97706]">
                     <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Architectural Style</p>
                     <div class="mt-1 flex items-center justify-between">
-                        <select class="w-full appearance-none border-0 bg-transparent px-0 text-sm font-semibold tracking-tight text-slate-900 outline-none focus:ring-0">
-                            <option>{{ $styleLabel }}</option>
+                        <select name="style" class="w-full appearance-none border-0 bg-transparent px-0 text-sm font-semibold tracking-tight text-slate-900 outline-none focus:ring-0">
+                            @foreach ($styleOptions as $styleOption)
+                                <option value="{{ $styleOption->value }}" @selected(old('style', $styleValue) === $styleOption->value)>
+                                    {{ ucfirst($styleOption->value) }}
+                                </option>
+                            @endforeach
                         </select>
                         <svg class="pointer-events-none h-4 w-4 text-slate-500" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
@@ -125,12 +142,12 @@
 
                 <div class="w-full flex-1 rounded-lg border border-slate-300 bg-white px-4 py-3 hover:border-[#D97706] focus-within:border-[#D97706] focus-within:ring-1 focus-within:ring-[#D97706]">
                     <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Area</p>
-                    <input type="text" class="mt-1 w-full border-0 bg-transparent px-0 text-sm font-semibold tracking-tight text-slate-900 outline-none focus:ring-0" value="{{ $project->area ?: '-' }}">
+                    <input type="text" name="area" class="mt-1 w-full border-0 bg-transparent px-0 text-sm font-semibold tracking-tight text-slate-900 outline-none focus:ring-0" value="{{ old('area', $project->area) }}">
                 </div>
 
                 <div class="w-full flex-[1.5] rounded-lg border border-slate-300 bg-white px-4 py-3 hover:border-[#D97706] focus-within:border-[#D97706] focus-within:ring-1 focus-within:ring-[#D97706]">
                     <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Highlight Features</p>
-                    <input type="text" class="mt-1 w-full border-0 bg-transparent px-0 text-sm font-semibold tracking-tight text-slate-900 outline-none focus:ring-0" value="{{ $project->highlight_features ?: '-' }}">
+                    <input type="text" name="highlight_features" class="mt-1 w-full border-0 bg-transparent px-0 text-sm font-semibold tracking-tight text-slate-900 outline-none focus:ring-0" value="{{ old('highlight_features', $project->highlight_features) }}">
                 </div>
 
                 <div class="flex w-32 flex-col justify-center px-4 py-3">
@@ -142,9 +159,20 @@
             <div class="mt-4 rounded-lg border border-[#D97706] bg-[#FFFBF5] px-4 py-3">
                 <div class="flex items-center justify-between">
                     <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400">Estimated Cost</p>
-                    <p class="text-sm font-bold tracking-tight text-[#D97706]">Rp. {{ $project->estimated_cost ?: '-' }}</p>
+                    <input
+                        type="text"
+                        name="estimated_cost"
+                        class="w-56 border-0 bg-transparent p-0 text-right text-sm font-bold tracking-tight text-[#D97706] outline-none focus:ring-0"
+                        value="{{ old('estimated_cost', $project->estimated_cost) }}"
+                    >
                 </div>
             </div>
+
+            @foreach (['style', 'area', 'highlight_features', 'estimated_cost'] as $field)
+                @error($field)
+                    <p class="mt-2 text-xs font-medium text-red-500">{{ $message }}</p>
+                @enderror
+            @endforeach
         </div>
     </section>
 
@@ -199,14 +227,21 @@
                         </div>
                     @endforeach
                 @endif
-                <button type="button" class="flex h-48 flex-col items-center justify-center space-y-2 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 transition hover:border-[#D97706] hover:text-[#D97706] hover:bg-[#FFFBF5]">
+                <label for="design-images-input" class="flex h-48 cursor-pointer flex-col items-center justify-center space-y-2 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 transition hover:border-[#D97706] hover:text-[#D97706] hover:bg-[#FFFBF5]">
                     <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19" />
                         <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                     <span class="text-xs font-bold uppercase tracking-wider">Add</span>
-                </button>
+                </label>
             </div>
+            <input id="design-images-input" type="file" name="images[]" accept=".jpg,.jpeg,.png,.webp" multiple class="hidden">
+            @error('images')
+                <p class="mt-3 text-xs font-medium text-red-500">{{ $message }}</p>
+            @enderror
+            @error('images.*')
+                <p class="mt-3 text-xs font-medium text-red-500">{{ $message }}</p>
+            @enderror
         </div>
     </section>
 
@@ -242,13 +277,20 @@
                     No layout design uploaded
                 </div>
             @endforelse
-            <button type="button" class="flex h-64 flex-col items-center justify-center space-y-2 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 transition hover:border-[#D97706] hover:text-[#D97706] hover:bg-[#FFFBF5]">
+            <label for="layout-images-input" class="flex h-64 cursor-pointer flex-col items-center justify-center space-y-2 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 transition hover:border-[#D97706] hover:text-[#D97706] hover:bg-[#FFFBF5]">
                 <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19" />
                     <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
                 <span class="text-xs font-bold uppercase tracking-wider">Add</span>
-            </button>
+            </label>
         </div>
+        <input id="layout-images-input" type="file" name="layout_images[]" accept=".jpg,.jpeg,.png,.webp" multiple class="hidden">
+        @error('layout_images')
+            <p class="mt-3 text-xs font-medium text-red-500">{{ $message }}</p>
+        @enderror
+        @error('layout_images.*')
+            <p class="mt-3 text-xs font-medium text-red-500">{{ $message }}</p>
+        @enderror
     </section>
 </div>

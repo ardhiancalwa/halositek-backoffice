@@ -51,23 +51,23 @@ class DesignController extends Controller
         ]);
 
         if ($request->hasFile('images')) {
-            foreach ((array) $project->images as $existingPath) {
-                Storage::disk('public')->delete($existingPath);
-            }
-
-            $data['images'] = collect($request->file('images', []))
+            $existingImages = is_array($project->images) ? $project->images : [];
+            
+            $newImages = collect($request->file('images', []))
                 ->map(fn ($image): string => $image->store('projects/images', 'public'))
                 ->all();
+                
+            $data['images'] = array_merge($existingImages, $newImages);
         }
 
         if ($request->hasFile('layout_images')) {
-            foreach ((array) $project->layout_images as $existingPath) {
-                Storage::disk('public')->delete($existingPath);
-            }
-
-            $data['layout_images'] = collect($request->file('layout_images', []))
+            $existingLayouts = is_array($project->layout_images) ? $project->layout_images : [];
+            
+            $newLayouts = collect($request->file('layout_images', []))
                 ->map(fn ($image): string => $image->store('projects/layouts', 'public'))
                 ->all();
+                
+            $data['layout_images'] = array_merge($existingLayouts, $newLayouts);
         }
 
         $project->fill($data);

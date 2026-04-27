@@ -177,6 +177,88 @@
                 closeModal();
             }
         });
+
+        const handleImagePreview = (inputId, heightClass) => {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const container = input.previousElementSibling;
+            if (!container) return;
+
+            const label = container.querySelector('label');
+            const emptyState = container.querySelector('.col-span-full'); // for layout images empty state
+            
+            // Store accumulated files across multiple selections
+            const dt = new DataTransfer();
+
+            input.addEventListener('change', (e) => {
+                const newFiles = Array.from(e.target.files);
+                
+                // Add new files to our DataTransfer object
+                newFiles.forEach(file => {
+                    const uniqueId = Math.random().toString(36).substr(2, 9);
+                    file._uniqueId = uniqueId; // Tag it to identify it when removing
+                    dt.items.add(file);
+                    
+                    const objectUrl = URL.createObjectURL(file);
+                    const div = document.createElement('div');
+                    div.className = `relative group new-preview ${heightClass}`;
+                    
+                    div.innerHTML = `
+                        <img
+                            src="${objectUrl}"
+                            alt="New Upload Preview"
+                            class="h-full w-full rounded-2xl object-cover border-2 border-[#D97706]"
+                        >
+                        <div class="absolute inset-0 bg-black/5 rounded-2xl pointer-events-none"></div>
+                        <span class="absolute top-3 left-3 rounded-md bg-[#D97706] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                            New
+                        </span>
+                        <button type="button" class="remove-btn absolute bottom-3 right-3 flex h-7 w-7 items-center justify-center rounded-full bg-white text-red-500 shadow-sm transition hover:bg-red-50">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    `;
+                    
+                    // Attach event listener directly so we have access to the closure's dt
+                    const removeBtn = div.querySelector('.remove-btn');
+                    removeBtn.addEventListener('click', () => {
+                        const newDt = new DataTransfer();
+                        Array.from(dt.files).forEach(f => {
+                            if (f._uniqueId !== uniqueId) {
+                                newDt.items.add(f);
+                            }
+                        });
+                        
+                        // Clear the dt and re-populate it to keep them in sync
+                        dt.items.clear();
+                        Array.from(newDt.files).forEach(f => dt.items.add(f));
+                        input.files = dt.files;
+                        
+                        div.remove();
+                    });
+                    
+                    container.insertBefore(div, label);
+                });
+                
+                // Update the input to hold all accumulated files
+                input.files = dt.files;
+
+                // Handle empty state visibility for layout images
+                if (emptyState) {
+                    if (input.files.length > 0 || container.querySelectorAll('.relative.group').length > 0) {
+                        emptyState.classList.add('hidden');
+                    } else {
+                        emptyState.classList.remove('hidden');
+                    }
+                }
+            });
+        };
+
+        handleImagePreview('design-images-input', 'h-48');
+        handleImagePreview('layout-images-input', 'h-64');
     });
 </script>
 @endpush

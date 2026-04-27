@@ -29,16 +29,6 @@
 
 <div class="mx-auto max-w-7xl pb-12">
     <div class="mb-7 flex items-center gap-3">
-        <a
-            href="{{ route('admin.dashboard.index') }}"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm ring-1 ring-slate-200 transition hover:text-[#D97706]"
-            aria-label="Back to dashboard"
-        >
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 18l-6-6 6-6" />
-            </svg>
-        </a>
-
         <div class="flex-1">
             <h1 class="text-[28px] font-bold tracking-tight text-slate-900">Design Gallery Overview</h1>
             <p class="mt-1 text-sm text-slate-500">Explore project submissions from the database in a reusable card layout.</p>

@@ -54,24 +54,23 @@
     ];
 
     $renderSidebarIcon = function (string $icon, bool $isActive): string {
-        if ($icon === 'user') {
+        $svgIcons = ['dashboard', 'user', 'architect', 'design'];
+
+        if (in_array($icon, $svgIcons, true)) {
+            $baseName = 'icon-' . $icon;
+            $classSize = $icon === 'dashboard' ? 'h-4 w-4' : 'h-5 w-5';
+            
             return '
-                <span class="sidebar-user-icon-wrap relative block h-5 w-5">
-                    <img src="' . asset('images/dashboard/user-icon.png') . '" class="sidebar-user-icon sidebar-user-icon-default absolute inset-0 h-5 w-5" alt="User">
-                    <img src="' . asset('images/dashboard/user-icon-orange.png') . '" class="sidebar-user-icon sidebar-user-icon-hover absolute inset-0 h-5 w-5" alt="User">
-                    <img src="' . asset('images/dashboard/user-icon-white.png') . '" class="sidebar-user-icon sidebar-user-icon-active absolute inset-0 h-5 w-5" alt="User">
+                <span class="sidebar-user-icon-wrap relative block ' . $classSize . '">
+                    <img src="' . asset('images/dashboard/' . $baseName . '-gray.svg') . '" class="sidebar-user-icon sidebar-user-icon-default absolute inset-0 w-full h-full" alt="Icon">
+                    <img src="' . asset('images/dashboard/' . $baseName . '-orange.svg') . '" class="sidebar-user-icon sidebar-user-icon-hover absolute inset-0 w-full h-full" alt="Icon">
+                    <img src="' . asset('images/dashboard/' . $baseName . '.svg') . '" class="sidebar-user-icon sidebar-user-icon-active absolute inset-0 w-full h-full" alt="Icon">
                 </span>
             ';
         }
 
-        $iconName = $icon;
-        if (in_array($icon, ['architect', 'design'], true) && $isActive) {
-            $iconName .= '-orange';
-        }
-
         return match ($icon) {
-            'dashboard' => '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"></rect><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"></rect><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"></rect></svg>',
-            'user', 'architect', 'design', 'consultation' => '<img src="' . asset("images/dashboard/{$iconName}-icon.png") . '" class="h-5 w-5" alt="'.ucfirst($icon).'">',
+            'consultation' => '<img src="' . asset("images/dashboard/consultation-icon.png") . '" class="h-5 w-5" alt="Consultation">',
             'bot' => '<img src="' . asset("images/dashboard/ai-icon.png") . '" class="h-5 w-5" alt="AI Bot">',
             default => '',
         };
@@ -119,7 +118,7 @@
                     <a
                         href="{{ $href }}"
                         @unless($routeExists) aria-disabled="true" @endunless
-                        class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all {{ $isActive ? 'bg-[#E8820C] text-white shadow-[0_10px_30px_-18px_rgba(232,130,12,0.95)]' : 'text-slate-500 hover:bg-[#FFF5EA] hover:text-[#E8820C]' }}"
+                        class="sidebar-nav-link group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all {{ $isActive ? 'is-active bg-[#E8820C] text-white shadow-[0_10px_30px_-18px_rgba(232,130,12,0.95)]' : 'text-slate-500 hover:bg-[#FFF5EA] hover:text-[#E8820C]' }}"
                     >
                         <span class="flex h-8 w-8 items-center justify-center rounded-lg {{ $isActive ? 'bg-white/15' : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-[#E8820C]' }}">
                             {!! $iconMarkup !!}
@@ -166,7 +165,7 @@
                                 <a
                                     href="{{ $childHref }}"
                                     @unless($childRouteExists) aria-disabled="true" @endunless
-                                    class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all {{ $isChildActive ? 'bg-[#E8820C] text-white shadow-[0_10px_30px_-18px_rgba(232,130,12,0.95)]' : 'text-slate-500 hover:bg-[#FFF5EA] hover:text-[#E8820C]' }}"
+                                    class="sidebar-nav-link group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all {{ $isChildActive ? 'is-active bg-[#E8820C] text-white shadow-[0_10px_30px_-18px_rgba(232,130,12,0.95)]' : 'text-slate-500 hover:bg-[#FFF5EA] hover:text-[#E8820C]' }}"
                                 >
                                     <span class="flex h-8 w-8 items-center justify-center rounded-lg {{ $isChildActive ? 'bg-white/15' : 'bg-slate-50 text-slate-400 group-hover:bg-white group-hover:text-[#E8820C]' }}">
                                         {!! $childIconMarkup !!}

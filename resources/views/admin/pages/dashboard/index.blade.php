@@ -23,7 +23,7 @@
         <div class="dashboard-card relative overflow-hidden">
             <div class="dashboard-card-body">
                 <div class="dashboard-stat-icon">
-               <img src="{{ asset('images/dashboard/user-icon-orange.png') }}" class="w-6 h-6 object-contain" alt="Users">
+                <img src="{{ asset('images/dashboard/icon-user-orange.svg') }}" class="w-6 h-6 object-contain" alt="Users">
                 </div>
                 <p class="dashboard-stat-label mb-1 text-sm font-medium">Registered Users</p>
                 <h3 id="total-users" class="dashboard-stat-value text-3xl font-bold tracking-tight">...</h3>
@@ -34,7 +34,7 @@
         <div class="dashboard-card relative overflow-hidden">
             <div class="dashboard-card-body">
                 <div class="dashboard-stat-icon">
-                 <img src="{{ asset('images/dashboard/architect-icon-orange.png') }}" class="w-6 h-6 object-contain" alt="Architects">
+                 <img src="{{ asset('images/dashboard/icon-architect-orange.svg') }}" class="w-6 h-6 object-contain" alt="Architects">
                 </div>
                 <p class="dashboard-stat-label mb-1 text-sm font-medium">Registered Architect</p>
                 <h3 id="total-architects" class="dashboard-stat-value text-3xl font-bold tracking-tight">...</h3>
@@ -45,7 +45,7 @@
         <div class="dashboard-card relative overflow-hidden">
             <div class="dashboard-card-body">
                 <div class="dashboard-stat-icon">
-                <img src="{{ asset('images/dashboard/design-icon-orange.png') }}" class="w-6 h-6 object-contain" alt="Designs">
+                <img src="{{ asset('images/dashboard/icon-design-orange.svg') }}" class="w-6 h-6 object-contain" alt="Designs">
                 </div>
                 <p class="dashboard-stat-label mb-1 text-sm font-medium">Total Design</p>
                 <h3 id="total-designs" class="dashboard-stat-value text-3xl font-bold tracking-tight">...</h3>

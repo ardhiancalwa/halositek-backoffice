@@ -62,23 +62,21 @@
     </div>
 
     <!-- Pagination -->
-    <div class="dashboard-table-footer">
-        <div class="dashboard-table-footer-text text-sm">
-            Showing <span id="current-page">1</span> of <span id="total-pages">1</span> pages
-        </div>
-        <div class="dashboard-pagination">
-            <button id="prev-page" class="dashboard-pagination-button" disabled>
-                &larr;
-            </button>
-            <div id="pagination-numbers" class="dashboard-pagination-numbers"></div>
-            <button id="next-page" class="dashboard-pagination-button">
-                &rarr;
-            </button>
-        </div>
-    </div>
+    @component('admin.components.pagination-footer', [
+        'currentPage' => 1,
+        'totalPages' => 1,
+        'previousDisabled' => true,
+        'nextDisabled' => false,
+        'currentPageId' => 'current-page',
+        'totalPagesId' => 'total-pages',
+        'prevButtonId' => 'prev-page',
+        'nextButtonId' => 'next-page',
+        'numbersId' => 'pagination-numbers',
+    ])
+    @endcomponent
 </div>
 
-<x-admin.modal id="user-status-modal" title="Action" width-class="max-w-md">
+@component('admin.components.modal', ['id' => 'user-status-modal', 'title' => 'Action', 'widthClass' => 'max-w-md'])
     <div class="space-y-5">
         <div class="dashboard-modal-highlight">
             <div class="flex items-center gap-3">
@@ -144,7 +142,7 @@
             </div>
         </form>
     </div>
-</x-admin.modal>
+@endcomponent
 
 @push('scripts')
 <script src="{{ asset('js/admin/pages/dashboard/users/index.js') }}?v={{ filemtime(public_path('js/admin/pages/dashboard/users/index.js')) }}"></script>

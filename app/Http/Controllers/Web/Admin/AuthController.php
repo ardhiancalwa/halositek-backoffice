@@ -17,6 +17,11 @@ class AuthController extends Controller
         return view('admin.pages.auth.login');
     }
 
+    public function showRegister(): Factory|View
+    {
+        return view('admin.pages.auth.register');
+    }
+
     public function login(LoginRequest $request): RedirectResponse
     {
         $credentials = $request->validated();

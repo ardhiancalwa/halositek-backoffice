@@ -1,7 +1,3 @@
-@props([
-    'project',
-])
-
 @php
     $images = $project->images;
     if (is_string($images)) {
@@ -21,15 +17,9 @@
             : \Illuminate\Support\Facades\Storage::url($image);
     }
 
-    $style = filled($project->style) ? strtoupper((string) $project->style) : 'UNTITLED';
-    $status = $project->status?->value ?? (string) $project->status;
+    $styleValue = $project->style?->value ?? $project->style;
+    $style = filled($styleValue) ? strtoupper((string) $styleValue) : 'UNTITLED';
     $architectName = $project->architect?->name;
-
-    $badgeClasses = match ($status) {
-        'approved' => 'bg-emerald-500/90 text-white',
-        'declined' => 'bg-rose-500/90 text-white',
-        default => 'bg-amber-400/90 text-slate-900',
-    };
 
     $meta = collect([
         filled($project->area) ? (string) $project->area : null,
@@ -37,7 +27,7 @@
     ])->filter()->implode(' - ');
 @endphp
 
-<article {{ $attributes->class('group overflow-hidden rounded-2xl border border-[#EEF1F5] bg-white shadow-[0_12px_30px_-26px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(15,23,42,0.65)]') }}>
+<article class="group overflow-hidden rounded-2xl border border-[#EEF1F5] bg-white shadow-[0_12px_30px_-26px_rgba(15,23,42,0.55)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-26px_rgba(15,23,42,0.65)]">
     <div class="relative h-44 overflow-hidden bg-[linear-gradient(135deg,#fff7ed_0%,#ffedd5_35%,#fdba74_100%)]">
         @if ($imageUrl)
             <img
@@ -54,8 +44,8 @@
             </div>
         @endif
 
-        <span class="absolute right-3 top-3 rounded-full px-3 py-1 text-[10px] font-bold tracking-[0.24em] {{ $badgeClasses }}">
-            {{ strtoupper($status ?: 'pending') }}
+        <span class="absolute right-3 top-3 rounded-full bg-white/92 px-3 py-1 text-[10px] font-bold tracking-[0.24em] text-slate-900 shadow-sm">
+            {{ $style }}
         </span>
     </div>
 
@@ -79,14 +69,14 @@
             <p class="mt-3 text-sm font-semibold text-slate-700">{{ $project->estimated_cost }}</p>
         @endif
 
-        <button
-            type="button"
+        <a
+            href="{{ route('admin.dashboard.designs.show', $project) }}"
             class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-100 bg-white py-2.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
         >
             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
             </svg>
             Manage
-        </button>
+        </a>
     </div>
 </article>

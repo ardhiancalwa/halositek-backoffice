@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\Project;
+namespace App\Http\Requests\Api\Project;
 
 use App\Enums\ProjectStyle;
 use App\Models\User;
@@ -9,7 +9,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Enum;
 
-class StoreProjectRequest extends FormRequest
+class UpdateProjectRequest extends FormRequest
 {
     protected function prepareForValidation(): void
     {
@@ -35,7 +35,7 @@ class StoreProjectRequest extends FormRequest
         /** @var User|null $user */
         $user = Auth::user();
 
-        return $user !== null && $user->isArchitect();
+        return $user !== null && ($user->isArchitect() || $user->isAdmin());
     }
 
     /**
@@ -44,12 +44,13 @@ class StoreProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'style' => ['required', new Enum(ProjectStyle::class)],
+            'status' => ['sometimes', 'required', 'string', 'in:pending,approved,declined'],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'style' => ['sometimes', 'required', new Enum(ProjectStyle::class)],
             'description' => ['nullable', 'string', 'max:5000'],
             'images' => ['sometimes', 'array', 'min:1', 'max:10'],
             'images.*' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-            'estimated_cost' => ['required', 'string', 'max:255'],
+            'estimated_cost' => ['sometimes', 'required', 'string', 'max:255'],
             'layout_images' => ['sometimes', 'array', 'min:1', 'max:10'],
             'layout_images.*' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'highlight_features' => ['nullable', 'string', 'max:255'],

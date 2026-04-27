@@ -2,7 +2,7 @@
 
 namespace App\DTOs\Chat;
 
-use App\Http\Requests\Chat\CreateConversationRequest;
+use App\Http\Requests\Api\CreateConversationRequest;
 
 final readonly class CreateConversationDTO
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Api\Chat;
+namespace App\Http\Controllers\Api;
 
 use App\Actions\Chat\MarkMessageAsReadAction;
 use App\Actions\Chat\SendMessageAction;
 use App\DTOs\Chat\SendMessageDTO;
 use App\Events\TypingIndicator;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Chat\SendMessageRequest;
+use App\Http\Requests\Api\SendMessageRequest;
 use App\Http\Resources\Chat\ConversationResource;
 use App\Http\Resources\Chat\MessageResource;
 use App\Http\Responses\ApiResponse;

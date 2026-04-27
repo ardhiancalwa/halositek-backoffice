@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\Faq\StoreFaqRequest;
-use App\Http\Requests\Api\V1\Faq\UpdateFaqRequest;
+use App\Http\Requests\Api\Faq\StoreFaqRequest;
+use App\Http\Requests\Api\Faq\UpdateFaqRequest;
 use App\Http\Resources\FaqResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Faq;

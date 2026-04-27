@@ -1,14 +1,14 @@
 <?php
 
-use App\Http\Controllers\Api\Chat\ConversationController;
-use App\Http\Controllers\Api\Chat\MessageController;
-use App\Http\Controllers\Api\V1\AnalyticsController;
-use App\Http\Controllers\Api\V1\ArchitectController;
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\AwardController;
-use App\Http\Controllers\Api\V1\FaqController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\ArchitectController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AwardController;
+use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\FaqController;
+use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Chat;
+namespace App\Http\Requests\Api;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class CreateConversationRequest extends FormRequest
+class SendMessageRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -22,10 +22,9 @@ class CreateConversationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['nullable', 'string', 'max:255'],
-            'is_group' => ['sometimes', 'boolean'],
-            'participant_ids' => ['required', 'array', 'min:1'],
-            'participant_ids.*' => ['required', 'string', 'exists:users,_id'],
+            'conversation_id' => ['required', 'string', 'exists:conversations,_id'],
+            'body' => ['required_without:attachment', 'string', 'max:4000'],
+            'attachment' => ['nullable', 'string', 'max:2048'],
         ];
     }
 }

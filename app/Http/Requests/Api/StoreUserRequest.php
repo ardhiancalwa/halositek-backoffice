@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\V1;
+namespace App\Http\Requests\Api;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterRequest extends FormRequest
+class StoreUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -20,28 +19,17 @@ class RegisterRequest extends FormRequest
     }
 
     /**
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, array<int, string>>
      */
     public function rules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['sometimes', 'string', 'in:user,architect'],
+            'password' => ['required', 'string', 'min:8'],
+            'role' => ['sometimes', 'string', 'in:user,architect,admin'],
+            'account_status' => ['sometimes', 'string', 'in:active,suspend'],
             'photo_profile' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-        ];
-    }
-
-    /**
-     * Get custom messages for validator errors.
-     *
-     * @return array<string, string>
-     */
-    public function messages(): array
-    {
-        return [
-            'role.in' => 'You can only register as a user or architect.',
         ];
     }
 }

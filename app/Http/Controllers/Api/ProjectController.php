@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api;
 
 use App\Enums\ProjectStyle;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\Project\StoreProjectRequest;
-use App\Http\Requests\Api\V1\Project\UpdateProjectRequest;
+use App\Http\Requests\Api\Project\StoreProjectRequest;
+use App\Http\Requests\Api\Project\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Project;

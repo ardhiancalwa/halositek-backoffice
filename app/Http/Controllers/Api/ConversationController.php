@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api\Chat;
+namespace App\Http\Controllers\Api;
 
 use App\Actions\Chat\CreateConversationAction;
 use App\Actions\Chat\GetUserConversationsAction;
 use App\DTOs\Chat\CreateConversationDTO;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Chat\CreateConversationRequest;
+use App\Http\Requests\Api\CreateConversationRequest;
 use App\Http\Resources\Chat\ChatListResource;
 use App\Http\Resources\Chat\ConversationResource;
 use App\Http\Responses\ApiResponse;

@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Http\Requests\Api\V1\Award;
+namespace App\Http\Requests\Api\Award;
 
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class StoreAwardRequest extends FormRequest
+class UpdateAwardRequest extends FormRequest
 {
     public function authorize(): bool
     {
         /** @var User|null $user */
         $user = Auth::user();
 
-        return $user !== null && $user->isArchitect();
+        return $user !== null && ($user->isArchitect() || $user->isAdmin());
     }
 
     /**
@@ -22,12 +22,13 @@ class StoreAwardRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', $this->maxWordsRule(12, 'name')],
-            'project_name' => ['required', 'string', 'max:255', $this->maxWordsRule(12, 'project name')],
-            'role' => ['required', 'string', 'max:255'],
-            'award_date' => ['required', 'date'],
+            'status' => ['sometimes', 'required', 'string', 'in:pending,approved,declined'],
+            'name' => ['sometimes', 'required', 'string', 'max:255', $this->maxWordsRule(12, 'name')],
+            'project_name' => ['sometimes', 'required', 'string', 'max:255', $this->maxWordsRule(12, 'project name')],
+            'role' => ['sometimes', 'required', 'string', 'max:255'],
+            'award_date' => ['sometimes', 'required', 'date'],
             'description' => ['nullable', 'string', $this->maxWordsRule(30, 'description')],
-            'verification_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'verification_file' => ['sometimes', 'required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
         ];
     }
 

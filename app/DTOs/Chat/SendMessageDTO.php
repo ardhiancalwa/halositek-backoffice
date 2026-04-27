@@ -2,7 +2,7 @@
 
 namespace App\DTOs\Chat;
 
-use App\Http\Requests\Chat\SendMessageRequest;
+use App\Http\Requests\Api\SendMessageRequest;
 
 final readonly class SendMessageDTO
 {

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api;
 
 use App\Actions\Auth\RegisterUserAction;
 use App\DTOs\Auth\RegisterUserDTO;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\LoginRequest;
-use App\Http\Requests\Api\V1\RefreshTokenRequest;
-use App\Http\Requests\Api\V1\RegisterRequest;
+use App\Http\Requests\Api\LoginRequest;
+use App\Http\Requests\Api\RefreshTokenRequest;
+use App\Http\Requests\Api\RegisterRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\PersonalAccessToken;
 use App\Models\User;

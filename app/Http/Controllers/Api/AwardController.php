@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\Award\StoreAwardRequest;
-use App\Http\Requests\Api\V1\Award\UpdateAwardRequest;
+use App\Http\Requests\Api\Award\StoreAwardRequest;
+use App\Http\Requests\Api\Award\UpdateAwardRequest;
 use App\Http\Resources\AwardResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Award;

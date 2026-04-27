@@ -227,7 +227,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         paginationNumbers.innerHTML = '';
 
-        for (let i = 1; i <= Math.min(totalPages, 5); i += 1) {
+        let pageStart = Math.max(1, currentPageNum - 2);
+        let pageEnd = Math.min(totalPages, currentPageNum + 2);
+
+        if ((pageEnd - pageStart) < 4) {
+            if (pageStart === 1) {
+                pageEnd = Math.min(totalPages, pageStart + 4);
+            } else if (pageEnd === totalPages) {
+                pageStart = Math.max(1, pageEnd - 4);
+            }
+        }
+
+        for (let i = pageStart; i <= pageEnd; i += 1) {
             const btn = document.createElement('button');
             btn.textContent = i;
             btn.type = 'button';

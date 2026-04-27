@@ -6,15 +6,15 @@
 @php
     $currentPage = $projects->currentPage();
     $lastPage = $projects->lastPage();
-    $pageStart = max(1, $currentPage - 1);
-    $pageEnd = min($lastPage, $currentPage + 1);
+    $pageStart = max(1, $currentPage - 2);
+    $pageEnd = min($lastPage, $currentPage + 2);
     $pageLinks = [];
 
-    if (($pageEnd - $pageStart) < 2) {
+    if (($pageEnd - $pageStart) < 4) {
         if ($pageStart === 1) {
-            $pageEnd = min($lastPage, $pageStart + 2);
+            $pageEnd = min($lastPage, $pageStart + 4);
         } elseif ($pageEnd === $lastPage) {
-            $pageStart = max(1, $pageEnd - 2);
+            $pageStart = max(1, $pageEnd - 4);
         }
     }
 

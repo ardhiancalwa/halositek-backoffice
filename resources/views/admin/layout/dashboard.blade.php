@@ -30,7 +30,7 @@
         })();
     </script>
 </head>
-<body class="bg-gray-50 font-sans antialiased text-slate-900" data-protected-shell>
+<body class="bg-gray-50 font-sans antialiased text-slate-900">
     <div class="flex h-screen overflow-hidden">
         @include('admin.components._sidebar')
 

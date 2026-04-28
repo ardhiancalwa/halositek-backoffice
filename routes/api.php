@@ -1,13 +1,16 @@
 <?php
 
-use App\Http\Controllers\Api\Chat\ConversationController;
-use App\Http\Controllers\Api\Chat\MessageController;
-use App\Http\Controllers\Api\V1\ArchitectController;
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\AwardController;
-use App\Http\Controllers\Api\V1\FaqController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\AiChatbotManagementController;
+use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\ArchitectController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AwardController;
+use App\Http\Controllers\Api\ConsultationManagementController;
+use App\Http\Controllers\Api\ConversationController;
+use App\Http\Controllers\Api\FaqController;
+use App\Http\Controllers\Api\MessageController;
+use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,7 +29,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/me', [AuthController::class, 'me']);
-        Route::put('/me', [UserController::class, 'updateProfile']);
+        Route::post('/me', [UserController::class, 'updateProfile']);
 
         Route::prefix('/chat')->group(function () {
             Route::get('/conversations', [ConversationController::class, 'index']);
@@ -44,6 +47,10 @@ Route::prefix('v1')->group(function () {
         Route::put('/projects/{id}', [ProjectController::class, 'update']);
         Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
 
+        // Project interactions
+        Route::post('/projects/{id}/like', [ProjectController::class, 'like']);
+        Route::delete('/projects/{id}/like', [ProjectController::class, 'unlike']);
+
         // Award CRUD (Architect/Admin)
         Route::post('/awards', [AwardController::class, 'store']);
         Route::put('/awards/{id}', [AwardController::class, 'update']);
@@ -57,6 +64,10 @@ Route::prefix('v1')->group(function () {
 
     // Admin only routes
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::get('/analytics/overview', [AnalyticsController::class, 'overview']);
+        Route::get('/analytics/user-growth', [AnalyticsController::class, 'userGrowth']);
+        Route::get('/analytics/architect-growth', [AnalyticsController::class, 'architectGrowth']);
+
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}', [UserController::class, 'show']);
@@ -75,6 +86,21 @@ Route::prefix('v1')->group(function () {
         Route::post('/faqs', [FaqController::class, 'store']);
         Route::put('/faqs/{id}', [FaqController::class, 'update']);
         Route::delete('/faqs/{id}', [FaqController::class, 'destroy']);
+
+        // Consultation management
+        Route::get('/consultations/reports/stats', [ConsultationManagementController::class, 'reportStats']);
+        Route::get('/consultations/reports', [ConsultationManagementController::class, 'reportList']);
+        Route::put('/consultations/reports/{reportId}/action', [ConsultationManagementController::class, 'updateReportAction']);
+
+        Route::get('/consultations/payroll/summary', [ConsultationManagementController::class, 'payrollSummary']);
+        Route::get('/consultations/payroll/queue', [ConsultationManagementController::class, 'payrollQueue']);
+        Route::get('/consultations/payroll/queue/{architectId}', [ConsultationManagementController::class, 'payrollReleaseDetail']);
+        Route::post('/consultations/payroll/queue/{architectId}/release', [ConsultationManagementController::class, 'releasePayroll']);
+
+        // AI chatbot management
+        Route::get('/ai-chatbot/performance', [AiChatbotManagementController::class, 'performance']);
+        Route::get('/ai-chatbot/logs', [AiChatbotManagementController::class, 'activityLogs']);
+        Route::get('/ai-chatbot/logs/{logId}', [AiChatbotManagementController::class, 'showActivityLog']);
     });
 
     // Public routes (down here to avoid intercepting wishlist if grouped)

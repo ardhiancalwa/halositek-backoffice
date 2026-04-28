@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ProjectStyle;
 use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -28,7 +29,7 @@ class ProjectFactory extends Factory
         return [
             'id' => $this->faker->uuid(),
             'name' => ucwords($this->faker->words(4, true)),
-            'style' => $this->faker->randomElement(['Traditional', 'Modern', 'Minimalist', 'Futuristic', 'Industrial']),
+            'style' => $this->faker->randomElement(ProjectStyle::cases())->value,
             'description' => $this->faker->paragraphs(2, true),
             'images' => $images,
             'layout_images' => $images,

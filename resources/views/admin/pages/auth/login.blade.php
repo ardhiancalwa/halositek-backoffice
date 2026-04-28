@@ -7,21 +7,33 @@
     <h1 class="auth-title mb-1 text-2xl font-bold">Welcome Back</h1>
     <p class="auth-subtitle mb-8 text-sm">Please enter your details to access your dashboard</p>
 
-    <div
-        data-auth-alert
-        class="mb-4 hidden rounded-lg border px-3 py-3 text-sm"
-        role="alert"
-        aria-live="polite"
-    ></div>
+    @if ($errors->any())
+        <div
+            class="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-600"
+            role="alert"
+            aria-live="polite"
+        >
+            {{ $errors->first() }}
+        </div>
+    @elseif (session('status'))
+        <div
+            class="mb-4 rounded-lg border border-green-200 bg-green-50 px-3 py-3 text-sm text-green-700"
+            role="alert"
+            aria-live="polite"
+        >
+            {{ session('status') }}
+        </div>
+    @endif
 
     <form
         method="POST"
-        action="{{ url('/api/v1/auth/login') }}"
+        action="{{ route('admin.auth.login.submit') }}"
         data-auth-form
         data-auth-mode="login"
-        data-auth-endpoint="{{ url('/api/v1/auth/login') }}"
+        data-auth-endpoint="{{ route('admin.auth.login.submit') }}"
         data-auth-redirect="{{ route('admin.dashboard.index') }}"
     >
+        @csrf
 
         <div class="mb-5">
             <label for="email" class="auth-label mb-2 block text-sm font-semibold">Email</label>
@@ -46,7 +58,7 @@
                     class="auth-input w-full rounded-lg border px-4 py-3 pr-12 text-sm transition"
                     required
                 >
-                <button type="button" data-toggle-password="password" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <button type="button" data-toggle-password="password" class="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-slate-400 hover:text-slate-600">
                     <svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -65,7 +77,7 @@
         <button
             type="submit"
             data-auth-submit
-            class="auth-primary-button w-full rounded-lg px-4 py-3 text-sm font-bold uppercase tracking-wider transition"
+            class="auth-primary-button w-full cursor-pointer rounded-lg px-4 py-3 text-sm font-bold uppercase tracking-wider transition"
         >
             Login
         </button>

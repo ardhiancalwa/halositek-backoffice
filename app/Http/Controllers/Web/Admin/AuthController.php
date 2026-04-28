@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\LoginRequest;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class AuthController extends Controller
@@ -18,8 +22,31 @@ class AuthController extends Controller
         return view('admin.pages.auth.register');
     }
 
-    public function showDesigns(): Factory|View
+    public function login(LoginRequest $request): RedirectResponse
     {
-        return view('admin.pages.dashboard.design.index');
+        $credentials = $request->validated();
+
+        if (! Auth::attempt($credentials)) {
+            return back()
+                ->withErrors(['email' => 'The provided credentials are incorrect.'])
+                ->onlyInput('email');
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()
+            ->route('admin.dashboard.index')
+            ->with('status', 'Login successful.');
+    }
+
+    public function logout(Request $request): RedirectResponse
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()
+            ->route('admin.auth.login')
+            ->with('status', 'Logged out successfully.');
     }
 }

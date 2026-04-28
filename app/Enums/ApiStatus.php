@@ -8,6 +8,7 @@ enum ApiStatus: int
     case CREATED = 201;
     case ACCEPTED = 202;
     case NO_CONTENT = 204;
+    case CSRF_TOKEN_MISMATCH = 419;
     case BAD_REQUEST = 400;
     case UNAUTHORIZED = 401;
     case FORBIDDEN = 403;
@@ -33,6 +34,7 @@ enum ApiStatus: int
             self::CREATED => 'Resource created successfully.',
             self::ACCEPTED => 'Request accepted for processing.',
             self::NO_CONTENT => 'No content.',
+            self::CSRF_TOKEN_MISMATCH => 'CSRF token mismatch.',
             self::BAD_REQUEST => 'Bad request.',
             self::UNAUTHORIZED => 'Unauthenticated.',
             self::FORBIDDEN => 'Forbidden access.',

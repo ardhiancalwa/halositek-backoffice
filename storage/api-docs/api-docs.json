@@ -12,6 +12,1929 @@
         }
     ],
     "paths": {
+        "/ai-chatbot/performance": {
+            "get": {
+                "tags": [
+                    "AI Chatbot Management"
+                ],
+                "summary": "Get AI chatbot real-time performance",
+                "operationId": "230fc4350e0c1a99af8d3b5443441e82",
+                "responses": {
+                    "200": {
+                        "description": "Performance metrics retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Operation successful.",
+                                    "data": {
+                                        "total_generate": 320,
+                                        "total_success": 300,
+                                        "total_failed": 20
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ai-chatbot/logs": {
+            "get": {
+                "tags": [
+                    "AI Chatbot Management"
+                ],
+                "summary": "Get AI chatbot activity logs",
+                "operationId": "a0354d8fa9c7e0a36b7dc42b9c65a74a",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "success",
+                                "failed"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Activity logs retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Log aktivitas AI chatbot berhasil diambil.",
+                                    "data": [
+                                        {
+                                            "id": "01J3AILOG0001",
+                                            "user": {
+                                                "id": "01J3USER001",
+                                                "name": "Budi Santoso"
+                                            },
+                                            "date": "2026-04-27T08:10:00+00:00",
+                                            "prompt_preview": "Generate konsep fasad rumah modern tropis.",
+                                            "status": "success",
+                                            "generate_time_ms": 1810
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 15,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/ai-chatbot/logs?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/ai-chatbot/logs?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/ai-chatbot/logs/{logId}": {
+            "get": {
+                "tags": [
+                    "AI Chatbot Management"
+                ],
+                "summary": "Get AI chatbot activity log detail",
+                "operationId": "1f28df097e06572ee191dc68af171060",
+                "parameters": [
+                    {
+                        "name": "logId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Activity log detail retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Detail log aktivitas AI chatbot berhasil diambil.",
+                                    "data": {
+                                        "id": "01J3AILOG0002",
+                                        "status": "failed",
+                                        "user": {
+                                            "id": "01J3USER001",
+                                            "name": "Budi Santoso"
+                                        },
+                                        "date": "2026-04-27T09:10:00+00:00",
+                                        "prompt_preview": "Generate image masterplan urban mixed-use.",
+                                        "generate_time_ms": 620,
+                                        "original_request": "Generate image masterplan urban mixed-use detail...",
+                                        "system_error_log": "Inference timeout on provider A."
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/analytics/overview": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get analytics overview",
+                "description": "Returns overview metrics for registered users, approved architects, and active projects.",
+                "operationId": "256f404efb9fb5047e1ff37c5b8ffc25",
+                "responses": {
+                    "200": {
+                        "description": "Analytics overview retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Analytics overview retrieved successfully.",
+                                    "data": {
+                                        "registered_user": 120,
+                                        "registered_architect": 42,
+                                        "active_projects": 88
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/analytics/user-growth": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get user growth",
+                "description": "Returns user growth series based on selected range.",
+                "operationId": "9cfbe1e9e5ea069a640aaa08c4ff31f3",
+                "parameters": [
+                    {
+                        "name": "range",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "last_7_days",
+                            "enum": [
+                                "today",
+                                "last_7_days",
+                                "last_month"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User growth retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "User growth retrieved successfully.",
+                                    "data": {
+                                        "range": "last_7_days",
+                                        "labels": [
+                                            "2026-04-20",
+                                            "2026-04-21",
+                                            "2026-04-22",
+                                            "2026-04-23",
+                                            "2026-04-24",
+                                            "2026-04-25",
+                                            "2026-04-26"
+                                        ],
+                                        "series": [
+                                            2,
+                                            1,
+                                            0,
+                                            3,
+                                            1,
+                                            2,
+                                            1
+                                        ],
+                                        "cumulative_series": [
+                                            2,
+                                            3,
+                                            3,
+                                            6,
+                                            7,
+                                            9,
+                                            10
+                                        ],
+                                        "total": 10
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/analytics/architect-growth": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get architect growth",
+                "description": "Returns approved architect growth series based on selected range.",
+                "operationId": "fe46734bc61da8a396d277fa02388d2e",
+                "parameters": [
+                    {
+                        "name": "range",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "last_7_days",
+                            "enum": [
+                                "today",
+                                "last_7_days",
+                                "last_month"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Architect growth retrieved successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect growth retrieved successfully.",
+                                    "data": {
+                                        "range": "last_month",
+                                        "labels": [
+                                            "Apr 1 - Apr 7",
+                                            "Apr 8 - Apr 14",
+                                            "Apr 15 - Apr 21",
+                                            "Apr 22 - Apr 24"
+                                        ],
+                                        "series": [
+                                            0,
+                                            1,
+                                            0,
+                                            2
+                                        ],
+                                        "cumulative_series": [
+                                            0,
+                                            1,
+                                            1,
+                                            3
+                                        ],
+                                        "total": 3
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/architects": {
+            "get": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "List architects",
+                "description": "Returns a list of architects for public browsing.",
+                "operationId": "74edff86f7f55dbc724a8903fd28ff8c",
+                "responses": {
+                    "200": {
+                        "description": "Architect list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect list retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                            "name": "Architect User",
+                                            "email": "architect@halositek.com",
+                                            "headline": "Residential Specialist"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 12,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/architects?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/architects?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": []
+            }
+        },
+        "/architects/wishlist": {
+            "get": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "List wishlist architects",
+                "description": "Returns the authenticated user's saved architect wishlist.",
+                "operationId": "aad57a444159face682e0826d9335e1e",
+                "responses": {
+                    "200": {
+                        "description": "Wishlist architects retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Wishlist architects retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                            "name": "Architect User",
+                                            "email": "architect@halositek.com",
+                                            "headline": "Residential Specialist"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 12,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/architects/wishlist?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/architects/wishlist?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/architects/{userId}/save": {
+            "post": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "Save architect to wishlist",
+                "description": "Saves a specific architect to the authenticated user's wishlist.",
+                "operationId": "7e197946905ad00dfa7ac77894e91456",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Architect saved to wishlist successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect saved to wishlist successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/ConflictError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "Remove architect from wishlist",
+                "description": "Removes a specific architect from the authenticated user's wishlist.",
+                "operationId": "e68d57f61a5f6ee7cf5261a94406e5a4",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Architect removed from wishlist successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Architect removed from wishlist successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register account",
+                "description": "Registers a new user and returns an access token and refresh token.",
+                "operationId": "08136088c4862c313b35d6518bab8d3a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "budi_santoso@gmail.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "user"
+                                    },
+                                    "photo_profile": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Registration successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "Registration successful",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
+                                        "name": "Budi Santoso",
+                                        "email": "budi_santoso@gmail.com",
+                                        "role": "user",
+                                        "access_token": "1|plain-access-token",
+                                        "refresh_token": "2|plain-refresh-token",
+                                        "token_type": "Bearer",
+                                        "expires_in": 3600
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login account",
+                "description": "Authenticates user credentials and returns a token pair.",
+                "operationId": "99d66635c4992aeaa6aa44ff653d0563",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@halositek.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "securepassword123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "user",
+                                        "enum": [
+                                            "user",
+                                            "architect",
+                                            "admin"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Login successful",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
+                                        "name": "Regular User",
+                                        "email": "user@halositek.com",
+                                        "role": "user",
+                                        "access_token": "1|plain-access-token",
+                                        "refresh_token": "2|plain-refresh-token",
+                                        "token_type": "Bearer",
+                                        "expires_in": 3600
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                }
+            }
+        },
+        "/auth/refresh-token": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Refresh access token",
+                "description": "Exchanges a valid refresh token for a new token pair.",
+                "operationId": "e0ed1d02d631abd84c59c59f0279ef0c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string",
+                                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Token refreshed successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Token refreshed successfully",
+                                    "data": {
+                                        "access_token": "3|plain-access-token",
+                                        "refresh_token": "4|plain-refresh-token",
+                                        "token_type": "Bearer",
+                                        "expires_in": 3600
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout current session",
+                "description": "Revokes the current access token and optionally the refresh token provided in the request body.",
+                "operationId": "28d48c13fca984400ac8de99f54ee13a",
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "refresh_token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Logout successful",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/me": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get current user profile",
+                "description": "Returns the profile data of the currently authenticated user.",
+                "operationId": "bc2032a379aa97707ccc61511897c120",
+                "responses": {
+                    "200": {
+                        "description": "Profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Profile retrieved successfully",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
+                                        "name": "Regular User",
+                                        "email": "user@halositek.com",
+                                        "role": "user",
+                                        "account_status": "active",
+                                        "created_at": "2026-04-13T10:00:00Z",
+                                        "updated_at": "2026-04-13T10:00:00Z"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update current profile",
+                "description": "Updates the profile of the currently authenticated user.",
+                "operationId": "6b9973cb84e39003343557a804325841",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "budi@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "photo_profile": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Profile updated successfully.",
+                                    "data": {
+                                        "user": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRT",
+                                            "name": "Updated User Name",
+                                            "email": "user@halositek.com",
+                                            "role": "user",
+                                            "account_status": "active"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/awards": {
+            "get": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "List awards",
+                "description": "Returns a paginated award list with optional status filtering.",
+                "operationId": "d1e93734d74e2e0778e6c2293678db79",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "approved",
+                                "declined"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "architect_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Awards retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Awards retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "name": "Best Residential Design",
+                                            "project_name": "Modern House",
+                                            "status": "approved"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 12,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/awards?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/awards?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": []
+            },
+            "post": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Create award",
+                "description": "Creates a new award record by an architect, including verification file upload.",
+                "operationId": "81c490a83721fd6d707330479fb9c151",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {}
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Award created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "Award created successfully",
+                                    "data": {
+                                        "award": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "name": "Best Residential Design",
+                                            "project_name": "Modern House",
+                                            "status": "pending"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/awards/{id}": {
+            "get": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Get award detail",
+                "description": "Returns award details by id.",
+                "operationId": "d48608ffdf263b565147adfb8b6523ff",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Award retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Award retrieved successfully",
+                                    "data": {
+                                        "award": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "name": "Best Residential Design",
+                                            "project_name": "Modern House",
+                                            "status": "approved"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": []
+            },
+            "put": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Update award",
+                "description": "Updates award data; admin users can only update award status.",
+                "operationId": "ca24d1a1e6c04af511d289b7de1b48a3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {}
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Award updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Award updated successfully",
+                                    "data": {
+                                        "award": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "name": "Best Residential Design",
+                                            "project_name": "Modern House",
+                                            "status": "pending"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Delete award",
+                "description": "Deletes an award record and its verification file by id.",
+                "operationId": "f875cfead586a4d7bac67c21be5bb0bb",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Award deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Award deleted successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/awards/{id}/approve": {
+            "put": {
+                "tags": [
+                    "Awards"
+                ],
+                "summary": "Review award approval",
+                "description": "Approves or declines an award by setting status to approved or declined. Admin only endpoint.",
+                "operationId": "b9ec3ab1e9563034fc2147bfdb7aea77",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "approved",
+                                        "enum": [
+                                            "approved",
+                                            "declined"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Award status updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Award status updated successfully.",
+                                    "data": {
+                                        "award": {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
+                                            "status": "approved"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/consultations/reports/stats": {
+            "get": {
+                "tags": [
+                    "Consultation Management"
+                ],
+                "summary": "Get consultation report statistics",
+                "operationId": "e22182c5bbaecab2de14f1bc25187814",
+                "responses": {
+                    "200": {
+                        "description": "Report stats retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Operation successful.",
+                                    "data": {
+                                        "total_report": 76,
+                                        "new_report": 12,
+                                        "user_report": 51,
+                                        "architect_report": 25
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/consultations/reports": {
+            "get": {
+                "tags": [
+                    "Consultation Management"
+                ],
+                "summary": "Get consultation report list",
+                "operationId": "f4c9fe0bfc76144724c0be9943ee82d7",
+                "parameters": [
+                    {
+                        "name": "role",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "user",
+                                "architect"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Report list retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Daftar report berhasil diambil.",
+                                    "data": [
+                                        {
+                                            "id": "01J3REPORT0001",
+                                            "requester": {
+                                                "id": "01J3USER001",
+                                                "name": "Ayu Pratama",
+                                                "role": "user",
+                                                "photo_profile": "users/profiles/ayu.webp",
+                                                "photo_profile_url": "http://localhost:8000/storage/users/profiles/ayu.webp"
+                                            },
+                                            "reason": "Arsitek tidak hadir pada jadwal konsultasi.",
+                                            "consultation_date": "2026-04-27T10:30:00+00:00",
+                                            "opposing_party": {
+                                                "id": "01J3ARCH001",
+                                                "name": "Dimas Arsitek",
+                                                "photo_profile": "users/profiles/dimas.webp",
+                                                "photo_profile_url": "http://localhost:8000/storage/users/profiles/dimas.webp"
+                                            },
+                                            "nominal": 300000,
+                                            "transcript": "Riwayat chat konsultasi...",
+                                            "action_report": "new"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 15,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/consultations/reports?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/consultations/reports?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/consultations/reports/{reportId}/action": {
+            "put": {
+                "tags": [
+                    "Consultation Management"
+                ],
+                "summary": "Approve or decline consultation report",
+                "operationId": "4a28402cbe5a119237ccbb73f0127474",
+                "parameters": [
+                    {
+                        "name": "reportId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "type": "string",
+                                        "enum": [
+                                            "approved",
+                                            "declined"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Report action updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Action report berhasil diperbarui.",
+                                    "data": {
+                                        "id": "01J3REPORT0001",
+                                        "action_report": "approved",
+                                        "actioned_at": "2026-04-27T12:30:00+00:00"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/consultations/payroll/summary": {
+            "get": {
+                "tags": [
+                    "Consultation Management"
+                ],
+                "summary": "Get pending payout summary",
+                "operationId": "92eb038eba2c581d7b85673e4e05baec",
+                "responses": {
+                    "200": {
+                        "description": "Payroll summary retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Operation successful.",
+                                    "data": {
+                                        "pending_payouts": 8400000
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/consultations/payroll/queue": {
+            "get": {
+                "tags": [
+                    "Consultation Management"
+                ],
+                "summary": "Get payout queue grouped by architect",
+                "operationId": "e3fb8b4360649301c74905ae641b019e",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "released"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payout queue retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Payout queue berhasil diambil.",
+                                    "data": {
+                                        "data": [
+                                            {
+                                                "architect_id": "01J3ARCH001",
+                                                "architect_name": "Dimas Arsitek",
+                                                "total_earnings": 900000,
+                                                "per_session_earning": 300000,
+                                                "total_consultation": 3,
+                                                "queue_status": "pending"
+                                            }
+                                        ],
+                                        "meta": {
+                                            "current_page": 1,
+                                            "last_page": 1,
+                                            "per_page": 15,
+                                            "total": 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/consultations/payroll/queue/{architectId}": {
+            "get": {
+                "tags": [
+                    "Consultation Management"
+                ],
+                "summary": "Get release payment detail for architect",
+                "operationId": "d6ac43d638960762a4863d424df87ba8",
+                "parameters": [
+                    {
+                        "name": "architectId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Release detail retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Detail release payment berhasil diambil.",
+                                    "data": {
+                                        "architect_id": "01J3ARCH001",
+                                        "release_payment_items": [
+                                            {
+                                                "consultation_id": "01J3CONS001",
+                                                "user": {
+                                                    "id": "01J3USER001",
+                                                    "name": "Ayu Pratama"
+                                                },
+                                                "date": "2026-04-26T10:30:00+00:00",
+                                                "fee_per_session": 300000,
+                                                "verification_status": "verified"
+                                            }
+                                        ],
+                                        "payment_summary": {
+                                            "consultation_per_session": 300000,
+                                            "total_user_consultation": 1
+                                        },
+                                        "total_amount": 300000
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/consultations/payroll/queue/{architectId}/release": {
+            "post": {
+                "tags": [
+                    "Consultation Management"
+                ],
+                "summary": "Release architect payroll",
+                "operationId": "88d01b8cee6e3d0efcdb49d4208bb16c",
+                "parameters": [
+                    {
+                        "name": "architectId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "consultation_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payroll released",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Release payment berhasil diproses.",
+                                    "data": {
+                                        "architect_id": "01J3ARCH001",
+                                        "release_status": "selesai",
+                                        "released_consultation_ids": [
+                                            "01J3CONS001",
+                                            "01J3CONS002"
+                                        ],
+                                        "released_count": 2,
+                                        "released_total_amount": 600000
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/chat/conversations": {
             "get": {
                 "tags": [
@@ -19,7 +1942,7 @@
                 ],
                 "summary": "List user conversations",
                 "description": "Mengambil daftar percakapan milik user yang sedang login.",
-                "operationId": "3667e86421dee90606c6f3421d249484",
+                "operationId": "f1abf48aaabde01820cc07febbb1de25",
                 "parameters": [
                     {
                         "name": "per_page",
@@ -103,7 +2026,7 @@
                 ],
                 "summary": "Create conversation",
                 "description": "Membuat percakapan baru (default private chat). Jika private chat sudah ada, data existing dapat dikembalikan.",
-                "operationId": "465fda86773b20ab7a5c811b9218e0ca",
+                "operationId": "ddff0ef34623f342ae7914348ecf0ce4",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -187,7 +2110,7 @@
                 ],
                 "summary": "Get conversation detail",
                 "description": "Mengambil detail percakapan berdasarkan ID conversation.",
-                "operationId": "b7dd22be6c213d44c15ecf7f9e398971",
+                "operationId": "3bf200d314ee08b1ca042c916ebb3d2c",
                 "parameters": [
                     {
                         "name": "conversationId",
@@ -244,6 +2167,308 @@
                 ]
             }
         },
+        "/faqs": {
+            "get": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "List FAQs",
+                "description": "Returns FAQ items; public users can only see active entries.",
+                "operationId": "0e5341310466901757868563531064ee",
+                "responses": {
+                    "200": {
+                        "description": "FAQ list retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "FAQ list retrieved successfully",
+                                    "data": [
+                                        {
+                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
+                                            "question": "How do I become an architect on this platform?",
+                                            "answer": "Register and complete your architect profile.",
+                                            "is_active": true
+                                        }
+                                    ],
+                                    "meta": {
+                                        "current_page": 1,
+                                        "last_page": 1,
+                                        "per_page": 15,
+                                        "total": 1
+                                    },
+                                    "links": {
+                                        "first_page_url": "http://localhost:8000/api/v1/faqs?page=1",
+                                        "last_page_url": "http://localhost:8000/api/v1/faqs?page=1",
+                                        "next_page_url": null,
+                                        "prev_page_url": null
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": []
+            },
+            "post": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "Create FAQ",
+                "description": "Creates a new FAQ entry through admin access.",
+                "operationId": "93876bf36963362d8e1a4cac90c1f57b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "question",
+                                    "answer"
+                                ],
+                                "properties": {
+                                    "question": {
+                                        "type": "string"
+                                    },
+                                    "answer": {
+                                        "type": "string"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "FAQ created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 201,
+                                    "message": "FAQ created successfully",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
+                                        "question": "How do I become an architect on this platform?",
+                                        "answer": "Register and complete your architect profile.",
+                                        "is_active": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/faqs/{id}": {
+            "get": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "Get FAQ detail",
+                "description": "Returns details for a single FAQ by id.",
+                "operationId": "cbb58fa0d05118742fc927714a2d1e57",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "FAQ retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "FAQ retrieved successfully",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
+                                        "question": "How do I become an architect on this platform?",
+                                        "answer": "Register and complete your architect profile.",
+                                        "is_active": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": []
+            },
+            "put": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "Update FAQ",
+                "description": "Updates an existing FAQ entry by id.",
+                "operationId": "c84583839e4db68b87ae74f991c1ca41",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "question": {
+                                        "type": "string"
+                                    },
+                                    "answer": {
+                                        "type": "string"
+                                    },
+                                    "is_active": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "FAQ updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "FAQ updated successfully",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
+                                        "question": "How do I become an architect on this platform?",
+                                        "answer": "Your architect profile has been updated.",
+                                        "is_active": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "FAQ"
+                ],
+                "summary": "Delete FAQ",
+                "description": "Deletes an FAQ entry by id.",
+                "operationId": "1e86e89a717712544ffbd957520fc88b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "FAQ deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "FAQ deleted successfully",
+                                    "data": null
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/chat/conversations/{conversationId}/messages": {
             "get": {
                 "tags": [
@@ -251,7 +2476,7 @@
                 ],
                 "summary": "List messages",
                 "description": "Mengambil daftar pesan pada conversation tertentu.",
-                "operationId": "cddfff9ec192fd4a494f54ac875cc7d6",
+                "operationId": "6a6fe1234e195b073e00578e9221f4e1",
                 "parameters": [
                     {
                         "name": "conversationId",
@@ -344,7 +2569,7 @@
                 ],
                 "summary": "Send message",
                 "description": "Mengirim pesan teks ke conversation dan men-trigger broadcast real-time.",
-                "operationId": "9aa4d4704f6729636d7fc9ae96c20e65",
+                "operationId": "776cfcde9bb3e2b39e6d9bf2d5cb3dd8",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -434,7 +2659,7 @@
                 ],
                 "summary": "Mark conversation as read",
                 "description": "Menandai seluruh pesan lawan bicara pada conversation sebagai sudah dibaca dan update last_read_at user.",
-                "operationId": "32675d0d310497ea9602a15c503778de",
+                "operationId": "94af6526bd80e8b22a776641b9cdee36",
                 "parameters": [
                     {
                         "name": "conversationId",
@@ -498,7 +2723,7 @@
                 ],
                 "summary": "Send typing indicator",
                 "description": "Mengirim status typing indicator ke private channel conversation.",
-                "operationId": "aa90bc5975ea4902f58cbdc108897e12",
+                "operationId": "a970673f9c71af651f8fe78cda7d3cef",
                 "parameters": [
                     {
                         "name": "conversationId",
@@ -559,1279 +2784,6 @@
                 ]
             }
         },
-        "/architects": {
-            "get": {
-                "tags": [
-                    "Architects"
-                ],
-                "summary": "List architects",
-                "description": "Returns a list of architects for public browsing.",
-                "operationId": "d4ecab5f93bf0a5d922dd4a0070eba63",
-                "responses": {
-                    "200": {
-                        "description": "Architect list retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Architect list retrieved successfully",
-                                    "data": [
-                                        {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
-                                            "name": "Architect User",
-                                            "email": "architect@halositek.com",
-                                            "headline": "Residential Specialist"
-                                        }
-                                    ],
-                                    "meta": {
-                                        "current_page": 1,
-                                        "last_page": 1,
-                                        "per_page": 12,
-                                        "total": 1
-                                    },
-                                    "links": {
-                                        "first_page_url": "http://localhost:8000/api/v1/architects?page=1",
-                                        "last_page_url": "http://localhost:8000/api/v1/architects?page=1",
-                                        "next_page_url": null,
-                                        "prev_page_url": null
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": []
-            }
-        },
-        "/architects/wishlist": {
-            "get": {
-                "tags": [
-                    "Architects"
-                ],
-                "summary": "List wishlist architects",
-                "description": "Returns the authenticated user's saved architect wishlist.",
-                "operationId": "5740e73b9215dc96daaa1798730b86fe",
-                "responses": {
-                    "200": {
-                        "description": "Wishlist architects retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Wishlist architects retrieved successfully",
-                                    "data": [
-                                        {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
-                                            "name": "Architect User",
-                                            "email": "architect@halositek.com",
-                                            "headline": "Residential Specialist"
-                                        }
-                                    ],
-                                    "meta": {
-                                        "current_page": 1,
-                                        "last_page": 1,
-                                        "per_page": 12,
-                                        "total": 1
-                                    },
-                                    "links": {
-                                        "first_page_url": "http://localhost:8000/api/v1/architects/wishlist?page=1",
-                                        "last_page_url": "http://localhost:8000/api/v1/architects/wishlist?page=1",
-                                        "next_page_url": null,
-                                        "prev_page_url": null
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/architects/{userId}/save": {
-            "post": {
-                "tags": [
-                    "Architects"
-                ],
-                "summary": "Save architect to wishlist",
-                "description": "Saves a specific architect to the authenticated user's wishlist.",
-                "operationId": "40e0529344634b303b282cd24652def4",
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Architect saved to wishlist successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Architect saved to wishlist successfully",
-                                    "data": null
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "409": {
-                        "$ref": "#/components/responses/ConflictError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Architects"
-                ],
-                "summary": "Remove architect from wishlist",
-                "description": "Removes a specific architect from the authenticated user's wishlist.",
-                "operationId": "9c90fdf8eed43272e99f4fa93636f960",
-                "parameters": [
-                    {
-                        "name": "userId",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Architect removed from wishlist successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Architect removed from wishlist successfully",
-                                    "data": null
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/auth/register": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Register account",
-                "description": "Registers a new user and returns an access token and refresh token.",
-                "operationId": "8f20688904ee49d0d8739eeb08faf0b1",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "name",
-                                    "email",
-                                    "password",
-                                    "password_confirmation"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Budi Santoso"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "budi_santoso@gmail.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123"
-                                    },
-                                    "password_confirmation": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123"
-                                    },
-                                    "role": {
-                                        "type": "string",
-                                        "example": "user"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Registration successful",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 201,
-                                    "message": "Registration successful",
-                                    "data": {
-                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
-                                        "name": "Budi Santoso",
-                                        "email": "budi_santoso@gmail.com",
-                                        "role": "user",
-                                        "access_token": "1|plain-access-token",
-                                        "refresh_token": "2|plain-refresh-token",
-                                        "token_type": "Bearer",
-                                        "expires_in": 3600
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                }
-            }
-        },
-        "/auth/login": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Login account",
-                "description": "Authenticates user credentials and returns a token pair.",
-                "operationId": "985cd5203e2d0a820e113f2f4fdb2847",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "email",
-                                    "password",
-                                    "role"
-                                ],
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "user@halositek.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "example": "securepassword123"
-                                    },
-                                    "role": {
-                                        "type": "string",
-                                        "example": "user",
-                                        "enum": [
-                                            "user",
-                                            "architect",
-                                            "admin"
-                                        ]
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Login successful",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Login successful",
-                                    "data": {
-                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
-                                        "name": "Regular User",
-                                        "email": "user@halositek.com",
-                                        "role": "user",
-                                        "access_token": "1|plain-access-token",
-                                        "refresh_token": "2|plain-refresh-token",
-                                        "token_type": "Bearer",
-                                        "expires_in": 3600
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                }
-            }
-        },
-        "/auth/refresh-token": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Refresh access token",
-                "description": "Exchanges a valid refresh token for a new token pair.",
-                "operationId": "2fdd67496aeb7fc933c8e1ddb9f7f211",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "refresh_token": {
-                                        "type": "string",
-                                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Token refreshed successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Token refreshed successfully",
-                                    "data": {
-                                        "access_token": "3|plain-access-token",
-                                        "refresh_token": "4|plain-refresh-token",
-                                        "token_type": "Bearer",
-                                        "expires_in": 3600
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                }
-            }
-        },
-        "/logout": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Logout current session",
-                "description": "Revokes the current access token and optionally the refresh token provided in the request body.",
-                "operationId": "5660f1ae61b95f0283dfc205d5ffdad5",
-                "requestBody": {
-                    "required": false,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "refresh_token": {
-                                        "type": "string"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Logout successful",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Logout successful",
-                                    "data": null
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/me": {
-            "get": {
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Get current user profile",
-                "description": "Returns the profile data of the currently authenticated user.",
-                "operationId": "0fadd24761c66bfa1bfdc46dea94c0dd",
-                "responses": {
-                    "200": {
-                        "description": "Profile retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Profile retrieved successfully",
-                                    "data": {
-                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRS",
-                                        "name": "Regular User",
-                                        "email": "user@halositek.com",
-                                        "role": "user",
-                                        "account_status": "active",
-                                        "created_at": "2026-04-13T10:00:00Z",
-                                        "updated_at": "2026-04-13T10:00:00Z"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Update current profile",
-                "description": "Updates the profile of the currently authenticated user.",
-                "operationId": "5705eaa8e3358048290c90ac2f975ae1",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Budi Santoso"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "budi@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "password123"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Profile updated successfully.",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Profile updated successfully.",
-                                    "data": {
-                                        "user": {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QRT",
-                                            "name": "Updated User Name",
-                                            "email": "user@halositek.com",
-                                            "role": "user",
-                                            "account_status": "active"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/awards": {
-            "get": {
-                "tags": [
-                    "Awards"
-                ],
-                "summary": "List awards",
-                "description": "Returns a paginated award list with optional status filtering.",
-                "operationId": "ac6ba36ef2b8191a2fe55c943c7d9d4e",
-                "parameters": [
-                    {
-                        "name": "status",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "pending",
-                                "approved",
-                                "declined"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "architect_id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "search",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Awards retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Awards retrieved successfully",
-                                    "data": [
-                                        {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
-                                            "name": "Best Residential Design",
-                                            "project_name": "Modern House",
-                                            "status": "approved"
-                                        }
-                                    ],
-                                    "meta": {
-                                        "current_page": 1,
-                                        "last_page": 1,
-                                        "per_page": 12,
-                                        "total": 1
-                                    },
-                                    "links": {
-                                        "first_page_url": "http://localhost:8000/api/v1/awards?page=1",
-                                        "last_page_url": "http://localhost:8000/api/v1/awards?page=1",
-                                        "next_page_url": null,
-                                        "prev_page_url": null
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": []
-            },
-            "post": {
-                "tags": [
-                    "Awards"
-                ],
-                "summary": "Create award",
-                "description": "Creates a new award record by an architect, including verification file upload.",
-                "operationId": "b0afa1a40ba8f5a9cb004c157bfdc59d",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {}
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Award created successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 201,
-                                    "message": "Award created successfully",
-                                    "data": {
-                                        "award": {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
-                                            "name": "Best Residential Design",
-                                            "project_name": "Modern House",
-                                            "status": "pending"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/awards/{id}": {
-            "get": {
-                "tags": [
-                    "Awards"
-                ],
-                "summary": "Get award detail",
-                "description": "Returns award details by id.",
-                "operationId": "a6725d6997632cafcbde215b860a95ca",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Award retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Award retrieved successfully",
-                                    "data": {
-                                        "award": {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
-                                            "name": "Best Residential Design",
-                                            "project_name": "Modern House",
-                                            "status": "approved"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": []
-            },
-            "put": {
-                "tags": [
-                    "Awards"
-                ],
-                "summary": "Update award",
-                "description": "Updates award data; admin users can only update award status.",
-                "operationId": "bd4372e2d81916a8553f975d67147884",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "multipart/form-data": {}
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Award updated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Award updated successfully",
-                                    "data": {
-                                        "award": {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
-                                            "name": "Best Residential Design",
-                                            "project_name": "Modern House",
-                                            "status": "pending"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Awards"
-                ],
-                "summary": "Delete award",
-                "description": "Deletes an award record and its verification file by id.",
-                "operationId": "8617d7b65c7184a1c70fae76032f879e",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Award deleted successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Award deleted successfully",
-                                    "data": null
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/awards/{id}/approve": {
-            "put": {
-                "tags": [
-                    "Awards"
-                ],
-                "summary": "Approve award",
-                "description": "Approves an award by setting status to approved. Admin only endpoint.",
-                "operationId": "13c51a583ce6aa1212864ef73f379295",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Award approved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "Award approved successfully",
-                                    "data": {
-                                        "award": {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QAW",
-                                            "status": "approved"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/faqs": {
-            "get": {
-                "tags": [
-                    "FAQ"
-                ],
-                "summary": "List FAQs",
-                "description": "Returns FAQ items; public users can only see active entries.",
-                "operationId": "2a7f89e5292d6d76c4704457f09b497a",
-                "responses": {
-                    "200": {
-                        "description": "FAQ list retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "FAQ list retrieved successfully",
-                                    "data": [
-                                        {
-                                            "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
-                                            "question": "How do I become an architect on this platform?",
-                                            "answer": "Register and complete your architect profile.",
-                                            "is_active": true
-                                        }
-                                    ],
-                                    "meta": {
-                                        "current_page": 1,
-                                        "last_page": 1,
-                                        "per_page": 15,
-                                        "total": 1
-                                    },
-                                    "links": {
-                                        "first_page_url": "http://localhost:8000/api/v1/faqs?page=1",
-                                        "last_page_url": "http://localhost:8000/api/v1/faqs?page=1",
-                                        "next_page_url": null,
-                                        "prev_page_url": null
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": []
-            },
-            "post": {
-                "tags": [
-                    "FAQ"
-                ],
-                "summary": "Create FAQ",
-                "description": "Creates a new FAQ entry through admin access.",
-                "operationId": "51ddc2d8a7d5262f2bb023ae85acb90d",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "question",
-                                    "answer"
-                                ],
-                                "properties": {
-                                    "question": {
-                                        "type": "string"
-                                    },
-                                    "answer": {
-                                        "type": "string"
-                                    },
-                                    "is_active": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "FAQ created successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 201,
-                                    "message": "FAQ created successfully",
-                                    "data": {
-                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
-                                        "question": "How do I become an architect on this platform?",
-                                        "answer": "Register and complete your architect profile.",
-                                        "is_active": true
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/faqs/{id}": {
-            "get": {
-                "tags": [
-                    "FAQ"
-                ],
-                "summary": "Get FAQ detail",
-                "description": "Returns details for a single FAQ by id.",
-                "operationId": "3798b459714d4b10d7ff7ca0f6cbf9d7",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "FAQ retrieved successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "FAQ retrieved successfully",
-                                    "data": {
-                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
-                                        "question": "How do I become an architect on this platform?",
-                                        "answer": "Register and complete your architect profile.",
-                                        "is_active": true
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": []
-            },
-            "put": {
-                "tags": [
-                    "FAQ"
-                ],
-                "summary": "Update FAQ",
-                "description": "Updates an existing FAQ entry by id.",
-                "operationId": "947a871d989acfa4548a8652c4fbbe92",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "question": {
-                                        "type": "string"
-                                    },
-                                    "answer": {
-                                        "type": "string"
-                                    },
-                                    "is_active": {
-                                        "type": "boolean"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "FAQ updated successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "FAQ updated successfully",
-                                    "data": {
-                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QFQ",
-                                        "question": "How do I become an architect on this platform?",
-                                        "answer": "Your architect profile has been updated.",
-                                        "is_active": true
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "422": {
-                        "$ref": "#/components/responses/ValidationError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "FAQ"
-                ],
-                "summary": "Delete FAQ",
-                "description": "Deletes an FAQ entry by id.",
-                "operationId": "bd2fd27a6275bf2cf12d754d2f0279dd",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "FAQ deleted successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "example": {
-                                    "success": true,
-                                    "status_code": 200,
-                                    "message": "FAQ deleted successfully",
-                                    "data": null
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/ForbiddenError"
-                    },
-                    "404": {
-                        "$ref": "#/components/responses/NotFoundError"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/ServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ]
-            }
-        },
         "/projects": {
             "get": {
                 "tags": [
@@ -1839,7 +2791,7 @@
                 ],
                 "summary": "List projects",
                 "description": "Returns a paginated project list with optional status filtering.",
-                "operationId": "d8bc32b45579a2263ca77907248c9002",
+                "operationId": "e66a4b9c561c9e3e0b98d95b6437ff91",
                 "parameters": [
                     {
                         "name": "status",
@@ -1858,6 +2810,20 @@
                         "in": "query",
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "style",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "modern",
+                                "traditional",
+                                "minimalist",
+                                "futuristik",
+                                "industrial"
+                            ]
                         }
                     },
                     {
@@ -1948,7 +2914,7 @@
                 ],
                 "summary": "Create project",
                 "description": "Creates a new project by an architect with image and layout uploads.",
-                "operationId": "d14ce90da851ad8044ec318a766df32e",
+                "operationId": "3e5e24c249cabe95d4c10927fda15c42",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1957,7 +2923,9 @@
                                 "required": [
                                     "name",
                                     "style",
-                                    "estimated_cost"
+                                    "estimated_cost",
+                                    "images[]",
+                                    "layout_images[]"
                                 ],
                                 "properties": {
                                     "name": {
@@ -1966,14 +2934,21 @@
                                     },
                                     "style": {
                                         "type": "string",
-                                        "example": "Modern"
+                                        "example": "modern",
+                                        "enum": [
+                                            "modern",
+                                            "traditional",
+                                            "minimalist",
+                                            "futuristik",
+                                            "industrial"
+                                        ]
                                     },
                                     "description": {
                                         "type": "string",
                                         "example": "Two-story tropical house with natural lighting.",
                                         "nullable": true
                                     },
-                                    "images": {
+                                    "images[]": {
                                         "type": "array",
                                         "items": {
                                             "type": "string",
@@ -1984,7 +2959,7 @@
                                         "type": "string",
                                         "example": "Rp 2M - 3M"
                                     },
-                                    "layout_images": {
+                                    "layout_images[]": {
                                         "type": "array",
                                         "items": {
                                             "type": "string",
@@ -2081,7 +3056,7 @@
                 ],
                 "summary": "Get project detail",
                 "description": "Returns project details by id.",
-                "operationId": "83c87bebdc302e4ae4afcefcf319d08c",
+                "operationId": "d5d2a5e8813ec56f48253ad43518b940",
                 "parameters": [
                     {
                         "name": "id",
@@ -2153,7 +3128,7 @@
                 ],
                 "summary": "Update project",
                 "description": "Updates project data; admin users can only update project status.",
-                "operationId": "62d247065d872bb3694822fd1a77b76e",
+                "operationId": "cb0265885b60ef4107c9b46487995d73",
                 "parameters": [
                     {
                         "name": "id",
@@ -2184,7 +3159,14 @@
                                     },
                                     "style": {
                                         "type": "string",
-                                        "example": "Modern"
+                                        "example": "modern",
+                                        "enum": [
+                                            "modern",
+                                            "traditional",
+                                            "minimalist",
+                                            "futuristik",
+                                            "industrial"
+                                        ]
                                     },
                                     "description": {
                                         "type": "string",
@@ -2300,7 +3282,7 @@
                 ],
                 "summary": "Delete project",
                 "description": "Deletes a project and related stored image files by id.",
-                "operationId": "0e1ef9693d0bf640ec8a8027909a5902",
+                "operationId": "9eb2e4cfbf69515e53e54d18fc2a60d9",
                 "parameters": [
                     {
                         "name": "id",
@@ -2351,9 +3333,9 @@
                 "tags": [
                     "Projects"
                 ],
-                "summary": "Approve project",
-                "description": "Approves a project by setting status to approved. Admin only endpoint.",
-                "operationId": "81cec884040181f3f7023f791c84924b",
+                "summary": "Review project approval",
+                "description": "Approves or declines a project by setting status to approved or declined. Admin only endpoint.",
+                "operationId": "c778249d74e0f8b98e4a722e71e6b3c5",
                 "parameters": [
                     {
                         "name": "id",
@@ -2364,16 +3346,39 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "example": "approved",
+                                        "enum": [
+                                            "approved",
+                                            "declined"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Project approved successfully",
+                        "description": "Project status updated successfully",
                         "content": {
                             "application/json": {
                                 "schema": {},
                                 "example": {
                                     "success": true,
                                     "status_code": 200,
-                                    "message": "Project approved successfully",
+                                    "message": "Project status updated successfully.",
                                     "data": {
                                         "project": {
                                             "id": "01HZX9M1F45M2Z6K7T9K7Y8QRP",
@@ -2389,6 +3394,113 @@
                     },
                     "403": {
                         "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/projects/{id}/like": {
+            "post": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Like a project",
+                "description": "Adds a like to the specified project for the authenticated user.",
+                "operationId": "13f0d31c5af0f4ed78bb76b21ba5e8e0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project liked successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Project liked successfully.",
+                                    "data": {
+                                        "liked": true,
+                                        "like_count": 21
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Unlike a project",
+                "description": "Removes a like from the specified project for the authenticated user.",
+                "operationId": "39e0ba135fb188d0c9e35dba303d74fa",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Project unliked successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Project unliked successfully.",
+                                    "data": {
+                                        "liked": false,
+                                        "like_count": 20
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFoundError"
@@ -2411,7 +3523,7 @@
                 ],
                 "summary": "List users",
                 "description": "Returns a paginated user list for administrative usage (admin only).",
-                "operationId": "47249454f1cdb4ad92ff4dd2abad233f",
+                "operationId": "7208c29037df2b8bb02499ba39ed8a78",
                 "parameters": [
                     {
                         "name": "status",
@@ -2506,11 +3618,11 @@
                 ],
                 "summary": "Create user",
                 "description": "Creates a new user account from the administrative panel.",
-                "operationId": "381804010d0bc76cac24bab8ac5f1707",
+                "operationId": "262eb5ca1fdea354023c0a8870442c1e",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
                                     "name",
@@ -2548,6 +3660,10 @@
                                             "active",
                                             "suspend"
                                         ]
+                                    },
+                                    "photo_profile": {
+                                        "type": "string",
+                                        "format": "binary"
                                     }
                                 },
                                 "type": "object"
@@ -2605,7 +3721,7 @@
                 ],
                 "summary": "Get user detail",
                 "description": "Returns details for a specific user by id.",
-                "operationId": "90ca44c038360e66084588a1a5951520",
+                "operationId": "6946bbab7898f59a09e3c8e529a38907",
                 "parameters": [
                     {
                         "name": "id",
@@ -2664,7 +3780,7 @@
                 ],
                 "summary": "Update user status",
                 "description": "Updates a target user's account status (for example: active or suspend).",
-                "operationId": "e734c66a7d375609edee2154bc5f7b47",
+                "operationId": "05028d02ea3e9a99abd6260cfe05b179",
                 "parameters": [
                     {
                         "name": "id",
@@ -2748,7 +3864,7 @@
                 ],
                 "summary": "Delete user",
                 "description": "Deletes a user account by id.",
-                "operationId": "9daa558fb80f5a3e2b490a3a5b05a716",
+                "operationId": "b3d28da5dc9de7fc1bd425f93b54ff7b",
                 "parameters": [
                     {
                         "name": "id",
@@ -3629,8 +4745,12 @@
     },
     "tags": [
         {
-            "name": "Chat",
-            "description": "Chat"
+            "name": "AI Chatbot Management",
+            "description": "AI Chatbot Management"
+        },
+        {
+            "name": "Analytics",
+            "description": "Analytics"
         },
         {
             "name": "Architects",
@@ -3647,6 +4767,14 @@
         {
             "name": "Awards",
             "description": "Awards"
+        },
+        {
+            "name": "Consultation Management",
+            "description": "Consultation Management"
+        },
+        {
+            "name": "Chat",
+            "description": "Chat"
         },
         {
             "name": "FAQ",

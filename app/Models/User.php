@@ -14,6 +14,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 
+/**
+ * @property string|null $photo_profile
+ */
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
@@ -35,6 +38,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'account_status',
+        'photo_profile',
     ];
 
     /**
@@ -125,5 +129,37 @@ class User extends Authenticatable implements FilamentUser
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<Consultation, self>
+     */
+    public function consultationsAsUser(): HasMany
+    {
+        return $this->hasMany(Consultation::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<Consultation, self>
+     */
+    public function consultationsAsArchitect(): HasMany
+    {
+        return $this->hasMany(Consultation::class, 'architect_id');
+    }
+
+    /**
+     * @return HasMany<ConsultationReport, self>
+     */
+    public function consultationReports(): HasMany
+    {
+        return $this->hasMany(ConsultationReport::class, 'requester_id');
+    }
+
+    /**
+     * @return HasMany<AiChatbotLog, self>
+     */
+    public function aiChatbotLogs(): HasMany
+    {
+        return $this->hasMany(AiChatbotLog::class, 'user_id');
     }
 }

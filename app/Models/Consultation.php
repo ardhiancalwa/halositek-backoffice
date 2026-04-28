@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * @property-read User|null $user
+ * @property-read User|null $architect
+ */
 class Consultation extends Model
 {
     /** @use HasFactory<Factory> */

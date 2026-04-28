@@ -13,6 +13,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * @property array<int, string>|null $images
+ * @property array<int, string>|null $layout_images
+ */
 class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */

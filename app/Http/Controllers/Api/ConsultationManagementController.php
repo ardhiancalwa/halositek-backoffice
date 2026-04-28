@@ -11,6 +11,7 @@ use App\Models\Consultation;
 use App\Models\ConsultationReport;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
@@ -132,41 +133,48 @@ class ConsultationManagementController extends Controller
         }
 
         $reports = $query->paginate($perPage);
-        $reports->setCollection(
-            $reports->getCollection()->map(function (ConsultationReport $report): array {
+
+        $items = $reports->getCollection()
+            ->map(function (ConsultationReport $report): array {
                 $consultation = $report->consultation;
                 $requester = $report->requester;
                 $opposing = $report->opposingParty;
 
+                $consultationDate = $consultation?->consultation_date;
+                $consultationDateIso = is_string($consultationDate)
+                    ? Carbon::parse($consultationDate)->toIso8601String()
+                    : null;
+
                 return [
                     'id' => (string) $report->getKey(),
                     'requester' => [
-                        'id' => (string) ($requester?->getKey() ?? ''),
-                        'name' => (string) ($requester?->name ?? '-'),
+                        'id' => (string) $requester->getKey(),
+                        'name' => (string) $requester->name,
                         'role' => (string) $report->requester_role,
-                        'photo_profile' => $requester?->photo_profile,
-                        'photo_profile_url' => $requester?->photo_profile
-                            ? Storage::url($requester->photo_profile)
+                        'photo_profile' => $requester->photo_profile,
+                        'photo_profile_url' => $requester->photo_profile
+                            ? Storage::url((string) $requester->photo_profile)
                             : null,
                     ],
                     'reason' => (string) $report->reason,
-                    'consultation_date' => $consultation?->consultation_date?->toIso8601String(),
+                    'consultation_date' => $consultationDateIso,
                     'opposing_party' => [
-                        'id' => (string) ($opposing?->getKey() ?? ''),
-                        'name' => (string) ($opposing?->name ?? '-'),
-                        'photo_profile' => $opposing?->photo_profile,
-                        'photo_profile_url' => $opposing?->photo_profile
-                            ? Storage::url($opposing->photo_profile)
+                        'id' => (string) $opposing->getKey(),
+                        'name' => (string) $opposing->name,
+                        'photo_profile' => $opposing->photo_profile,
+                        'photo_profile_url' => $opposing->photo_profile
+                            ? Storage::url((string) $opposing->photo_profile)
                             : null,
                     ],
-                    'nominal' => (int) ($consultation?->session_fee ?? 0),
-                    'transcript' => (string) ($consultation?->transcript ?? ''),
+                    'nominal' => (int) $consultation->session_fee,
+                    'transcript' => (string) ($consultation->transcript ?? ''),
                     'action_report' => (string) ($report->action_status ?? 'new'),
                 ];
             })
-        );
+            ->values()
+            ->all();
 
-        return ApiResponse::paginated($reports, 'Daftar report berhasil diambil.');
+        return ApiResponse::paginatedItems($items, $reports, 'Daftar report berhasil diambil.');
     }
 
     /**
@@ -225,10 +233,13 @@ class ConsultationManagementController extends Controller
         $report->actioned_at = now();
         $report->save();
 
+        $actionedAt = $report->actioned_at;
+        $actionedAtIso = is_string($actionedAt) ? Carbon::parse($actionedAt)->toIso8601String() : null;
+
         return ApiResponse::success([
             'id' => (string) $report->getKey(),
             'action_report' => (string) $report->action_status,
-            'actioned_at' => $report->actioned_at?->toIso8601String(),
+            'actioned_at' => $actionedAtIso,
         ], 'Action report berhasil diperbarui.');
     }
 
@@ -331,7 +342,7 @@ class ConsultationManagementController extends Controller
 
         /** @var Collection<int, Collection<int, Consultation>> $grouped */
         $grouped = $consultations->groupBy('architect_id');
-        $queueRows = $grouped->map(function (Collection $items, string $architectId): array {
+        $queueRows = $grouped->map(function (Collection $items, $architectId) use ($status): array {
             /** @var Consultation $first */
             $first = $items->first();
             $totalConsultation = $items->count();
@@ -339,8 +350,8 @@ class ConsultationManagementController extends Controller
             $perSession = $totalConsultation > 0 ? (int) round($totalEarnings / $totalConsultation) : 0;
 
             return [
-                'architect_id' => $architectId,
-                'architect_name' => (string) ($first->architect?->name ?? '-'),
+                'architect_id' => (string) $architectId,
+                'architect_name' => (string) $first->architect->name,
                 'total_earnings' => $totalEarnings,
                 'per_session_earning' => $perSession,
                 'total_consultation' => $totalConsultation,
@@ -418,13 +429,15 @@ class ConsultationManagementController extends Controller
             ->get();
 
         $detailRows = $consultations->map(function (Consultation $consultation): array {
+            $consultationDateIso = Carbon::parse($consultation->consultation_date)->toIso8601String();
+
             return [
                 'consultation_id' => (string) $consultation->getKey(),
                 'user' => [
-                    'id' => (string) ($consultation->user?->getKey() ?? ''),
-                    'name' => (string) ($consultation->user?->name ?? '-'),
+                    'id' => (string) $consultation->user->getKey(),
+                    'name' => (string) $consultation->user->name,
                 ],
-                'date' => $consultation->consultation_date?->toIso8601String(),
+                'date' => $consultationDateIso,
                 'fee_per_session' => (int) $consultation->session_fee,
                 'verification_status' => (string) ($consultation->verification_status ?? 'unverified'),
             ];

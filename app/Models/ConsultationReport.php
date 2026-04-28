@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * @property-read Consultation|null $consultation
+ * @property-read User|null $requester
+ * @property-read User|null $opposingParty
+ */
 class ConsultationReport extends Model
 {
     /** @use HasFactory<Factory> */

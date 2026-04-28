@@ -104,6 +104,7 @@ class AiChatbotManagementController extends Controller
 
         $query = AiChatbotLog::query()
             ->with('user')
+            ->whereNotNull('user_id')
             ->latest();
 
         if (is_string($status) && $status !== '') {
@@ -111,13 +112,13 @@ class AiChatbotManagementController extends Controller
         }
 
         $logs = $query->paginate($perPage);
-        $logs->setCollection(
-            $logs->getCollection()->map(function (AiChatbotLog $log): array {
+        $items = $logs->getCollection()
+            ->map(function (AiChatbotLog $log): array {
                 return [
                     'id' => (string) $log->getKey(),
                     'user' => [
-                        'id' => (string) ($log->user?->getKey() ?? ''),
-                        'name' => (string) ($log->user?->name ?? 'Unknown'),
+                        'id' => (string) $log->user->getKey(),
+                        'name' => (string) $log->user->name,
                     ],
                     'date' => $log->created_at?->toIso8601String(),
                     'prompt_preview' => (string) $log->prompt_preview,
@@ -125,9 +126,10 @@ class AiChatbotManagementController extends Controller
                     'generate_time_ms' => (int) $log->generate_time_ms,
                 ];
             })
-        );
+            ->values()
+            ->all();
 
-        return ApiResponse::paginated($logs, 'Log aktivitas AI chatbot berhasil diambil.');
+        return ApiResponse::paginatedItems($items, $logs, 'Log aktivitas AI chatbot berhasil diambil.');
     }
 
     /**
@@ -170,14 +172,17 @@ class AiChatbotManagementController extends Controller
      */
     public function showActivityLog(string $logId): JsonResponse
     {
-        $log = AiChatbotLog::query()->with('user')->findOrFail($logId);
+        $log = AiChatbotLog::query()
+            ->with('user')
+            ->whereNotNull('user_id')
+            ->findOrFail($logId);
 
         $detail = [
             'id' => (string) $log->getKey(),
             'status' => (string) $log->status,
             'user' => [
-                'id' => (string) ($log->user?->getKey() ?? ''),
-                'name' => (string) ($log->user?->name ?? 'Unknown'),
+                'id' => (string) $log->user->getKey(),
+                'name' => (string) $log->user->name,
             ],
             'date' => $log->created_at?->toIso8601String(),
             'prompt_preview' => (string) $log->prompt_preview,

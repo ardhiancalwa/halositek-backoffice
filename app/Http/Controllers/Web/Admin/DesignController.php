@@ -73,7 +73,7 @@ class DesignController extends Controller
             'delete_layout_images' => ['nullable', 'array'],
             'delete_layout_images.*' => ['string'],
         ]);
-        
+
         $existingImages = is_array($project->images) ? $project->images : [];
         if ($request->has('delete_images')) {
             $toDelete = $request->input('delete_images', []);
@@ -90,10 +90,10 @@ class DesignController extends Controller
             $newImages = collect($request->file('images', []))
                 ->map(fn ($image): string => $image->store('projects/images', 'public'))
                 ->all();
-                
+
             $data['images'] = array_merge($data['images'] ?? [], $newImages);
         }
-        
+
         $existingLayouts = is_array($project->layout_images) ? $project->layout_images : [];
         if ($request->has('delete_layout_images')) {
             $toDelete = $request->input('delete_layout_images', []);
@@ -110,7 +110,7 @@ class DesignController extends Controller
             $newLayouts = collect($request->file('layout_images', []))
                 ->map(fn ($image): string => $image->store('projects/layouts', 'public'))
                 ->all();
-                
+
             $data['layout_images'] = array_merge($data['layout_images'] ?? [], $newLayouts);
         }
 

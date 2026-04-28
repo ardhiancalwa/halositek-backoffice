@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * @property-read User|null $user
+ */
 class AiChatbotLog extends Model
 {
     /** @use HasFactory<Factory> */

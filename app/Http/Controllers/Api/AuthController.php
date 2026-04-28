@@ -237,9 +237,7 @@ class AuthController extends Controller
     public function logout(Request $request): JsonResponse
     {
         // 1. Revoke the current access token (used in the Authorization header)
-        if ($request->user()->currentAccessToken()) {
-            $request->user()->currentAccessToken()->delete();
-        }
+        $request->user()->currentAccessToken()->delete();
 
         // 2. Revoke the specific refresh token if provided in the body
         if ($request->has('refresh_token')) {

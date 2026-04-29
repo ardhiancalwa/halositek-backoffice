@@ -2,7 +2,7 @@
 
 namespace App\Actions\Chat;
 
-use App\DTOs\Chat\CreateConversationDTO;
+use App\DTOs\Consultation\CreateConversationDTO;
 use App\Models\Conversation;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;

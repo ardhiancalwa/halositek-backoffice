@@ -1,16 +1,16 @@
 <?php
 
-use App\Http\Controllers\Api\AiChatbotManagementController;
-use App\Http\Controllers\Api\AnalyticsController;
-use App\Http\Controllers\Api\ArchitectController;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\AwardController;
-use App\Http\Controllers\Api\ConsultationManagementController;
-use App\Http\Controllers\Api\ConversationController;
-use App\Http\Controllers\Api\FaqController;
-use App\Http\Controllers\Api\MessageController;
-use App\Http\Controllers\Api\ProjectController;
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\AiChatbot\AiChatbotManagementController;
+use App\Http\Controllers\Api\Analystics\AnalyticsController;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Award\AwardController;
+use App\Http\Controllers\Api\Consultation\ConsultationManagementController;
+use App\Http\Controllers\Api\Consultation\ConversationController;
+use App\Http\Controllers\Api\Consultation\MessageController;
+use App\Http\Controllers\Api\Faq\FaqController;
+use App\Http\Controllers\Api\Project\ProjectController;
+use App\Http\Controllers\Api\User\ArchitectController;
+use App\Http\Controllers\Api\User\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*

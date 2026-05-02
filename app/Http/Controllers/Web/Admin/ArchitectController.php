@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AwardResource;
 use App\Http\Responses\ApiResponse;
@@ -104,5 +105,21 @@ class ArchitectController extends Controller
                 ],
             ],
         ]);
+    }
+
+    public function updateDesignStatus(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:pending,approved,declined,PENDING,APPROVED,DECLINED'],
+        ]);
+
+        $status = strtolower($validated['status']);
+        
+        $project->status = ProjectStatus::from($status);
+        $project->save();
+
+        return redirect()
+            ->route('admin.dashboard.architects.index', ['type' => 'design'])
+            ->with('success', 'Design status updated successfully.');
     }
 }

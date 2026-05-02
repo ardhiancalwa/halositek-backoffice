@@ -175,9 +175,16 @@
                         @endif
 
                         <td class="px-6 py-4 text-center">
-                            <button class="text-[#778BA5] hover:text-[#E8820C] transition-colors p-1" title="View details">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                            </button>
+                            @if($type === 'design')
+                                <button type="button" class="text-[#778BA5] hover:text-[#E8820C] transition-colors p-1" title="View details" data-open-design-modal="{{ $item->id }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                                @include('admin.components.architects.modal-design-action', ['item' => $item])
+                            @else
+                                <button type="button" class="text-[#778BA5] hover:text-[#E8820C] transition-colors p-1" title="View details">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                            @endif
                         </td>
                     </tr>
                 @empty
@@ -280,6 +287,30 @@
                 }
             });
         }
+
+        // Modal Design Action functionality
+        const openButtons = document.querySelectorAll('[data-open-design-modal]');
+        openButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-open-design-modal');
+                const modal = document.querySelector(`[data-design-action-modal="${id}"]`);
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
+
+        const closeBtns = document.querySelectorAll('[data-design-action-modal] [data-modal-close], [data-design-action-modal] [data-modal-backdrop]');
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modal = e.target.closest('[data-design-action-modal]');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
     });
 </script>
 @endpush

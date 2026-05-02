@@ -47,5 +47,6 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         Route::get('/', [ArchitectController::class, 'index'])->name('admin.dashboard.architects.index');
         Route::get('/awards', [ArchitectController::class, 'awards'])->name('admin.dashboard.architects.awards');
         Route::get('/stats', [ArchitectController::class, 'stats'])->name('admin.dashboard.architects.stats');
+        Route::put('/designs/{project}/status', [ArchitectController::class, 'updateDesignStatus'])->name('admin.dashboard.architects.update-design-status');
     });
 });

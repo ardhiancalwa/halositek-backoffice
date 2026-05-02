@@ -119,6 +119,12 @@ class DesignController extends Controller
         $project->fill($data);
         $project->save();
 
+        if ($request->input('source') === 'architects_modal') {
+            return redirect()
+                ->route('admin.dashboard.architects.index', ['type' => 'design'])
+                ->with('success', 'Design status updated successfully.');
+        }
+
         return redirect()
             ->route('admin.dashboard.designs.show', $project)
             ->with('success', 'Design updated successfully.');

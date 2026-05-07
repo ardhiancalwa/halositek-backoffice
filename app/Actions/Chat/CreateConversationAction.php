@@ -41,7 +41,7 @@ final class CreateConversationAction
                 })
                 ->get()
                 ->first(static function (Conversation $conversation) use ($participantIds): bool {
-                    $conversationParticipants = $conversation->participant_ids;
+                    $conversationParticipants = $conversation->getRawOriginal('participant_ids');
                     if (is_string($conversationParticipants)) {
                         try {
                             $decoded = json_decode($conversationParticipants, true, 512, JSON_THROW_ON_ERROR);
@@ -51,7 +51,9 @@ final class CreateConversationAction
                         }
                     }
 
-                    $normalized = array_values(array_map('strval', is_array($conversationParticipants) ? $conversationParticipants : []));
+                    $normalized = is_array($conversationParticipants)
+                        ? array_map('strval', $conversationParticipants)
+                        : [];
                     sort($normalized);
 
                     return $normalized === $participantIds;

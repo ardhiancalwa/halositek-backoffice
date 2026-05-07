@@ -27,7 +27,7 @@ class ChatListResource extends JsonResource
             'participant_ids' => $participantIds,
             'last_read_at' => $lastReadAt[$authUserId] ?? null,
             'unread_count' => (int) ($conversation->getAttribute('unread_count') ?? 0),
-            'last_message' => $conversation->relationLoaded('lastMessage')
+            'last_message' => $conversation->relationLoaded('lastMessage') && $conversation->lastMessage !== null
                 ? (new MessageResource($conversation->lastMessage))->resolve($request)
                 : null,
             'updated_at' => $conversation->updated_at?->toIso8601String(),

@@ -57,6 +57,50 @@ Prefix semua endpoint: `/api/v1`
 
 Referensi route: `routes/api.php`
 
+## Implementasi Fitur Chat
+
+Endpoint chat ada di prefix `/api/v1/chat` (butuh `auth:sanctum`):
+
+- `GET /conversations`: ambil daftar conversation milik user login.
+- `POST /conversations`: buat conversation baru (private/group).
+- `GET /conversations/{conversationId}`: detail conversation.
+- `GET /conversations/{conversationId}/messages`: daftar message per conversation.
+- `POST /messages`: kirim message.
+- `POST /conversations/{conversationId}/read`: tandai message lawan bicara sebagai sudah dibaca.
+- `POST /conversations/{conversationId}/typing`: kirim typing indicator realtime.
+
+### Alur Implementasi
+
+- `CreateConversationAction`: validasi partisipan, buat private/group chat, dan cegah duplikasi private conversation untuk partisipan yang sama.
+- `GetUserConversationsAction`: ambil conversation user berdasarkan `participant_ids`, urut `updated_at DESC`, sertakan `last_message` dan `unread_count`.
+- `SendMessageAction`: simpan message, update `last_read_at` pengirim, broadcast event `MessageSent`, lalu kirim notifikasi.
+- `MarkMessageAsReadAction`: update `read_at` untuk message lawan bicara dan update `last_read_at` user aktif.
+
+### Model dan Data
+
+- `Conversation` dan `Message` disimpan di MongoDB.
+- `participant_ids` dan `last_read_at` pada `Conversation` harus bertipe array/object (bukan JSON string).
+- Untuk normalisasi data lama, jalankan:
+
+```bash
+php artisan chat:normalize-conversations --dry-run
+php artisan chat:normalize-conversations
+```
+
+### Realtime dan Notifikasi
+
+- Channel broadcast privat: `chat.conversation.{conversationId}` (lihat `routes/channels.php`).
+- Event realtime: `chat.message.sent` dan `chat.typing`.
+- `NewMessageNotification` saat ini dikirim via channel `broadcast` agar alur API chat tetap stabil pada setup lokal tanpa dependency notifikasi database.
+
+### Test Chat
+
+Jalankan test fitur chat:
+
+```bash
+php artisan test tests/Feature/Api/ChatApiTest.php tests/Feature/Api/ChatConversationFlowApiTest.php
+```
+
 ## Quality Check
 
 Perintah utama:

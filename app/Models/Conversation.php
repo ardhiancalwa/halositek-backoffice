@@ -40,16 +40,13 @@ class Conversation extends Model
     ];
 
     /**
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'is_group' => 'boolean',
-            'participant_ids' => 'array',
-            'last_read_at' => 'array',
-        ];
-    }
+    protected $casts = [
+        'is_group' => 'boolean',
+        'participant_ids' => 'array',
+        'last_read_at' => 'array',
+    ];
 
     /**
      * @return HasMany<Message, self>

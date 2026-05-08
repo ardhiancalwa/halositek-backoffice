@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\ProjectStatus;
 use App\Enums\ProjectStyle;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
@@ -29,6 +30,7 @@ class DesignController extends Controller
 
         $query = Project::query()
             ->with('architect')
+            ->where('status', ProjectStatus::Approved->value)
             ->latest();
 
         if ($selectedStyle !== null) {
@@ -118,6 +120,12 @@ class DesignController extends Controller
 
         $project->fill($data);
         $project->save();
+
+        if ($request->input('source') === 'architects_modal') {
+            return redirect()
+                ->route('admin.dashboard.architects.index', ['type' => 'design'])
+                ->with('success', 'Design status updated successfully.');
+        }
 
         return redirect()
             ->route('admin.dashboard.designs.show', $project)

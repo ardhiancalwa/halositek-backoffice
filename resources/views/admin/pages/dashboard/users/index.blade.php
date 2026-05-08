@@ -39,7 +39,7 @@
     <div
         id="users-table-wrapper"
         data-users-url="{{ route('admin.dashboard.users.data') }}"
-        data-user-update-url-template="{{ url('/api/v1/users/__ID__') }}"
+        data-user-update-url-template="{{ url('/dashboard/users/__ID__') }}"
     >
         @component('admin.components.table', ['headers' => [
             ['label' => 'Name', 'class' => 'text-left text-xs font-semibold uppercase tracking-wider text-slate-600'],

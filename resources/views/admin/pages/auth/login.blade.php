@@ -70,9 +70,7 @@
             </div>
         </div>
 
-        <div class="mb-6">
-            <a href="#" class="auth-primary-link text-sm font-medium">Forgot Password?</a>
-        </div>
+        
 
         <button
             type="submit"
@@ -82,10 +80,7 @@
             Login
         </button>
 
-        <p class="auth-muted-text mt-6 text-center text-sm">
-            Don't have any account?
-            <a href="{{ route('admin.auth.register') }}" class="auth-accent-link font-semibold">Register now</a>
-        </p>
+        
     </form>
 </div>
 @endsection

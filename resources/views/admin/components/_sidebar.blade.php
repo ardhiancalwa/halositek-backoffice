@@ -23,6 +23,12 @@
                     'match' => ['admin.dashboard.architects.*'],
                     'icon' => 'architect',
                 ],
+                [
+                    'label' => 'Admin',
+                    'route' => 'admin.dashboard.admins.index',
+                    'match' => ['admin.dashboard.admins.*'],
+                    'icon' => 'user',
+                ],
                 
             ],
         ],

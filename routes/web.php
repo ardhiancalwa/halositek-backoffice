@@ -41,6 +41,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('admin.dashboard.users.index');
         Route::get('/data', [UserController::class, 'data'])->name('admin.dashboard.users.data');
+        Route::put('/{user}', [UserController::class, 'update'])->name('admin.dashboard.users.update');
     });
 
     Route::prefix('architects')->group(function () {
@@ -48,5 +49,6 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         Route::get('/awards', [ArchitectController::class, 'awards'])->name('admin.dashboard.architects.awards');
         Route::get('/stats', [ArchitectController::class, 'stats'])->name('admin.dashboard.architects.stats');
         Route::put('/designs/{project}/status', [ArchitectController::class, 'updateDesignStatus'])->name('admin.dashboard.architects.update-design-status');
+        Route::put('/awards/{award}/status', [ArchitectController::class, 'updateAwardStatus'])->name('admin.dashboard.architects.update-award-status');
     });
 });

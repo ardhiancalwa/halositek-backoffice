@@ -74,6 +74,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function getAvatarUrl(user) {
+        if (user.photo_profile) {
+            return user.photo_profile.startsWith('http') ? user.photo_profile : user.photo_profile_url;
+        }
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=F1F5F9&color=475569&size=80`;
     }
 

@@ -51,6 +51,38 @@ if (dashboardRoot) {
             .join(' ');
     };
 
+    const buildChartPoints = (values, width, height, padding) => {
+        if (!values.length) {
+            return [];
+        }
+
+        if (values.length === 1) {
+            return [{
+                x: width / 2,
+                y: height / 2,
+                value: values[0],
+            }];
+        }
+
+        const minValue = Math.min(...values);
+        const maxValue = Math.max(...values);
+        const range = Math.max(maxValue - minValue, 1);
+        const chartWidth = width - (padding * 2);
+        const chartHeight = height - (padding * 2);
+
+        return values.map((value, index) => {
+            const x = padding + (chartWidth * index) / (values.length - 1);
+            const normalized = (value - minValue) / range;
+            const y = height - padding - (normalized * chartHeight);
+
+            return {
+                x: Number(x.toFixed(2)),
+                y: Number(y.toFixed(2)),
+                value,
+            };
+        });
+    };
+
     const formatCompactValue = (value) => {
         if (value >= 1000) {
             const compact = value / 1000;
@@ -74,7 +106,7 @@ if (dashboardRoot) {
         });
     };
 
-    const renderGrowthChart = (elements, dataset, summaryKey) => {
+    const renderGrowthChart = (elements, dataset, summaryKey, entityLabel) => {
         const width = 640;
         const height = 240;
         const padding = 18;
@@ -82,12 +114,31 @@ if (dashboardRoot) {
         const values = Array.isArray(dataset?.chart?.values) ? dataset.chart.values.map(Number) : [];
         const total = Number(dataset?.summary?.[summaryKey] ?? 0);
         const linePath = buildChartPath(values, width, height, padding);
+        const points = buildChartPoints(values, width, height, padding);
         const hasActivity = values.some((value) => value > 0);
+        const pointMarkup = points
+            .map((point, index) => {
+                const label = labels[index] ?? `Point ${index + 1}`;
+                const countLabel = point.value === 1 ? entityLabel : `${entityLabel}s`;
+
+                return `
+                    <g>
+                        <circle cx="${point.x}" cy="${point.y}" r="11" fill="transparent">
+                            <title>${label}: ${point.value} ${countLabel} registered</title>
+                        </circle>
+                        <circle cx="${point.x}" cy="${point.y}" r="5.5" fill="#ffffff" stroke="#E8820C" stroke-width="3">
+                            <title>${label}: ${point.value} ${countLabel} registered</title>
+                        </circle>
+                    </g>
+                `;
+            })
+            .join('');
 
         elements.total.textContent = formatCompactValue(total);
         elements.empty.classList.toggle('hidden', hasActivity);
         elements.chart.innerHTML = `
             <path d="${linePath}" fill="none" stroke="#E8820C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>
+            ${pointMarkup}
         `;
         elements.labels.style.gridTemplateColumns = `repeat(${Math.max(labels.length, 1)}, minmax(0, 1fr))`;
         elements.labels.innerHTML = labels
@@ -126,7 +177,7 @@ if (dashboardRoot) {
             const payload = await fetchJson(`${dashboardRoot.dataset.userGrowthUrl}?period=${period}`);
 
             if (payload) {
-                renderGrowthChart(userGrowthElements, payload.data ?? {}, 'total_new_users');
+                renderGrowthChart(userGrowthElements, payload.data ?? {}, 'total_new_users', 'user');
             }
         } catch (error) {
             console.error('Error fetching user growth data:', error);
@@ -141,7 +192,7 @@ if (dashboardRoot) {
             const payload = await fetchJson(`${dashboardRoot.dataset.architectGrowthUrl}?period=${period}`);
 
             if (payload) {
-                renderGrowthChart(architectGrowthElements, payload.data ?? {}, 'total_new_architects');
+                renderGrowthChart(architectGrowthElements, payload.data ?? {}, 'total_new_architects', 'architect');
             }
         } catch (error) {
             console.error('Error fetching architect growth data:', error);

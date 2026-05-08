@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\User;
@@ -49,5 +50,19 @@ class UserController extends Controller
         $users->setCollection(UserResource::collection($users->getCollection())->collection);
 
         return ApiResponse::paginated($users, 'Users retrieved successfully.');
+    }
+
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    {
+        if (Gate::denies('update', $user)) {
+            return ApiResponse::forbidden('You are not allowed to update this user.');
+        }
+
+        $user->account_status = $request->validated('account_status');
+        $user->save();
+
+        return ApiResponse::success([
+            'user' => new UserResource($user),
+        ], 'User status updated successfully.');
     }
 }

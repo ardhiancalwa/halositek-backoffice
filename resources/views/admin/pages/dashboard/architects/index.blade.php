@@ -121,13 +121,16 @@
                     @php
                         $archName = $item->architect->name ?? 'Unknown';
                         $rawStatus = strtoupper($item->status instanceof \BackedEnum ? $item->status->value : ($item->status ?? 'pending'));
+                        $archPhoto = $item->architect && $item->architect->photo_profile
+                            ? (str_starts_with($item->architect->photo_profile, 'http') ? $item->architect->photo_profile : Storage::url($item->architect->photo_profile))
+                            : null;
                     @endphp
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-indigo-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                    @if($item->architect && $item->architect->photo_profile)
-                                        <img src="{{ Storage::url($item->architect->photo_profile) }}" alt="{{ $archName }}" class="w-full h-full object-cover">
+                                    @if($archPhoto)
+                                        <img src="{{ $archPhoto }}" alt="{{ $archName }}" class="w-full h-full object-cover">
                                     @else
                                         <svg class="w-4 h-4 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                                     @endif
@@ -168,9 +171,20 @@
 
                         @if($type !== 'design')
                             <td class="px-6 py-4 text-center">
-                                <button class="text-[#E8820C] hover:text-orange-600 transition-colors inline-block" title="View Proof">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                </button>
+                                @php
+                                    $fileUrl = $item->verification_file 
+                                        ? (str_starts_with($item->verification_file, 'http') ? $item->verification_file : Storage::url($item->verification_file))
+                                        : null;
+                                @endphp
+                                @if($fileUrl)
+                                    <a href="{{ $fileUrl }}" target="_blank" class="text-[#E8820C] hover:text-orange-600 transition-colors inline-block" title="View Proof">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </a>
+                                @else
+                                    <span class="text-slate-300 inline-block cursor-not-allowed" title="No proof uploaded">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </span>
+                                @endif
                             </td>
                         @endif
 
@@ -181,9 +195,10 @@
                                 </button>
                                 @include('admin.components.architects.modal-design-action', ['item' => $item])
                             @else
-                                <button type="button" class="text-[#778BA5] hover:text-[#E8820C] transition-colors p-1" title="View details">
+                                <button type="button" class="text-[#778BA5] hover:text-[#E8820C] transition-colors p-1" title="View details" data-open-award-modal="{{ $item->id }}">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </button>
+                                @include('admin.components.architects.modal-award-action', ['item' => $item])
                             @endif
                         </td>
                     </tr>
@@ -301,13 +316,26 @@
             });
         });
 
-        const closeBtns = document.querySelectorAll('[data-design-action-modal] [data-modal-close], [data-design-action-modal] [data-modal-backdrop]');
+        const closeBtns = document.querySelectorAll('[data-design-action-modal] [data-modal-close], [data-design-action-modal] [data-modal-backdrop], [data-award-action-modal] [data-modal-close], [data-award-action-modal] [data-modal-backdrop]');
         closeBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const modal = e.target.closest('[data-design-action-modal]');
+                const modal = e.target.closest('[data-design-action-modal], [data-award-action-modal]');
                 if (modal) {
                     modal.classList.add('hidden');
                     document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Modal Award Action functionality
+        const openAwardButtons = document.querySelectorAll('[data-open-award-modal]');
+        openAwardButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-open-award-modal');
+                const modal = document.querySelector(`[data-award-action-modal="${id}"]`);
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
                 }
             });
         });

@@ -122,4 +122,20 @@ class ArchitectController extends Controller
             ->route('admin.dashboard.architects.index', ['type' => 'design'])
             ->with('success', 'Design status updated successfully.');
     }
+
+    public function updateAwardStatus(Request $request, Award $award)
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:pending,approved,declined,PENDING,APPROVED,DECLINED'],
+        ]);
+
+        $status = strtolower($validated['status']);
+        
+        $award->status = \App\Enums\AwardStatus::from($status);
+        $award->save();
+
+        return redirect()
+            ->route('admin.dashboard.architects.index', ['type' => 'award'])
+            ->with('success', 'Award status updated successfully.');
+    }
 }

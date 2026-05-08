@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
 
 composer phpstan
+php artisan test

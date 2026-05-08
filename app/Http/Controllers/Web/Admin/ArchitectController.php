@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Web\Admin;
 
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\AwardResource;
+use App\Http\Resources\Award\AwardResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Award;
 use App\Models\Project;

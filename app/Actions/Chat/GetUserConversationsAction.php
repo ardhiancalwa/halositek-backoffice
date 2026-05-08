@@ -15,9 +15,13 @@ final class GetUserConversationsAction
     public function execute(User $user, int $perPage = 15): LengthAwarePaginator
     {
         $userId = (string) $user->getKey();
+        $quotedUserId = sprintf('%%"%s"%%', $userId);
 
         $paginator = Conversation::query()
-            ->where('participant_ids', $userId)
+            ->where(static function ($query) use ($userId, $quotedUserId): void {
+                $query->where('participant_ids', 'all', [$userId])
+                    ->orWhere('participant_ids', 'like', $quotedUserId);
+            })
             ->orderBy('updated_at', 'desc')
             ->paginate($perPage);
 

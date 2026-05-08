@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -21,6 +22,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => env('SEED_ADMIN_NAME', 'Admin User'),
                 'password' => Hash::make(env('SEED_ADMIN_PASSWORD', 'Password123!')),
+                'role' => UserRole::Admin->value,
             ]
         );
 
@@ -29,6 +31,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => env('SEED_ARCHITECT_NAME', 'Architect User'),
                 'password' => Hash::make(env('SEED_ARCHITECT_PASSWORD', 'Password123!')),
+                'role' => UserRole::Architect->value,
             ]
         );
 
@@ -37,6 +40,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => env('SEED_USER_NAME', 'Regular User'),
                 'password' => Hash::make(env('SEED_USER_PASSWORD', 'Password123!')),
+                'role' => UserRole::User->value,
             ]
         );
 
@@ -48,6 +52,7 @@ class DatabaseSeeder extends Seeder
             ConsultationReportSeeder::class,
             ChatSeeder::class,
             AiChatbotLogSeeder::class,
+
         ]);
     }
 }

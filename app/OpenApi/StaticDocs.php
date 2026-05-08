@@ -191,6 +191,9 @@ use OpenApi\Annotations as OA;
  *   @OA\Property(property="id", type="string", example="01J2MESSAGE001"),
  *   @OA\Property(property="conversation_id", type="string", example="01J2CHATCONVERSATION001"),
  *   @OA\Property(property="user_id", type="string", example="01J2USERA"),
+ *   @OA\Property(property="role", type="string", enum={"user","assistant"}, nullable=true, example="assistant"),
+ *   @OA\Property(property="type", type="string", enum={"text","image"}, nullable=true, example="text"),
+ *   @OA\Property(property="content", type="string", nullable=true, example="Ini jawaban AI konsultasi."),
  *   @OA\Property(property="body", type="string", example="Halo, kabar kamu gimana?"),
  *   @OA\Property(property="attachment", type="string", nullable=true, example=null),
  *   @OA\Property(property="read_at", type="string", format="date-time", nullable=true, example=null),
@@ -311,6 +314,20 @@ use OpenApi\Annotations as OA;
  *     @OA\Property(property="success", type="boolean", example=false),
  *     @OA\Property(property="status_code", type="integer", example=500),
  *     @OA\Property(property="message", type="string", example="Internal server error."),
+ *     @OA\Property(property="errors", type="object", nullable=true, example=null)
+ *   )
+ * )
+ *
+ * @OA\Response(
+ *   response="ServiceUnavailableError",
+ *   description="Service Unavailable - dependent service is temporarily unavailable.",
+ *
+ *   @OA\JsonContent(
+ *     allOf={@OA\Schema(ref="#/components/schemas/ApiError")},
+ *
+ *     @OA\Property(property="success", type="boolean", example=false),
+ *     @OA\Property(property="status_code", type="integer", example=503),
+ *     @OA\Property(property="message", type="string", example="Service unavailable."),
  *     @OA\Property(property="errors", type="object", nullable=true, example=null)
  *   )
  * )

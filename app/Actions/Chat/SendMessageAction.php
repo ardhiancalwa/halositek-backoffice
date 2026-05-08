@@ -2,7 +2,7 @@
 
 namespace App\Actions\Chat;
 
-use App\DTOs\Chat\SendMessageDTO;
+use App\DTOs\Consultation\SendMessageDTO;
 use App\Events\MessageSent;
 use App\Models\Conversation;
 use App\Models\Message;

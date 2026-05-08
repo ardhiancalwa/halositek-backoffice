@@ -13,7 +13,7 @@ paths:
       tags:
         - 'AI Chatbot Management'
       summary: 'Get AI chatbot real-time performance'
-      operationId: 230fc4350e0c1a99af8d3b5443441e82
+      operationId: 2d1b658e8a9a45df85f30bb9d663f14a
       responses:
         200:
           description: 'Performance metrics retrieved'
@@ -42,7 +42,7 @@ paths:
       tags:
         - 'AI Chatbot Management'
       summary: 'Get AI chatbot activity logs'
-      operationId: a0354d8fa9c7e0a36b7dc42b9c65a74a
+      operationId: c79e11067c9d259f5c8e2bcf77b67b7b
       parameters:
         -
           name: status
@@ -107,7 +107,7 @@ paths:
       tags:
         - 'AI Chatbot Management'
       summary: 'Get AI chatbot activity log detail'
-      operationId: 1f28df097e06572ee191dc68af171060
+      operationId: fb76358cd9e60afc92b88f0fa3e1917b
       parameters:
         -
           name: logId
@@ -153,7 +153,7 @@ paths:
         - Analytics
       summary: 'Get analytics overview'
       description: 'Returns overview metrics for registered users, approved architects, and active projects.'
-      operationId: 256f404efb9fb5047e1ff37c5b8ffc25
+      operationId: e461123aa143116cbcad1a8b7d26ae5e
       responses:
         200:
           description: 'Analytics overview retrieved successfully.'
@@ -183,7 +183,7 @@ paths:
         - Analytics
       summary: 'Get user growth'
       description: 'Returns user growth series based on selected range.'
-      operationId: 9cfbe1e9e5ea069a640aaa08c4ff31f3
+      operationId: d4cc1ef6237502a876b2edd641bd08d7
       parameters:
         -
           name: range
@@ -250,7 +250,7 @@ paths:
         - Analytics
       summary: 'Get architect growth'
       description: 'Returns approved architect growth series based on selected range.'
-      operationId: fe46734bc61da8a396d277fa02388d2e
+      operationId: deb4b7f21e038564bdb5d164a6965e91
       parameters:
         -
           name: range
@@ -302,162 +302,13 @@ paths:
       security:
         -
           BearerAuth: []
-  /architects:
-    get:
-      tags:
-        - Architects
-      summary: 'List architects'
-      description: 'Returns a list of architects for public browsing.'
-      operationId: 74edff86f7f55dbc724a8903fd28ff8c
-      responses:
-        200:
-          description: 'Architect list retrieved successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Architect list retrieved successfully'
-                data:
-                  -
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
-                    name: 'Architect User'
-                    email: architect@halositek.com
-                    headline: 'Residential Specialist'
-                meta:
-                  current_page: 1
-                  last_page: 1
-                  per_page: 12
-                  total: 1
-                links:
-                  first_page_url: 'http://localhost:8000/api/v1/architects?page=1'
-                  last_page_url: 'http://localhost:8000/api/v1/architects?page=1'
-                  next_page_url: null
-                  prev_page_url: null
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security: []
-  /architects/wishlist:
-    get:
-      tags:
-        - Architects
-      summary: 'List wishlist architects'
-      description: "Returns the authenticated user's saved architect wishlist."
-      operationId: aad57a444159face682e0826d9335e1e
-      responses:
-        200:
-          description: 'Wishlist architects retrieved successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Wishlist architects retrieved successfully'
-                data:
-                  -
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
-                    name: 'Architect User'
-                    email: architect@halositek.com
-                    headline: 'Residential Specialist'
-                meta:
-                  current_page: 1
-                  last_page: 1
-                  per_page: 12
-                  total: 1
-                links:
-                  first_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
-                  last_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
-                  next_page_url: null
-                  prev_page_url: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-  '/architects/{userId}/save':
-    post:
-      tags:
-        - Architects
-      summary: 'Save architect to wishlist'
-      description: "Saves a specific architect to the authenticated user's wishlist."
-      operationId: 7e197946905ad00dfa7ac77894e91456
-      parameters:
-        -
-          name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'Architect saved to wishlist successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Architect saved to wishlist successfully'
-                data: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        409:
-          $ref: '#/components/responses/ConflictError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-    delete:
-      tags:
-        - Architects
-      summary: 'Remove architect from wishlist'
-      description: "Removes a specific architect from the authenticated user's wishlist."
-      operationId: e68d57f61a5f6ee7cf5261a94406e5a4
-      parameters:
-        -
-          name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'Architect removed from wishlist successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Architect removed from wishlist successfully'
-                data: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
   /auth/register:
     post:
       tags:
         - Auth
       summary: 'Register account'
       description: 'Registers a new user and returns an access token and refresh token.'
-      operationId: 08136088c4862c313b35d6518bab8d3a
+      operationId: f8f20d8e5fa3ee0d9ab537e9ac6206b5
       requestBody:
         required: true
         content:
@@ -520,7 +371,7 @@ paths:
         - Auth
       summary: 'Login account'
       description: 'Authenticates user credentials and returns a token pair.'
-      operationId: 99d66635c4992aeaa6aa44ff653d0563
+      operationId: 3d1aae0ea009e03fadebec819afd774e
       requestBody:
         required: true
         content:
@@ -577,7 +428,7 @@ paths:
         - Auth
       summary: 'Refresh access token'
       description: 'Exchanges a valid refresh token for a new token pair.'
-      operationId: e0ed1d02d631abd84c59c59f0279ef0c
+      operationId: 2827f194f67f6d3538d73ad213edf819
       requestBody:
         required: true
         content:
@@ -615,7 +466,7 @@ paths:
         - Auth
       summary: 'Logout current session'
       description: 'Revokes the current access token and optionally the refresh token provided in the request body.'
-      operationId: 28d48c13fca984400ac8de99f54ee13a
+      operationId: 6fa87e6ae9c508a3f355b05d51c4b335
       requestBody:
         required: false
         content:
@@ -649,7 +500,7 @@ paths:
         - Users
       summary: 'Get current user profile'
       description: 'Returns the profile data of the currently authenticated user.'
-      operationId: bc2032a379aa97707ccc61511897c120
+      operationId: 4c4c7bf5b7dc5e997d9fb367439317d2
       responses:
         200:
           description: 'Profile retrieved successfully'
@@ -682,7 +533,7 @@ paths:
         - Users
       summary: 'Update current profile'
       description: 'Updates the profile of the currently authenticated user.'
-      operationId: 6b9973cb84e39003343557a804325841
+      operationId: 5cfb418544966e592aa100b0e929828d
       requestBody:
         required: true
         content:
@@ -738,7 +589,7 @@ paths:
         - Awards
       summary: 'List awards'
       description: 'Returns a paginated award list with optional status filtering.'
-      operationId: d1e93734d74e2e0778e6c2293678db79
+      operationId: 0a0f62bf7d6ade3dcd31951445956654
       parameters:
         -
           name: status
@@ -800,7 +651,7 @@ paths:
         - Awards
       summary: 'Create award'
       description: 'Creates a new award record by an architect, including verification file upload.'
-      operationId: 81c490a83721fd6d707330479fb9c151
+      operationId: e71987245dd9f8dc0b3cb74fc09450fe
       requestBody:
         required: true
         content:
@@ -838,7 +689,7 @@ paths:
         - Awards
       summary: 'Get award detail'
       description: 'Returns award details by id.'
-      operationId: d48608ffdf263b565147adfb8b6523ff
+      operationId: 2cd278c8adbf5af3a94c25f07f8d3a6e
       parameters:
         -
           name: id
@@ -872,7 +723,7 @@ paths:
         - Awards
       summary: 'Update award'
       description: 'Updates award data; admin users can only update award status.'
-      operationId: ca24d1a1e6c04af511d289b7de1b48a3
+      operationId: 5dc0ab750512ffc1f56ae98585bd0d41
       parameters:
         -
           name: id
@@ -918,7 +769,7 @@ paths:
         - Awards
       summary: 'Delete award'
       description: 'Deletes an award record and its verification file by id.'
-      operationId: f875cfead586a4d7bac67c21be5bb0bb
+      operationId: 3651745e28646785f58c7e61e48d19d9
       parameters:
         -
           name: id
@@ -954,7 +805,7 @@ paths:
         - Awards
       summary: 'Review award approval'
       description: 'Approves or declines an award by setting status to approved or declined. Admin only endpoint.'
-      operationId: b9ec3ab1e9563034fc2147bfdb7aea77
+      operationId: f18b7a905d89a3d047c3807dd38f2846
       parameters:
         -
           name: id
@@ -1009,7 +860,7 @@ paths:
       tags:
         - 'Consultation Management'
       summary: 'Get consultation report statistics'
-      operationId: e22182c5bbaecab2de14f1bc25187814
+      operationId: 100829f69f10c4c96ca02b844f186e6c
       responses:
         200:
           description: 'Report stats retrieved'
@@ -1039,7 +890,7 @@ paths:
       tags:
         - 'Consultation Management'
       summary: 'Get consultation report list'
-      operationId: f4c9fe0bfc76144724c0be9943ee82d7
+      operationId: 3d38881471dbe8ee4d10833c7bf612ce
       parameters:
         -
           name: role
@@ -1113,7 +964,7 @@ paths:
       tags:
         - 'Consultation Management'
       summary: 'Approve or decline consultation report'
-      operationId: 4a28402cbe5a119237ccbb73f0127474
+      operationId: 06c3c161f1be71337c86ba7c68f89bb0
       parameters:
         -
           name: reportId
@@ -1167,7 +1018,7 @@ paths:
       tags:
         - 'Consultation Management'
       summary: 'Get pending payout summary'
-      operationId: 92eb038eba2c581d7b85673e4e05baec
+      operationId: 8f0599b5551bbd0241a154e4d749f30a
       responses:
         200:
           description: 'Payroll summary retrieved'
@@ -1194,7 +1045,7 @@ paths:
       tags:
         - 'Consultation Management'
       summary: 'Get payout queue grouped by architect'
-      operationId: e3fb8b4360649301c74905ae641b019e
+      operationId: 8c9f01e9a48182c562e72007d924a949
       parameters:
         -
           name: status
@@ -1260,7 +1111,7 @@ paths:
       tags:
         - 'Consultation Management'
       summary: 'Get release payment detail for architect'
-      operationId: d6ac43d638960762a4863d424df87ba8
+      operationId: e47405bcbde3b5c68a28cc7db4a5c09e
       parameters:
         -
           name: architectId
@@ -1307,7 +1158,7 @@ paths:
       tags:
         - 'Consultation Management'
       summary: 'Release architect payroll'
-      operationId: 88d01b8cee6e3d0efcdb49d4208bb16c
+      operationId: 5a22ab3c8a9959b7fb905aa619b833cf
       parameters:
         -
           name: architectId
@@ -1363,7 +1214,7 @@ paths:
         - Chat
       summary: 'List user conversations'
       description: 'Mengambil daftar percakapan milik user yang sedang login.'
-      operationId: f1abf48aaabde01820cc07febbb1de25
+      operationId: f43c1c690165415d56f87d12afbaeaf8
       parameters:
         -
           name: per_page
@@ -1427,7 +1278,7 @@ paths:
         - Chat
       summary: 'Create conversation'
       description: 'Membuat percakapan baru (default private chat). Jika private chat sudah ada, data existing dapat dikembalikan.'
-      operationId: ddff0ef34623f342ae7914348ecf0ce4
+      operationId: e0203a145cc5146475105ed5a795ee6c
       requestBody:
         required: true
         content:
@@ -1485,7 +1336,7 @@ paths:
         - Chat
       summary: 'Get conversation detail'
       description: 'Mengambil detail percakapan berdasarkan ID conversation.'
-      operationId: 3bf200d314ee08b1ca042c916ebb3d2c
+      operationId: b1f4c4da61c94b1b8d50bdb94779f685
       parameters:
         -
           name: conversationId
@@ -1524,222 +1375,13 @@ paths:
       security:
         -
           BearerAuth: []
-  /faqs:
-    get:
-      tags:
-        - FAQ
-      summary: 'List FAQs'
-      description: 'Returns FAQ items; public users can only see active entries.'
-      operationId: 0e5341310466901757868563531064ee
-      responses:
-        200:
-          description: 'FAQ list retrieved successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'FAQ list retrieved successfully'
-                data:
-                  -
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
-                    question: 'How do I become an architect on this platform?'
-                    answer: 'Register and complete your architect profile.'
-                    is_active: true
-                meta:
-                  current_page: 1
-                  last_page: 1
-                  per_page: 15
-                  total: 1
-                links:
-                  first_page_url: 'http://localhost:8000/api/v1/faqs?page=1'
-                  last_page_url: 'http://localhost:8000/api/v1/faqs?page=1'
-                  next_page_url: null
-                  prev_page_url: null
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security: []
-    post:
-      tags:
-        - FAQ
-      summary: 'Create FAQ'
-      description: 'Creates a new FAQ entry through admin access.'
-      operationId: 93876bf36963362d8e1a4cac90c1f57b
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              required:
-                - question
-                - answer
-              properties:
-                question:
-                  type: string
-                answer:
-                  type: string
-                is_active:
-                  type: boolean
-              type: object
-      responses:
-        201:
-          description: 'FAQ created successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 201
-                message: 'FAQ created successfully'
-                data:
-                  id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
-                  question: 'How do I become an architect on this platform?'
-                  answer: 'Register and complete your architect profile.'
-                  is_active: true
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        403:
-          $ref: '#/components/responses/ForbiddenError'
-        422:
-          $ref: '#/components/responses/ValidationError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-  '/faqs/{id}':
-    get:
-      tags:
-        - FAQ
-      summary: 'Get FAQ detail'
-      description: 'Returns details for a single FAQ by id.'
-      operationId: cbb58fa0d05118742fc927714a2d1e57
-      parameters:
-        -
-          name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'FAQ retrieved successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'FAQ retrieved successfully'
-                data:
-                  id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
-                  question: 'How do I become an architect on this platform?'
-                  answer: 'Register and complete your architect profile.'
-                  is_active: true
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security: []
-    put:
-      tags:
-        - FAQ
-      summary: 'Update FAQ'
-      description: 'Updates an existing FAQ entry by id.'
-      operationId: c84583839e4db68b87ae74f991c1ca41
-      parameters:
-        -
-          name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                question:
-                  type: string
-                answer:
-                  type: string
-                is_active:
-                  type: boolean
-              type: object
-      responses:
-        200:
-          description: 'FAQ updated successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'FAQ updated successfully'
-                data:
-                  id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
-                  question: 'How do I become an architect on this platform?'
-                  answer: 'Your architect profile has been updated.'
-                  is_active: true
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        403:
-          $ref: '#/components/responses/ForbiddenError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        422:
-          $ref: '#/components/responses/ValidationError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-    delete:
-      tags:
-        - FAQ
-      summary: 'Delete FAQ'
-      description: 'Deletes an FAQ entry by id.'
-      operationId: 1e86e89a717712544ffbd957520fc88b
-      parameters:
-        -
-          name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'FAQ deleted successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'FAQ deleted successfully'
-                data: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        403:
-          $ref: '#/components/responses/ForbiddenError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
   '/chat/conversations/{conversationId}/messages':
     get:
       tags:
         - Chat
       summary: 'List messages'
       description: 'Mengambil daftar pesan pada conversation tertentu.'
-      operationId: 6a6fe1234e195b073e00578e9221f4e1
+      operationId: 318164aae8b37e8a0c5d03c99a230c5b
       parameters:
         -
           name: conversationId
@@ -1807,8 +1449,8 @@ paths:
       tags:
         - Chat
       summary: 'Send message'
-      description: 'Mengirim pesan teks ke conversation dan men-trigger broadcast real-time.'
-      operationId: 776cfcde9bb3e2b39e6d9bf2d5cb3dd8
+      description: 'Mengirim pesan teks ke conversation. Untuk role user, sistem memproses AI reply (sync untuk teks, async/queue untuk request gambar).'
+      operationId: 5544065cc5106aa1f9a34cfc8762cfe4
       requestBody:
         required: true
         content:
@@ -1831,7 +1473,7 @@ paths:
               type: object
       responses:
         201:
-          description: 'Pesan berhasil dikirim'
+          description: 'Pesan berhasil diproses dan AI reply sinkron dikembalikan'
           content:
             application/json:
               schema: []
@@ -1843,16 +1485,32 @@ paths:
                   id: 01J2MESSAGE001
                   conversation_id: 01J2CHATCONVERSATION001
                   user_id: 01J2USERA
-                  body: 'Halo, kabar kamu gimana?'
+                  role: assistant
+                  type: text
+                  content: 'Ini jawaban AI konsultasi.'
+                  body: 'Ini jawaban AI konsultasi.'
                   attachment: null
                   read_at: null
-                  is_mine: true
+                  is_mine: false
                   sender:
                     id: 01J2USERA
                     name: Budi
                     email: budi@example.com
                   created_at: '2026-04-19T10:00:00+00:00'
                   updated_at: '2026-04-19T10:00:00+00:00'
+        202:
+          description: 'Permintaan AI sedang diproses melalui queue'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 202
+                message: 'Permintaan AI sedang diproses.'
+                data:
+                  status: processing
+                  conversation_id: 01J2CHATCONVERSATION001
+                  user_message_id: 01J2MESSAGE001
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
@@ -1861,6 +1519,49 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         422:
           $ref: '#/components/responses/ValidationError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /chat/ai/messages:
+    post:
+      tags:
+        - Chat
+      summary: 'Send AI message (legacy endpoint)'
+      description: 'Mengirim pesan ke AI service dengan history berbasis user (endpoint legacy).'
+      operationId: 709e48a6621b39699d0ac46d458d9504
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  example: 'Buatkan konsep rumah tropis.'
+                  maxLength: 2000
+              type: object
+      responses:
+        200:
+          description: 'AI response berhasil'
+          content:
+            application/json:
+              schema: []
+              example:
+                type: text
+                content: 'Ini adalah jawaban AI.'
+                prompt_used: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
         500:
           $ref: '#/components/responses/ServerError'
       security:
@@ -1872,7 +1573,7 @@ paths:
         - Chat
       summary: 'Mark conversation as read'
       description: 'Menandai seluruh pesan lawan bicara pada conversation sebagai sudah dibaca dan update last_read_at user.'
-      operationId: 94af6526bd80e8b22a776641b9cdee36
+      operationId: 52396d03c385f258bf853fe18579ce15
       parameters:
         -
           name: conversationId
@@ -1917,7 +1618,7 @@ paths:
         - Chat
       summary: 'Send typing indicator'
       description: 'Mengirim status typing indicator ke private channel conversation.'
-      operationId: a970673f9c71af651f8fe78cda7d3cef
+      operationId: 78c60c3029a1f9dc3152aec335fa4daf
       parameters:
         -
           name: conversationId
@@ -1956,13 +1657,222 @@ paths:
       security:
         -
           BearerAuth: []
+  /faqs:
+    get:
+      tags:
+        - FAQ
+      summary: 'List FAQs'
+      description: 'Returns FAQ items; public users can only see active entries.'
+      operationId: 6349d195bc7a1708dc2ee3e3b72ca3c3
+      responses:
+        200:
+          description: 'FAQ list retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'FAQ list retrieved successfully'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
+                    question: 'How do I become an architect on this platform?'
+                    answer: 'Register and complete your architect profile.'
+                    is_active: true
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/faqs?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/faqs?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security: []
+    post:
+      tags:
+        - FAQ
+      summary: 'Create FAQ'
+      description: 'Creates a new FAQ entry through admin access.'
+      operationId: 7bbd0e966b08c1636271fb03d791977a
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - question
+                - answer
+              properties:
+                question:
+                  type: string
+                answer:
+                  type: string
+                is_active:
+                  type: boolean
+              type: object
+      responses:
+        201:
+          description: 'FAQ created successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'FAQ created successfully'
+                data:
+                  id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
+                  question: 'How do I become an architect on this platform?'
+                  answer: 'Register and complete your architect profile.'
+                  is_active: true
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/faqs/{id}':
+    get:
+      tags:
+        - FAQ
+      summary: 'Get FAQ detail'
+      description: 'Returns details for a single FAQ by id.'
+      operationId: c3783b4ea36d8234f5c7bfffae857f39
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'FAQ retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'FAQ retrieved successfully'
+                data:
+                  id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
+                  question: 'How do I become an architect on this platform?'
+                  answer: 'Register and complete your architect profile.'
+                  is_active: true
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security: []
+    put:
+      tags:
+        - FAQ
+      summary: 'Update FAQ'
+      description: 'Updates an existing FAQ entry by id.'
+      operationId: 26f32aa1cf53af2bda80c4d3a0f4f760
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                question:
+                  type: string
+                answer:
+                  type: string
+                is_active:
+                  type: boolean
+              type: object
+      responses:
+        200:
+          description: 'FAQ updated successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'FAQ updated successfully'
+                data:
+                  id: 01HZX9M1F45M2Z6K7T9K7Y8QFQ
+                  question: 'How do I become an architect on this platform?'
+                  answer: 'Your architect profile has been updated.'
+                  is_active: true
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - FAQ
+      summary: 'Delete FAQ'
+      description: 'Deletes an FAQ entry by id.'
+      operationId: 030910a5c473d7b6c66516490013e3b9
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'FAQ deleted successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'FAQ deleted successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   /projects:
     get:
       tags:
         - Projects
       summary: 'List projects'
       description: 'Returns a paginated project list with optional status filtering.'
-      operationId: e66a4b9c561c9e3e0b98d95b6437ff91
+      operationId: ea98f3f8d94c0a97667c3cba2c478508
       parameters:
         -
           name: status
@@ -2054,7 +1964,7 @@ paths:
         - Projects
       summary: 'Create project'
       description: 'Creates a new project by an architect with image and layout uploads.'
-      operationId: 3e5e24c249cabe95d4c10927fda15c42
+      operationId: 874d153666af5ed0093d339c20df9846
       requestBody:
         required: true
         content:
@@ -2158,7 +2068,7 @@ paths:
         - Projects
       summary: 'Get project detail'
       description: 'Returns project details by id.'
-      operationId: d5d2a5e8813ec56f48253ad43518b940
+      operationId: b7e977448e0c3acb27bd6cad48da5aec
       parameters:
         -
           name: id
@@ -2211,7 +2121,7 @@ paths:
         - Projects
       summary: 'Update project'
       description: 'Updates project data; admin users can only update project status.'
-      operationId: cb0265885b60ef4107c9b46487995d73
+      operationId: 1e733aac12347b10e342be0ca24cd390
       parameters:
         -
           name: id
@@ -2323,7 +2233,7 @@ paths:
         - Projects
       summary: 'Delete project'
       description: 'Deletes a project and related stored image files by id.'
-      operationId: 9eb2e4cfbf69515e53e54d18fc2a60d9
+      operationId: 6192a616f2e95d7dba9300315d14aeae
       parameters:
         -
           name: id
@@ -2359,7 +2269,7 @@ paths:
         - Projects
       summary: 'Review project approval'
       description: 'Approves or declines a project by setting status to approved or declined. Admin only endpoint.'
-      operationId: c778249d74e0f8b98e4a722e71e6b3c5
+      operationId: 8d6ec2d940f149e30cc3d003d0b20fad
       parameters:
         -
           name: id
@@ -2415,7 +2325,7 @@ paths:
         - Projects
       summary: 'Like a project'
       description: 'Adds a like to the specified project for the authenticated user.'
-      operationId: 13f0d31c5af0f4ed78bb76b21ba5e8e0
+      operationId: 9917b6e6dabe734091d3420eb093da3c
       parameters:
         -
           name: id
@@ -2450,7 +2360,7 @@ paths:
         - Projects
       summary: 'Unlike a project'
       description: 'Removes a like from the specified project for the authenticated user.'
-      operationId: 39e0ba135fb188d0c9e35dba303d74fa
+      operationId: 8c59ae4730347ce2d3f6b0f15942a26f
       parameters:
         -
           name: id
@@ -2480,13 +2390,162 @@ paths:
       security:
         -
           BearerAuth: []
+  /architects:
+    get:
+      tags:
+        - Architects
+      summary: 'List architects'
+      description: 'Returns a list of architects for public browsing.'
+      operationId: 1959934f63e0c7d99ea9d206a9ec85f0
+      responses:
+        200:
+          description: 'Architect list retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Architect list retrieved successfully'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Architect User'
+                    email: architect@halositek.com
+                    headline: 'Residential Specialist'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 12
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/architects?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/architects?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security: []
+  /architects/wishlist:
+    get:
+      tags:
+        - Architects
+      summary: 'List wishlist architects'
+      description: "Returns the authenticated user's saved architect wishlist."
+      operationId: 2a365608228314d6e7fea540e31572a0
+      responses:
+        200:
+          description: 'Wishlist architects retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Wishlist architects retrieved successfully'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Architect User'
+                    email: architect@halositek.com
+                    headline: 'Residential Specialist'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 12
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/architects/{userId}/save':
+    post:
+      tags:
+        - Architects
+      summary: 'Save architect to wishlist'
+      description: "Saves a specific architect to the authenticated user's wishlist."
+      operationId: 01aa4e3f3427e989cf2516c3dd89f86f
+      parameters:
+        -
+          name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Architect saved to wishlist successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Architect saved to wishlist successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          $ref: '#/components/responses/ConflictError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - Architects
+      summary: 'Remove architect from wishlist'
+      description: "Removes a specific architect from the authenticated user's wishlist."
+      operationId: ec27c9082ec363e91ed53ecf32a9805a
+      parameters:
+        -
+          name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Architect removed from wishlist successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Architect removed from wishlist successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   /users:
     get:
       tags:
         - Users
       summary: 'List users'
       description: 'Returns a paginated user list for administrative usage (admin only).'
-      operationId: 7208c29037df2b8bb02499ba39ed8a78
+      operationId: bda0424acf687003f1427ea721f28c1b
       parameters:
         -
           name: status
@@ -2555,7 +2614,7 @@ paths:
         - Users
       summary: 'Create user'
       description: 'Creates a new user account from the administrative panel.'
-      operationId: 262eb5ca1fdea354023c0a8870442c1e
+      operationId: 340021bf723d83861f655c281e5ee075
       requestBody:
         required: true
         content:
@@ -2628,7 +2687,7 @@ paths:
         - Users
       summary: 'Get user detail'
       description: 'Returns details for a specific user by id.'
-      operationId: 6946bbab7898f59a09e3c8e529a38907
+      operationId: af3120a64321c6ec2bc595818e0b06f0
       parameters:
         -
           name: id
@@ -2669,7 +2728,7 @@ paths:
         - Users
       summary: 'Update user status'
       description: "Updates a target user's account status (for example: active or suspend)."
-      operationId: 05028d02ea3e9a99abd6260cfe05b179
+      operationId: 075c395067210a524455ef4aae3f09dd
       parameters:
         -
           name: id
@@ -2726,7 +2785,7 @@ paths:
         - Users
       summary: 'Delete user'
       description: 'Deletes a user account by id.'
-      operationId: b3d28da5dc9de7fc1bd425f93b54ff7b
+      operationId: 3ab1c2fff568ea31667b8a6b3d769892
       parameters:
         -
           name: id
@@ -3121,6 +3180,24 @@ components:
         user_id:
           type: string
           example: 01J2USERA
+        role:
+          type: string
+          example: assistant
+          nullable: true
+          enum:
+            - user
+            - assistant
+        type:
+          type: string
+          example: text
+          nullable: true
+          enum:
+            - text
+            - image
+        content:
+          type: string
+          example: 'Ini jawaban AI konsultasi.'
+          nullable: true
         body:
           type: string
           example: 'Halo, kabar kamu gimana?'
@@ -3341,6 +3418,31 @@ components:
                     example: null
                     nullable: true
                 type: object
+    ServiceUnavailableError:
+      description: 'Service Unavailable - dependent service is temporarily unavailable.'
+      content:
+        application/json:
+          schema:
+            type: object
+            allOf:
+              -
+                $ref: '#/components/schemas/ApiError'
+              -
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  status_code:
+                    type: integer
+                    example: 503
+                  message:
+                    type: string
+                    example: 'Service unavailable.'
+                  errors:
+                    type: object
+                    example: null
+                    nullable: true
+                type: object
   securitySchemes:
     BearerAuth:
       type: http
@@ -3354,9 +3456,6 @@ tags:
   -
     name: Analytics
     description: Analytics
-  -
-    name: Architects
-    description: Architects
   -
     name: Auth
     description: Auth
@@ -3378,3 +3477,6 @@ tags:
   -
     name: Projects
     description: Projects
+  -
+    name: Architects
+    description: Architects

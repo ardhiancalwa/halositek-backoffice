@@ -38,6 +38,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/conversations/{conversationId}/messages', [MessageController::class, 'index']);
             Route::post('/messages', [MessageController::class, 'store']);
+            Route::post('/ai/messages', [MessageController::class, 'storeAi']);
             Route::post('/conversations/{conversationId}/read', [MessageController::class, 'markAsRead']);
             Route::post('/conversations/{conversationId}/typing', [MessageController::class, 'typing']);
         });

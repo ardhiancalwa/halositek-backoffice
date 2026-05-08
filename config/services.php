@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'halositek_ai' => [
+        'url' => env('HALOSITEK_AI_URL', 'http://127.0.0.1:8001'),
+    ],
+
 ];

@@ -69,6 +69,25 @@ Endpoint chat ada di prefix `/api/v1/chat` (butuh `auth:sanctum`):
 - `POST /conversations/{conversationId}/read`: tandai message lawan bicara sebagai sudah dibaca.
 - `POST /conversations/{conversationId}/typing`: kirim typing indicator realtime.
 
+### Integrasi AI Service (Local)
+
+Set environment backend Laravel ke AI service:
+
+```bash
+HALOSITEK_AI_URL=http://127.0.0.1:8001
+```
+
+Alur endpoint:
+
+- `POST /api/v1/chat/messages`: endpoint utama chat. Request teks diproses sinkron, request bergaya gambar akan diproses async (queue).
+- `POST /api/v1/chat/ai/messages`: endpoint legacy untuk direct AI chat.
+
+Jalankan worker queue agar balasan AI async (gambar/visualisasi) benar-benar terkirim:
+
+```bash
+php artisan queue:work
+```
+
 ### Alur Implementasi
 
 - `CreateConversationAction`: validasi partisipan, buat private/group chat, dan cegah duplikasi private conversation untuk partisipan yang sama.

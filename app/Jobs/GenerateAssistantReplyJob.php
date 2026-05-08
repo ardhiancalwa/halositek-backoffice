@@ -40,10 +40,10 @@ class GenerateAssistantReplyJob implements ShouldQueue
                 history: $this->history,
             );
 
-            $assistantType = is_string($result['type'] ?? null) && ($result['type'] ?? '') !== ''
+            $assistantType = is_string($result['type']) && $result['type'] !== ''
                 ? (string) $result['type']
                 : Message::TYPE_TEXT;
-            $assistantContent = $result['content'] ?? '';
+            $assistantContent = $result['content'];
             $assistantContent = is_string($assistantContent)
                 ? $assistantContent
                 : (is_scalar($assistantContent) ? (string) $assistantContent : '');

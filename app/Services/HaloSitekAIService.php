@@ -29,6 +29,10 @@ class HaloSitekAIService
         }
     }
 
+    /**
+     * @param  array<int, array{role: string, content: string}>  $history
+     * @return array<string, mixed>
+     */
     public function generate(string $userId, string $message, array $history = []): array
     {
         try {
@@ -99,8 +103,10 @@ class HaloSitekAIService
         }
 
         $data = (array) $response->json();
-        $type = $data['type'] ?? null;
-        $content = $data['content'] ?? null;
+        $type = is_string($data['type'] ?? null) && $data['type'] !== ''
+            ? $data['type']
+            : 'text';
+        $content = $data['content'] ?? '';
 
         if ($type === 'image') {
             if (! is_string($content) || $content === '') {
@@ -135,12 +141,15 @@ class HaloSitekAIService
 
             Storage::disk('public')->put($filename, $decodedImage);
 
-            $data['content'] = Storage::url($filename);
+            $content = Storage::url($filename);
         }
 
         if ($type === 'text' && ! is_string($content)) {
-            $data['content'] = is_scalar($content) ? (string) $content : '';
+            $content = is_scalar($content) ? (string) $content : '';
         }
+
+        $data['type'] = $type;
+        $data['content'] = $content;
 
         return $data;
     }

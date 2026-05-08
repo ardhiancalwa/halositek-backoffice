@@ -6,7 +6,6 @@ use App\Actions\Chat\MarkMessageAsReadAction;
 use App\Actions\Chat\SendMessageAction;
 use App\DTOs\Consultation\SendMessageDTO;
 use App\Enums\ApiStatus;
-use App\Enums\UserRole;
 use App\Events\TypingIndicator;
 use App\Exceptions\HaloSitekAIException;
 use App\Http\Controllers\Controller;
@@ -195,7 +194,7 @@ class MessageController extends Controller
 
         /** @var User $user */
         $user = $request->user();
-        if ($user->role !== UserRole::User) {
+        if (! $user->isUser()) {
             return ApiResponse::created(
                 (new MessageResource($message->loadMissing('sender')))->resolve($request),
                 'Pesan berhasil dikirim.',
@@ -270,10 +269,10 @@ class MessageController extends Controller
                 history: $history,
             );
 
-            $assistantType = is_string($result['type'] ?? null) && ($result['type'] ?? '') !== ''
+            $assistantType = is_string($result['type']) && $result['type'] !== ''
                 ? (string) $result['type']
                 : Message::TYPE_TEXT;
-            $assistantContent = $result['content'] ?? '';
+            $assistantContent = $result['content'];
             $assistantContent = is_string($assistantContent)
                 ? $assistantContent
                 : (is_scalar($assistantContent) ? (string) $assistantContent : '');
@@ -420,10 +419,10 @@ class MessageController extends Controller
                 'read_at' => null,
             ]);
 
-            $assistantType = is_string($result['type'] ?? null) && ($result['type'] ?? '') !== ''
+            $assistantType = is_string($result['type']) && $result['type'] !== ''
                 ? (string) $result['type']
                 : 'text';
-            $assistantContent = $result['content'] ?? '';
+            $assistantContent = $result['content'];
             $assistantContent = is_string($assistantContent)
                 ? $assistantContent
                 : (is_scalar($assistantContent) ? (string) $assistantContent : '');

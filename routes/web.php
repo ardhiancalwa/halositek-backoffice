@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\Admin\ConsultationsController;
 use App\Http\Controllers\Web\Admin\DashboardController;
 use App\Http\Controllers\Web\Admin\DesignController;
 use App\Http\Controllers\Web\Admin\UserController;
+use App\Http\Middleware\EnsureAdminLoginIsActive;
 use App\Http\Controllers\Web\Client\ClientController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,7 +20,9 @@ Route::controller(ClientController::class)->group(function () {
 // Auth Pages
 Route::prefix('auth')->middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('admin.auth.login');
-    Route::post('/login', [AuthController::class, 'login'])->name('admin.auth.login.submit');
+    Route::post('/login', [AuthController::class, 'login'])
+        ->middleware(EnsureAdminLoginIsActive::class)
+        ->name('admin.auth.login.submit');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('admin.auth.register');
 });
 
@@ -42,6 +45,13 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('admin.dashboard.users.index');
         Route::get('/data', [UserController::class, 'data'])->name('admin.dashboard.users.data');
         Route::put('/{user}', [UserController::class, 'update'])->name('admin.dashboard.users.update');
+    });
+
+    Route::prefix('admins')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Web\Admin\SystemAdminController::class, 'index'])->name('admin.dashboard.admins.index');
+        Route::get('/data', [\App\Http\Controllers\Web\Admin\SystemAdminController::class, 'data'])->name('admin.dashboard.admins.data');
+        Route::post('/', [\App\Http\Controllers\Web\Admin\SystemAdminController::class, 'store'])->name('admin.dashboard.admins.store');
+        Route::put('/{user}', [\App\Http\Controllers\Web\Admin\SystemAdminController::class, 'update'])->name('admin.dashboard.admins.update');
     });
 
     Route::prefix('architects')->group(function () {

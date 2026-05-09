@@ -143,4 +143,52 @@ class ConsultationsController extends Controller
             ],
         ]);
     }
+
+    public function architectConsultations(string $architectId, Request $request): JsonResponse
+    {
+        $status = $request->input('status', 'pending'); // pending or released
+
+        $consultations = Consultation::query()
+            ->with('user')
+            ->where('architect_id', $architectId)
+            ->where('status', 'completed')
+            ->where('payout_status', $status)
+            ->get();
+
+        $items = $consultations->map(function (Consultation $consultation): array {
+            return [
+                'user_name' => $consultation->user?->name ?? 'Unknown',
+                'date' => $consultation->consultation_date ? Carbon::parse($consultation->consultation_date)->format('M d, Y') : '-',
+                'fee' => (int) ($consultation->session_fee ?? 0),
+                'status' => 'Verified',
+            ];
+        });
+
+        $totalAmount = (int) $consultations->sum('session_fee');
+        $perSession = $consultations->count() > 0 ? (int) round($totalAmount / $consultations->count()) : 0;
+
+        return ApiResponse::success([
+            'items' => $items,
+            'summary' => [
+                'total_amount' => $totalAmount,
+                'per_session' => $perSession,
+                'total_consultations' => $consultations->count(),
+            ],
+        ], 'Architect consultations retrieved successfully.');
+    }
+
+    public function releasePayroll(string $architectId): JsonResponse
+    {
+        $updated = Consultation::query()
+            ->where('architect_id', $architectId)
+            ->where('status', 'completed')
+            ->where('payout_status', 'pending')
+            ->update(['payout_status' => 'released']);
+
+        if ($updated === 0) {
+            return ApiResponse::notFound('No pending payouts found for this architect.');
+        }
+
+        return ApiResponse::success(null, 'Payroll released successfully.');
+    }
 }

@@ -45,37 +45,8 @@
                             <th class="pb-2 text-right">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        <tr>
-                            <td class="py-2.5 pr-4">
-                                <span class="text-sm font-bold text-slate-800">Elena Rossi</span>
-                            </td>
-                            <td class="py-2.5 pr-4">
-                                <span class="text-sm text-slate-400">Aug 12, 2023</span>
-                            </td>
-                            <td class="py-2.5 pr-4 text-right">
-                                <span class="text-sm font-bold text-slate-800">25.000</span>
-                            </td>
-                            <td class="py-2.5 text-right">
-                                <span class="text-[9px] font-black uppercase tracking-wider text-[#10B981]">Verified</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="py-2.5 pr-4">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-bold text-slate-800">Marcus Low</span>
-                                </div>
-                            </td>
-                            <td class="py-2.5 pr-4">
-                                <span class="text-sm text-slate-400">Aug 15, 2023</span>
-                            </td>
-                            <td class="py-2.5 pr-4 text-right">
-                                <span class="text-sm font-bold text-slate-800">25.000</span>
-                            </td>
-                            <td class="py-2.5 text-right">
-                                <span class="text-[9px] font-black uppercase tracking-wider text-[#10B981]">Verified</span>
-                            </td>
-                        </tr>
+                    <tbody id="release-table-body" class="divide-y divide-slate-50">
+                        {{-- Filled by JS --}}
                     </tbody>
                 </table>
             </div>
@@ -87,17 +58,17 @@
                 <div class="space-y-2.5">
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-500">Consultation Fee (Rp)/ hours</span>
-                        <span class="text-sm font-bold text-slate-800">25.000</span>
+                        <span id="release-per-session" class="text-sm font-bold text-slate-800">-</span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-sm text-slate-500">Total User Consultations</span>
-                        <span class="text-sm font-bold text-slate-800">2</span>
+                        <span id="release-total-users" class="text-sm font-bold text-slate-800">-</span>
                     </div>
                 </div>
 
                 <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
                     <span class="text-sm font-extrabold uppercase text-slate-900">Total Amount</span>
-                    <span class="text-lg font-black text-[#10B981]">Rp. 50.000</span>
+                    <span id="release-total-amount" class="text-lg font-black text-[#10B981]">Rp. 0</span>
                 </div>
             </div>
 

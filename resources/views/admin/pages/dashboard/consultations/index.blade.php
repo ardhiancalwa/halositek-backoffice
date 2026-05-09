@@ -9,6 +9,8 @@
      data-payroll-url="{{ route('admin.dashboard.consultations.payroll-data') }}"
      data-report-stats-url="{{ route('admin.dashboard.consultations.report-stats') }}"
      data-payroll-summary-url="{{ route('admin.dashboard.consultations.payroll-summary') }}"
+     data-architect-consultations-url="{{ route('admin.dashboard.consultations.architect-consultations', ['architectId' => ':id']) }}"
+     data-release-payroll-url="{{ route('admin.dashboard.consultations.release-payroll', ['architectId' => ':id']) }}"
 >
     <!-- Toggle Buttons (Report / Payroll) -->
     <div class="mb-6 block">

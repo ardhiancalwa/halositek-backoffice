@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const payrollDataUrl = consultationsWrapper?.dataset.payrollUrl;
     const reportStatsUrl = consultationsWrapper?.dataset.reportStatsUrl;
     const payrollSummaryUrl = consultationsWrapper?.dataset.payrollSummaryUrl;
+    const architectConsultationsUrl = consultationsWrapper?.dataset.architectConsultationsUrl;
+    const releasePayrollUrl = consultationsWrapper?.dataset.releasePayrollUrl;
 
     // Report elements
     const reportTableBody = document.getElementById('report-table-body');
@@ -60,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         all: { page: 1 },
         pay: { page: 1 },
         history: { page: 1 },
+        currentArchitectId: null,
     };
 
     // ─── Loading Spinner HTML ───────────────────────────────────────
@@ -308,8 +311,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ═══════════════════════════════════════════════════════════════
     function renderPayrollRow(item, isPay) {
         const actionButton = isPay
-            ? `<button type="button" class="bg-[#E8820C] hover:bg-[#d0740a] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-[0_4px_14px_0_rgba(232,130,12,0.35)] cursor-pointer" onclick="openReleaseModal()">Release<br>Payment</button>`
-            : `<button type="button" class="bg-[#10B981] hover:bg-[#059669] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer" onclick="openSelesaiModal()">Selesai</button>`;
+            ? `<button type="button" class="bg-[#E8820C] hover:bg-[#d0740a] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-[0_4px_14px_0_rgba(232,130,12,0.35)] cursor-pointer" onclick="openReleaseModal('${item.architect_id}')">Release<br>Payment</button>`
+            : `<button type="button" class="bg-[#10B981] hover:bg-[#059669] text-white px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer" onclick="openSelesaiModal('${item.architect_id}')">Selesai</button>`;
 
         return `
         <tr class="group hover:bg-slate-50 transition-colors">
@@ -500,13 +503,114 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal('paymentModal');
     };
 
-    window.openReleaseModal = function () {
+    window.openReleaseModal = async function (architectId) {
+        payrollState.currentArchitectId = architectId;
+        const modal = document.getElementById('releaseModal');
+        const tableBody = document.getElementById('release-table-body');
+        const perSessionEl = document.getElementById('release-per-session');
+        const totalUsersEl = document.getElementById('release-total-users');
+        const totalAmountEl = document.getElementById('release-total-amount');
+
+        if (!tableBody) return;
+
+        tableBody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-slate-400">Loading...</td></tr>`;
         showModal('releaseModal');
+
+        const url = architectConsultationsUrl.replace(':id', architectId) + '?status=pending';
+        const res = await fetchData(url, {});
+
+        if (res && res.data) {
+            const { items, summary } = res.data;
+            tableBody.innerHTML = items.map(item => `
+                <tr>
+                    <td class="py-2.5 pr-4"><span class="text-sm font-bold text-slate-800">${item.user_name}</span></td>
+                    <td class="py-2.5 pr-4"><span class="text-sm text-slate-400">${item.date}</span></td>
+                    <td class="py-2.5 pr-4 text-right"><span class="text-sm font-bold text-slate-800">${formatNumber(item.fee)}</span></td>
+                    <td class="py-2.5 text-right"><span class="text-[9px] font-black uppercase tracking-wider text-[#10B981]">${item.status}</span></td>
+                </tr>
+            `).join('');
+
+            perSessionEl.textContent = formatNumber(summary.per_session);
+            totalUsersEl.textContent = summary.total_consultations;
+            totalAmountEl.textContent = `Rp. ${formatNumber(summary.total_amount)}`;
+        }
     };
 
-    window.openSelesaiModal = function () {
+    window.openSelesaiModal = async function (architectId) {
+        const modal = document.getElementById('selesaiModal');
+        const tableBody = document.getElementById('selesai-table-body');
+        const perSessionEl = document.getElementById('selesai-per-session');
+        const totalUsersEl = document.getElementById('selesai-total-users');
+        const totalAmountEl = document.getElementById('selesai-total-amount');
+        const dateEl = modal.querySelector('[data-selesai-date]');
+
+        if (!tableBody) return;
+
+        tableBody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-slate-400">Loading...</td></tr>`;
+        if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
         showModal('selesaiModal');
+
+        const url = architectConsultationsUrl.replace(':id', architectId) + '?status=released';
+        const res = await fetchData(url, {});
+
+        if (res && res.data) {
+            const { items, summary } = res.data;
+            tableBody.innerHTML = items.map(item => `
+                <tr>
+                    <td class="py-2.5 pr-4"><span class="text-sm font-bold text-slate-800">${item.user_name}</span></td>
+                    <td class="py-2.5 pr-4"><span class="text-sm text-slate-400">${item.date}</span></td>
+                    <td class="py-2.5 pr-4 text-right"><span class="text-sm font-bold text-slate-800">${formatNumber(item.fee)}</span></td>
+                    <td class="py-2.5 text-right"><span class="text-[9px] font-black uppercase tracking-wider text-[#10B981]">${item.status}</span></td>
+                </tr>
+            `).join('');
+
+            perSessionEl.textContent = formatNumber(summary.per_session);
+            totalUsersEl.textContent = summary.total_consultations;
+            totalAmountEl.textContent = `Rp. ${formatNumber(summary.total_amount)}`;
+        }
     };
+
+    const releaseConfirmBtn = document.querySelector('[data-release-confirm]');
+    if (releaseConfirmBtn) {
+        releaseConfirmBtn.addEventListener('click', async () => {
+            if (!payrollState.currentArchitectId) return;
+
+            const architectId = payrollState.currentArchitectId;
+            const url = releasePayrollUrl.replace(':id', architectId);
+
+            releaseConfirmBtn.disabled = true;
+            releaseConfirmBtn.textContent = 'Processing...';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hideModal('releaseModal');
+                    // Refresh data
+                    payrollSummaryLoaded = false;
+                    loadPayrollSummary();
+                    const currentSub = payrollSubFilter?.value || 'all';
+                    loadPayrollPage(currentSub, payrollState[currentSub].page);
+                } else {
+                    alert(result.message || 'Failed to release payroll.');
+                }
+            } catch (error) {
+                console.error('Release error:', error);
+                alert('An error occurred while releasing payroll.');
+            } finally {
+                releaseConfirmBtn.disabled = false;
+                releaseConfirmBtn.textContent = 'Release';
+            }
+        });
+    }
 
     // ─── Initialize ─────────────────────────────────────────────────
     loadReportStats();

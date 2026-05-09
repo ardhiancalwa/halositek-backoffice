@@ -16,19 +16,17 @@
 
 	@php
 		$metrics = [
-			['title' => 'Total Generates', 'value' => '142.832', 'bar' => 'bg-[#E8820C]', 'width' => '72%'],
-			['title' => 'Total Success', 'value' => '142.548', 'bar' => 'bg-emerald-500', 'width' => '91%'],
-			['title' => 'System Failures', 'value' => '284', 'bar' => 'bg-rose-500', 'width' => '20%'],
+			['title' => 'Total Generates', 'value' => '142.832', 'bar' => 'bg-[#E8820C]', 'width' => '72%', 'icon' => 'icon-starGenerated.svg'],
+			['title' => 'Total Success', 'value' => '142.548', 'bar' => 'bg-emerald-500', 'width' => '91%', 'icon' => 'icon-success.svg'],
+			['title' => 'System Failures', 'value' => '284', 'bar' => 'bg-rose-500', 'width' => '20%', 'icon' => 'icon-warning.svg'],
 		];
 	@endphp
 
 	<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
 		@foreach($metrics as $metric)
 		<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-			<div class="mb-4 inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-				<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"></path>
-				</svg>
+			<div class="mb-4 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50">
+				<img src="{{ asset('images/icons/' . $metric['icon']) }}" class="h-5 w-5" alt="{{ $metric['title'] }}">
 			</div>
 			<p class="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">{{ $metric['title'] }}</p>
 			<h3 class="mb-4 text-4xl font-black tracking-tight text-slate-900">{{ $metric['value'] }}</h3>

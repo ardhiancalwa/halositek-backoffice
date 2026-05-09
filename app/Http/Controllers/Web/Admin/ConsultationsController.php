@@ -18,6 +18,33 @@ class ConsultationsController extends Controller
         return view('admin.pages.dashboard.consultations.index');
     }
 
+    public function reportStats(): JsonResponse
+    {
+        $total = ConsultationReport::query()->count();
+        $new = ConsultationReport::query()->where('action_status', 'new')->count();
+        $user = ConsultationReport::query()->where('requester_role', 'user')->count();
+        $architect = ConsultationReport::query()->where('requester_role', 'architect')->count();
+
+        return ApiResponse::success([
+            'total_report' => $total,
+            'new_report' => $new,
+            'user_report' => $user,
+            'architect_report' => $architect,
+        ]);
+    }
+
+    public function payrollSummary(): JsonResponse
+    {
+        $pendingAmount = Consultation::query()
+            ->where('status', 'completed')
+            ->where('payout_status', 'pending')
+            ->sum('session_fee');
+
+        return ApiResponse::success([
+            'pending_payouts' => (int) $pendingAmount,
+        ]);
+    }
+
     public function reportData(Request $request): JsonResponse
     {
         $query = ConsultationReport::query()

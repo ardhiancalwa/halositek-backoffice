@@ -7,6 +7,8 @@
      class="max-w-7xl mx-auto pb-12"
      data-report-url="{{ route('admin.dashboard.consultations.report-data') }}"
      data-payroll-url="{{ route('admin.dashboard.consultations.payroll-data') }}"
+     data-report-stats-url="{{ route('admin.dashboard.consultations.report-stats') }}"
+     data-payroll-summary-url="{{ route('admin.dashboard.consultations.payroll-summary') }}"
 >
     <!-- Toggle Buttons (Report / Payroll) -->
     <div class="mb-6 block">
@@ -30,22 +32,25 @@
     <div id="tabReport">
         <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-6">Real-time Statictics</h1>
 
-        <!-- Stat Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <!-- Stat Cards (skeleton → loaded by JS) -->
+        <div id="report-stats-grid" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             @php
-                $stats = [
-                    ['title' => 'Total Report', 'value' => '420', 'progress' => '40'],
-                    ['title' => 'New Report', 'value' => '56', 'progress' => '20'],
-                    ['title' => 'User Report', 'value' => '40', 'progress' => '80'],
-                    ['title' => 'Architect Report', 'value' => '16', 'progress' => '15'],
+                $statKeys = [
+                    ['key' => 'total_report', 'title' => 'Total Report'],
+                    ['key' => 'new_report', 'title' => 'New Report'],
+                    ['key' => 'user_report', 'title' => 'User Report'],
+                    ['key' => 'architect_report', 'title' => 'Architect Report'],
                 ];
             @endphp
-            @foreach($stats as $stat)
+            @foreach($statKeys as $stat)
             <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.05)] flex flex-col h-[140px]">
                 <p class="text-[11px] text-slate-500 font-bold tracking-wider mb-3 uppercase">{{ $stat['title'] }}</p>
-                <h3 class="text-4xl font-black text-slate-900 tracking-tight mb-auto">{{ $stat['value'] }}</h3>
+                <div id="stat-{{ $stat['key'] }}" class="mb-auto">
+                    {{-- Skeleton --}}
+                    <div class="skeleton-pulse h-10 w-24 rounded-lg bg-slate-200"></div>
+                </div>
                 <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden w-full">
-                    <div class="h-full bg-[#E8820C] rounded-full" style="width: {{ $stat['progress'] }}%"></div>
+                    <div id="stat-bar-{{ $stat['key'] }}" class="h-full bg-[#E8820C] rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
                 </div>
             </div>
             @endforeach
@@ -109,7 +114,10 @@
         <!-- Pending Payouts Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-6">Pending Payouts</h1>
-            <p class="text-4xl text-slate-900 tracking-tight font-normal">Rp. 42.891.200,00</p>
+            <div id="payroll-pending-amount">
+                {{-- Skeleton --}}
+                <div class="skeleton-pulse h-12 w-72 rounded-lg bg-slate-200"></div>
+            </div>
         </div>
 
         <!-- Payout Queue Header + Filter -->

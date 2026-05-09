@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const consultationsWrapper = document.getElementById('consultations-wrapper');
     const reportDataUrl = consultationsWrapper?.dataset.reportUrl;
     const payrollDataUrl = consultationsWrapper?.dataset.payrollUrl;
+    const reportStatsUrl = consultationsWrapper?.dataset.reportStatsUrl;
+    const payrollSummaryUrl = consultationsWrapper?.dataset.payrollSummaryUrl;
 
     // Report elements
     const reportTableBody = document.getElementById('report-table-body');
@@ -179,6 +181,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── Number formatting ──────────────────────────────────────────
     function formatNumber(num) {
         return new Intl.NumberFormat('id-ID').format(num);
+    }
+
+    function formatCurrency(num) {
+        return 'Rp. ' + new Intl.NumberFormat('id-ID').format(num) + ',00';
     }
 
     function truncateText(text, maxLen) {
@@ -387,7 +393,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tabBtnReport.className = `px-10 py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${inactiveClasses}`;
             tabBtnPayroll.className = `px-10 py-2.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${activeClasses}`;
 
-            // Load payroll data on first switch
+            // Load payroll summary + data on switch
+            loadPayrollSummary();
             const currentSub = payrollSubFilter?.value || 'all';
             loadPayrollPage(currentSub, payrollState[currentSub].page);
         }
@@ -502,5 +509,76 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ─── Initialize ─────────────────────────────────────────────────
+    loadReportStats();
     loadReportPage(1);
 });
+
+// ═══════════════════════════════════════════════════════════════
+// STATS LOADING (outside DOMContentLoaded for proper scoping)
+// ═══════════════════════════════════════════════════════════════
+async function loadReportStats() {
+    const wrapper = document.getElementById('consultations-wrapper');
+    const url = wrapper?.dataset.reportStatsUrl;
+    if (!url) return;
+
+    try {
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        if (!res.ok) return;
+        const json = await res.json();
+        const data = json.data;
+        if (!data) return;
+
+        const statMap = {
+            total_report: { value: data.total_report ?? 0 },
+            new_report: { value: data.new_report ?? 0 },
+            user_report: { value: data.user_report ?? 0 },
+            architect_report: { value: data.architect_report ?? 0 },
+        };
+
+        const total = data.total_report || 1; // avoid division by zero
+
+        Object.entries(statMap).forEach(([key, info]) => {
+            const valueEl = document.getElementById(`stat-${key}`);
+            const barEl = document.getElementById(`stat-bar-${key}`);
+
+            if (valueEl) {
+                valueEl.innerHTML = `<h3 class="text-4xl font-black text-slate-900 tracking-tight">${new Intl.NumberFormat('id-ID').format(info.value)}</h3>`;
+            }
+
+            if (barEl) {
+                const percent = Math.min(100, Math.round((info.value / total) * 100));
+                // Use key-specific logic: total_report always shows its own ratio
+                const barPercent = key === 'total_report'
+                    ? Math.min(100, Math.max(5, Math.round((info.value / Math.max(info.value, 500)) * 100)))
+                    : Math.min(100, Math.max(5, percent));
+                setTimeout(() => { barEl.style.width = barPercent + '%'; }, 100);
+            }
+        });
+    } catch (err) {
+        console.error('Failed to load report stats:', err);
+    }
+}
+
+let payrollSummaryLoaded = false;
+
+async function loadPayrollSummary() {
+    if (payrollSummaryLoaded) return;
+    payrollSummaryLoaded = true;
+
+    const wrapper = document.getElementById('consultations-wrapper');
+    const url = wrapper?.dataset.payrollSummaryUrl;
+    const amountEl = document.getElementById('payroll-pending-amount');
+    if (!url || !amountEl) return;
+
+    try {
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        if (!res.ok) return;
+        const json = await res.json();
+        const amount = json.data?.pending_payouts ?? 0;
+
+        amountEl.innerHTML = `<p class="text-4xl text-slate-900 tracking-tight font-normal">Rp. ${new Intl.NumberFormat('id-ID').format(amount)},00</p>`;
+    } catch (err) {
+        console.error('Failed to load payroll summary:', err);
+        amountEl.innerHTML = '<p class="text-4xl text-slate-900 tracking-tight font-normal">Rp. 0</p>';
+    }
+}

@@ -40,7 +40,9 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::delete('/projects/{project}', [DesignController::class, 'destroy'])->name('admin.projects.destroy');
     Route::prefix('consultations')->group(function () {
         Route::get('/', [ConsultationsController::class, 'index'])->name('admin.dashboard.consultations.index');
+        Route::get('/report-stats', [ConsultationsController::class, 'reportStats'])->name('admin.dashboard.consultations.report-stats');
         Route::get('/report-data', [ConsultationsController::class, 'reportData'])->name('admin.dashboard.consultations.report-data');
+        Route::get('/payroll-summary', [ConsultationsController::class, 'payrollSummary'])->name('admin.dashboard.consultations.payroll-summary');
         Route::get('/payroll-data', [ConsultationsController::class, 'payrollData'])->name('admin.dashboard.consultations.payroll-data');
     });
     Route::prefix('ai-bots')->group(function () {

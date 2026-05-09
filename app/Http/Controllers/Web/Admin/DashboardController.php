@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\AwardStatus;
+use App\Enums\ProjectStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Models\Award;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
@@ -16,7 +19,29 @@ class DashboardController extends Controller
 {
     public function index(): Factory|View
     {
-        return view('admin.pages.dashboard.index');
+        $recentApprovedDesigns = Project::with('architect')
+            ->where('status', ProjectStatus::Approved->value)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        $pendingDesignApplications = Project::with('architect')
+            ->where('status', ProjectStatus::Pending->value)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        $pendingAwardApplications = Award::with('architect')
+            ->where('status', AwardStatus::Pending->value)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('admin.pages.dashboard.index', compact(
+            'recentApprovedDesigns',
+            'pendingDesignApplications',
+            'pendingAwardApplications'
+        ));
     }
 
     public function dashboardStats(): JsonResponse

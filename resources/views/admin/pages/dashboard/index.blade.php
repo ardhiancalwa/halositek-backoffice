@@ -53,6 +53,55 @@
         </div>
     </div>
 
+    <!-- Design Gallery Overview -->
+    <div>
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Design Gallery Overview</h2>
+            <a href="{{ route('admin.dashboard.designs.index') }}" class="text-sm font-semibold text-[#E8820C] hover:text-[#c46d0a] transition-colors">View All</a>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            @forelse($recentApprovedDesigns as $design)
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col transition-all hover:shadow-md">
+                    <!-- Image Region -->
+                    <div class="relative h-40 bg-slate-100">
+                        @if(!empty($design->images) && isset($design->images[0]))
+                            <img src="{{ $design->images[0] }}" class="w-full h-full object-cover" alt="{{ $design->name }}">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-slate-400">No Image</div>
+                        @endif
+                        
+                        <!-- Badge -->
+                        <div class="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-[10px] font-bold tracking-widest uppercase px-2 py-1 rounded">
+                            {{ $design->style?->value ?? 'MODERN' }}
+                        </div>
+                    </div>
+                    
+                    <!-- Content Region -->
+                    <div class="p-4 flex-1 flex flex-col">
+                        <h3 class="font-bold text-slate-900 text-sm mb-1 line-clamp-1" title="{{ $design->name }}">{{ $design->name }}</h3>
+                        <p class="text-xs text-slate-500 mb-4 line-clamp-1">
+                            {{ $design->area ?? 'N/A' }} • {{ str_contains(strtolower($design->highlight_features), 'bedroom') ? 'Has Bedrooms' : 'Custom Space' }}
+                        </p>
+                        
+                        <div class="mt-auto">
+                            <a href="{{ route('admin.dashboard.designs.index', ['id' => $design->id]) }}" class="flex items-center justify-center w-full py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#E8820C] hover:border-[#E8820C] transition-colors">
+                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                                </svg>
+                                Manage
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-1 sm:col-span-2 lg:col-span-4 py-8 text-center text-slate-500 bg-slate-50 rounded-2xl border border-slate-100 border-dashed">
+                    No approved designs available yet.
+                </div>
+            @endforelse
+        </div>
+    </div>
+
     <div class="dashboard-growth-grid">
         <section class="dashboard-card">
             <div class="dashboard-card-body">
@@ -161,6 +210,125 @@
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- Applications Tables Region -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Design Applications -->
+        <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-slate-900 tracking-tight">Design Applications</h2>
+                <a href="{{ route('admin.dashboard.architects.index', ['type' => 'design']) }}" class="text-xs font-semibold text-[#E8820C] hover:text-[#c46d0a] transition-colors">View all</a>
+            </div>
+            
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-y border-slate-100 bg-slate-50/50">
+                            <th class="py-3 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 w-2/5">Architect</th>
+                            <th class="py-3 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 w-1/4">Style</th>
+                            <th class="py-3 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Status</th>
+                            <th class="py-3 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($pendingDesignApplications as $design)
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-[#FFF5EA] text-[#E8820C] flex items-center justify-center text-xs font-bold shrink-0">
+                                            {{ strtoupper(substr($design->architect?->name ?? 'U', 0, 2)) }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-semibold text-slate-900 truncate">{{ $design->architect?->name ?? 'Unknown Architect' }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="text-xs text-slate-600 font-medium">{{ strtoupper($design->style?->value ?? 'N/A') }}</span>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 uppercase tracking-wide">
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-right">
+                                    <a href="{{ route('admin.dashboard.architects.index', ['type' => 'design', 'id' => $design->architect_id]) }}" class="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-[#E8820C] hover:bg-[#FFF5EA] rounded-md transition-colors" title="View Architecture">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="py-8 text-center text-xs text-slate-500">No pending design applications.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Award Applications -->
+        <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-slate-900 tracking-tight">Award Applications</h2>
+                <a href="{{ route('admin.dashboard.architects.index', ['type' => 'award']) }}" class="text-xs font-semibold text-[#E8820C] hover:text-[#c46d0a] transition-colors">View all</a>
+            </div>
+            
+            <div class="overflow-x-auto flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-y border-slate-100 bg-slate-50/50">
+                            <th class="py-3 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 w-2/5">Architect</th>
+                            <th class="py-3 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 w-1/4">Type</th>
+                            <th class="py-3 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-center">Status</th>
+                            <th class="py-3 px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($pendingAwardApplications as $award)
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-[#FFF5EA] text-[#E8820C] flex items-center justify-center text-xs font-bold shrink-0">
+                                            {{ strtoupper(substr($award->architect?->name ?? 'U', 0, 2)) }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-semibold text-slate-900 truncate">{{ $award->architect?->name ?? 'Unknown Architect' }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4">
+                                    <span class="text-xs text-slate-600 font-medium">{{ $award->name ?? 'Excellence' }}</span>
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-600 uppercase tracking-wide">
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-right">
+                                    <a href="{{ route('admin.dashboard.architects.index', ['type' => 'award', 'id' => $award->architect_id]) }}" class="inline-flex items-center justify-center p-1.5 text-slate-400 hover:text-[#E8820C] hover:bg-[#FFF5EA] rounded-md transition-colors" title="View Architecture">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="py-8 text-center text-xs text-slate-500">No pending award applications.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
     </div>
 </div>
 @endsection

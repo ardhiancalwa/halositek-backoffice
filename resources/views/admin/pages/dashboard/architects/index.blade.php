@@ -222,61 +222,42 @@
 
         <!-- Pagination -->
         @if($items->hasPages())
-            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end bg-white">
-                <div class="flex items-center gap-1 text-sm font-bold text-slate-500">
-                    {{-- Previous Button --}}
-                    @if($items->onFirstPage())
-                        <span class="p-1.5 rounded opacity-50 cursor-not-allowed">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                        </span>
-                    @else
-                        <a href="{{ $items->previousPageUrl() }}" class="p-1.5 rounded hover:bg-slate-100 transition-colors">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                        </a>
-                    @endif
+            @php
+                $currentPage = $items->currentPage();
+                $lastPage = $items->lastPage();
+                $pageStart = max(1, $currentPage - 2);
+                $pageEnd = min($lastPage, $currentPage + 2);
+                $pageLinks = [];
 
-                    {{-- Page Numbers --}}
-                    @php
-                        $currentPage = $items->currentPage();
-                        $lastPage = $items->lastPage();
-                        $pages = [];
+                if (($pageEnd - $pageStart) < 4) {
+                    if ($pageStart === 1) {
+                        $pageEnd = min($lastPage, $pageStart + 4);
+                    } elseif ($pageEnd === $lastPage) {
+                        $pageStart = max(1, $pageEnd - 4);
+                    }
+                }
 
-                        // Always show first 3 pages
-                        for ($i = 1; $i <= min(3, $lastPage); $i++) {
-                            $pages[] = $i;
-                        }
+                for ($page = $pageStart; $page <= $pageEnd; $page++) {
+                    $pageLinks[] = [
+                        'label' => $page,
+                        'url' => collect(request()->query())->isEmpty() ? $items->url($page) : $items->appends(request()->query())->url($page),
+                        'isActive' => $page === $currentPage,
+                    ];
+                }
+            @endphp
 
-                        // Show last page if there's a gap
-                        if ($lastPage > 4) {
-                            $pages[] = '...';
-                            $pages[] = $lastPage;
-                        } elseif ($lastPage === 4) {
-                            $pages[] = 4;
-                        }
-                    @endphp
-
-                    @foreach($pages as $page)
-                        @if($page === '...')
-                            <span class="px-1 text-slate-400">...</span>
-                        @elseif($page == $currentPage)
-                            <span class="w-8 h-8 rounded-md bg-[#C5923A] text-white flex items-center justify-center text-sm">{{ $page }}</span>
-                        @else
-                            <a href="{{ $items->url($page) }}" class="w-8 h-8 rounded-md hover:bg-slate-100 transition-colors flex items-center justify-center text-sm">{{ $page }}</a>
-                        @endif
-                    @endforeach
-
-                    {{-- Next Button --}}
-                    @if($items->hasMorePages())
-                        <a href="{{ $items->nextPageUrl() }}" class="p-1.5 rounded hover:bg-slate-100 transition-colors">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
-                        </a>
-                    @else
-                        <span class="p-1.5 rounded opacity-50 cursor-not-allowed">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
-                        </span>
-                    @endif
-                </div>
-            </div>
+            @component('admin.components.pagination-footer', [
+                'currentPage' => $currentPage,
+                'totalPages' => $lastPage,
+                'pageLinks' => $pageLinks,
+                'previousUrl' => collect(request()->query())->isEmpty() ? $items->previousPageUrl() : $items->appends(request()->query())->previousPageUrl(),
+                'nextUrl' => collect(request()->query())->isEmpty() ? $items->nextPageUrl() : $items->appends(request()->query())->nextPageUrl(),
+                'previousDisabled' => $items->onFirstPage(),
+                'nextDisabled' => ! $items->hasMorePages(),
+                'wrapperClass' => '',
+                'footerClass' => 'border-t border-slate-100',
+            ])
+            @endcomponent
         @endif
     </div>
 </div>

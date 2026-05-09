@@ -7,9 +7,21 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use MongoDB\Laravel\Eloquent\Model;
 
 /**
+ * @property string $id
+ * @property string $user_id
+ * @property string $architect_id
+ * @property Carbon|null $consultation_date
+ * @property int $duration_hours
+ * @property int $session_fee
+ * @property string|null $transcript
+ * @property string $status
+ * @property string $verification_status
+ * @property string $payout_status
+ * @property Carbon|null $payout_released_at
  * @property-read User|null $user
  * @property-read User|null $architect
  */

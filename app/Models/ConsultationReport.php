@@ -6,9 +6,19 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use MongoDB\Laravel\Eloquent\Model;
 
 /**
+ * @property string $id
+ * @property string $consultation_id
+ * @property string $requester_id
+ * @property string $opposing_party_id
+ * @property string $requester_role
+ * @property string $reason
+ * @property string $action_status
+ * @property string|null $actioned_by
+ * @property Carbon|null $actioned_at
  * @property-read Consultation|null $consultation
  * @property-read User|null $requester
  * @property-read User|null $opposingParty

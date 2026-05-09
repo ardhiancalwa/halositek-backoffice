@@ -47,9 +47,9 @@ class ArchitectController extends Controller
                 $search = trim($request->string('search')->toString());
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhereHas('architect', function ($q2) use ($search) {
-                          $q2->where('name', 'like', "%{$search}%");
-                      });
+                        ->orWhereHas('architect', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        });
                 });
             }
 
@@ -65,9 +65,9 @@ class ArchitectController extends Controller
                 $search = trim($request->string('search')->toString());
                 $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhereHas('architect', function ($q2) use ($search) {
-                          $q2->where('name', 'like', "%{$search}%");
-                      });
+                        ->orWhereHas('architect', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        });
                 });
             }
 

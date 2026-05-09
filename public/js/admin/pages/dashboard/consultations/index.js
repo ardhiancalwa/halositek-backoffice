@@ -617,7 +617,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await fetchData(url, {});
 
         if (res && res.data) {
-            const { items, summary } = res.data;
+            const data = res.data;
+            const items = data.release_payment_items || [];
+            const summary = data.payment_summary || {};
+
             tableBody.innerHTML = items.map(item => `
                 <tr>
                     <td class="py-2.5 pr-4"><span class="text-sm font-bold text-slate-800">${item.user_name}</span></td>
@@ -627,9 +630,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </tr>
             `).join('');
 
-            perSessionEl.textContent = formatNumber(summary.per_session);
-            totalUsersEl.textContent = summary.total_consultations;
-            totalAmountEl.textContent = `Rp. ${formatNumber(summary.total_amount)}`;
+            perSessionEl.textContent = formatNumber(summary.consultation_per_session || 0);
+            totalUsersEl.textContent = summary.total_user_consultation || 0;
+            totalAmountEl.textContent = `Rp. ${formatNumber(data.total_amount || 0)}`;
         }
     };
 
@@ -651,7 +654,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const res = await fetchData(url, {});
 
         if (res && res.data) {
-            const { items, summary } = res.data;
+            const data = res.data;
+            const items = data.release_payment_items || [];
+            const summary = data.payment_summary || {};
+
             tableBody.innerHTML = items.map(item => `
                 <tr>
                     <td class="py-2.5 pr-4"><span class="text-sm font-bold text-slate-800">${item.user_name}</span></td>
@@ -661,9 +667,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </tr>
             `).join('');
 
-            perSessionEl.textContent = formatNumber(summary.per_session);
-            totalUsersEl.textContent = summary.total_consultations;
-            totalAmountEl.textContent = `Rp. ${formatNumber(summary.total_amount)}`;
+            perSessionEl.textContent = formatNumber(summary.consultation_per_session || 0);
+            totalUsersEl.textContent = summary.total_user_consultation || 0;
+            totalAmountEl.textContent = `Rp. ${formatNumber(data.total_amount || 0)}`;
         }
     };
 

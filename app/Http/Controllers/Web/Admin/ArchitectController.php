@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\AwardStatus;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Award\AwardResource;
@@ -114,7 +115,7 @@ class ArchitectController extends Controller
         ]);
 
         $status = strtolower($validated['status']);
-        
+
         $project->status = ProjectStatus::from($status);
         $project->save();
 
@@ -130,8 +131,8 @@ class ArchitectController extends Controller
         ]);
 
         $status = strtolower($validated['status']);
-        
-        $award->status = \App\Enums\AwardStatus::from($status);
+
+        $award->status = AwardStatus::from($status);
         $award->save();
 
         return redirect()

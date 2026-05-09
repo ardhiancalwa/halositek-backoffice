@@ -9,8 +9,9 @@
                 @endforeach
             </tr>
         </thead>
-        <tbody class="divide-y divide-slate-50">
+        <tbody @if(!empty($tbodyId)) id="{{ $tbodyId }}" @endif class="divide-y divide-slate-50">
             {{ $slot }}
         </tbody>
     </table>
 </div>
+

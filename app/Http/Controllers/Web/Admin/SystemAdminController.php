@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Actions\User\CreateUserAction;
+use App\DTOs\User\CreateUserDTO;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\User;
-use App\Enums\UserRole;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SystemAdminController extends Controller
@@ -59,7 +62,7 @@ class SystemAdminController extends Controller
         return ApiResponse::paginated($users, 'Admins retrieved successfully.');
     }
 
-    public function store(Request $request, \App\Actions\User\CreateUserAction $action): JsonResponse
+    public function store(Request $request, CreateUserAction $action): JsonResponse
     {
         if (Gate::denies('create', User::class)) {
             return ApiResponse::forbidden('You are not allowed to create admins.');
@@ -74,7 +77,7 @@ class SystemAdminController extends Controller
         $validated['role'] = UserRole::Admin->value;
         $validated['account_status'] = 'active';
 
-        $dto = \App\DTOs\User\CreateUserDTO::fromArray($validated);
+        $dto = CreateUserDTO::fromArray($validated);
         $user = $action->execute($dto);
 
         return ApiResponse::created([
@@ -90,7 +93,7 @@ class SystemAdminController extends Controller
 
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255'],
-            'email' => ['sometimes', 'string', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users')->ignore($user->id)],
+            'email' => ['sometimes', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8'],
             'account_status' => ['sometimes', 'string', 'in:active,suspend'],
         ]);
@@ -101,8 +104,8 @@ class SystemAdminController extends Controller
         if (array_key_exists('email', $validated)) {
             $user->email = $validated['email'];
         }
-        if (!empty($validated['password'])) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        if (! empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
         }
         if (array_key_exists('account_status', $validated)) {
             $user->account_status = $validated['account_status'];

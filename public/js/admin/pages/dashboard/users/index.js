@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
     let currentPage = 1;
     let selectedStatus = 'all';
+    let searchQuery = '';
     const perPage = 15;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modalEmailDetail = document.getElementById('user-status-modal-email-detail');
     const modalMemberSince = document.getElementById('user-status-modal-member-since');
     const modalStatusDot = document.getElementById('user-status-modal-dot');
+    const searchInput = document.getElementById('global-search-input');
     const usersById = new Map();
     let selectedUser = null;
 
@@ -155,6 +157,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             url += `&status=${status}`;
         }
 
+        if (searchQuery) {
+            url += `&search=${encodeURIComponent(searchQuery)}`;
+        }
+
         try {
             const response = await fetch(url, {
                 headers: {
@@ -277,6 +283,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             await loadPage(1);
         });
     });
+
+    if (searchInput) {
+        let searchTimeout;
+        searchInput.addEventListener('input', (event) => {
+            clearTimeout(searchTimeout);
+            searchQuery = event.target.value.trim();
+            
+            searchTimeout = setTimeout(async () => {
+                currentPage = 1;
+                await loadPage(1);
+            }, 300);
+        });
+    }
 
     prevPageBtn.addEventListener('click', () => {
         if (currentPage > 1) {

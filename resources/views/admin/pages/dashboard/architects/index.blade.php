@@ -45,28 +45,30 @@
         </div>
     </div>
     
-    <!-- Status Filters -->
-    <div class="flex items-center gap-3">
-        <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => '']) }}"
-           class="px-5 py-2 rounded-full text-sm font-semibold shadow-sm transition-colors
-                  {{ $status === '' ? 'bg-[#E8820C] text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' }}">
-            All Status
-        </a>
-        <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'pending']) }}"
-           class="px-4 py-2 rounded-full text-sm font-medium transition-colors
-                  {{ $status === 'pending' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
-            Pending
-        </a>
-        <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'approved']) }}"
-           class="px-4 py-2 rounded-full text-sm font-medium transition-colors
-                  {{ $status === 'approved' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
-            Approved
-        </a>
-        <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'declined']) }}"
-           class="px-4 py-2 rounded-full text-sm font-medium transition-colors
-                  {{ $status === 'declined' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
-            Declined
-        </a>
+    <!-- Status Filters & Search -->
+    <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => '']) }}"
+               class="px-5 py-2 rounded-full text-sm font-semibold shadow-sm transition-colors
+                      {{ $status === '' ? 'bg-[#E8820C] text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' }}">
+                All Status
+            </a>
+            <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'pending']) }}"
+               class="px-4 py-2 rounded-full text-sm font-medium transition-colors
+                      {{ $status === 'pending' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
+                Pending
+            </a>
+            <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'approved']) }}"
+               class="px-4 py-2 rounded-full text-sm font-medium transition-colors
+                      {{ $status === 'approved' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
+                Approved
+            </a>
+            <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'declined']) }}"
+               class="px-4 py-2 rounded-full text-sm font-medium transition-colors
+                      {{ $status === 'declined' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
+                Declined
+            </a>
+        </div>
     </div>
 
     <!-- Title and Dropdown -->

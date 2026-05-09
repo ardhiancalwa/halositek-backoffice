@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\User;
 
@@ -14,7 +15,7 @@ class ProjectPolicy
 
     public function view(User $user, Project $project): bool
     {
-        return $project->status === 'approved' || $project->architect_id === $user->id || $user->isAdmin();
+        return $project->status === ProjectStatus::Approved || $project->architect_id === $user->id || $user->isAdmin();
     }
 
     public function create(User $user): bool

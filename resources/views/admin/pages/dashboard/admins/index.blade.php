@@ -60,7 +60,7 @@
                 data-status-filter="active"
                 class="status-filter-btn dashboard-filter-button text-sm font-semibold"
             >
-                Actived
+                Active
             </button>
             <button 
                 data-status-filter="suspend"
@@ -320,7 +320,7 @@
 @endcomponent
 
 @push('scripts')
-<script src="{{ asset('js/admin/pages/dashboard/admins/index.js') }}?v={{ filemtime(public_path('js/admin/pages/dashboard/users/index.js')) }}"></script>
+<script src="{{ asset('js/admin/pages/dashboard/admins/index.js') }}?v={{ filemtime(public_path('js/admin/pages/dashboard/admins/index.js')) }}"></script>
 @endpush
 
 @endsection

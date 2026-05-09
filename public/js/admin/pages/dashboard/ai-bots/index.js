@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const log = logsCache.find((item) => item.id === logId);
         if (!log) return;
 
-        requestText.textContent = `"${log.request_payload || log.prompt_preview}"`;
+        requestText.textContent = `"${log.prompt_preview}"`;
 
         if (log.status === 'success') {
             title.textContent = 'Generation Success Actions';

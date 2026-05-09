@@ -50,6 +50,10 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         Route::get('/report-data', [ConsultationsController::class, 'reportData'])->name('admin.dashboard.consultations.report-data');
         Route::get('/payroll-summary', [ConsultationsController::class, 'payrollSummary'])->name('admin.dashboard.consultations.payroll-summary');
         Route::get('/payroll-data', [ConsultationsController::class, 'payrollData'])->name('admin.dashboard.consultations.payroll-data');
+        Route::get('/architect/{architectId}', [ConsultationsController::class, 'architectConsultations'])->name('admin.dashboard.consultations.architect-consultations');
+        Route::post('/release/{architectId}', [ConsultationsController::class, 'releasePayroll'])->name('admin.dashboard.consultations.release-payroll');
+        Route::get('/transcript/{consultation}', [ConsultationsController::class, 'transcript'])->name('admin.dashboard.consultations.transcript');
+        Route::post('/report/{report}/status', [ConsultationsController::class, 'updateReportStatus'])->name('admin.dashboard.consultations.report-status');
     });
     Route::prefix('ai-bots')->group(function () {
         Route::get('/', [AiBotsController::class, 'index'])->name('admin.dashboard.ai-bots.index');

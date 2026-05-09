@@ -38,15 +38,15 @@ class AiBotsController extends Controller
         $perPage = min(50, max(1, (int) $request->input('per_page', 10)));
         $logs = $query->paginate($perPage);
 
+        /** @var array<int, array<string, mixed>> $items */
         $items = $logs->getCollection()
             ->map(function (AiChatbotLog $log): array {
                 $user = $log->user;
 
                 return [
                     'id' => (string) $log->getKey(),
-                    'user_name' => $user?->name ?? 'Unknown',
-                    'user_avatar' => $user?->photo_profile_url
-                        ?? 'https://ui-avatars.com/api/?name=' . urlencode($user?->name ?? 'U') . '&background=ececec&color=333333&rounded=true&bold=true',
+                    'user_name' => $user->name ?? 'Unknown',
+                    'user_avatar' => $user->photo_profile_url ?? '',
                     'date' => $log->created_at?->format('M d, Y') ?? '-',
                     'prompt_preview' => (string) $log->prompt_preview,
                     'status' => (string) $log->status,

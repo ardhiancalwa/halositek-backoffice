@@ -11,6 +11,7 @@ use App\Models\Award;
 use App\Models\Project;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -108,7 +109,7 @@ class ArchitectController extends Controller
         ]);
     }
 
-    public function updateDesignStatus(Request $request, Project $project)
+    public function updateDesignStatus(Request $request, Project $project): RedirectResponse
     {
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:pending,approved,declined,PENDING,APPROVED,DECLINED'],
@@ -124,7 +125,7 @@ class ArchitectController extends Controller
             ->with('success', 'Design status updated successfully.');
     }
 
-    public function updateAwardStatus(Request $request, Award $award)
+    public function updateAwardStatus(Request $request, Award $award): RedirectResponse
     {
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:pending,approved,declined,PENDING,APPROVED,DECLINED'],

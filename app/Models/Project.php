@@ -16,6 +16,7 @@ use MongoDB\Laravel\Eloquent\Model;
 /**
  * @property array<int, string>|null $images
  * @property array<int, string>|null $layout_images
+ * @property ProjectStatus $status
  */
 class Project extends Model
 {

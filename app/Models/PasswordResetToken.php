@@ -3,17 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Carbon;
 use MongoDB\Laravel\Eloquent\Model;
 
 class PasswordResetToken extends Model
 {
-    use HasFactory;
     use HasUuids;
 
     protected $connection = 'mongodb';
 
+    /** @var string */
     protected $collection = 'password_reset_tokens';
 
     /**

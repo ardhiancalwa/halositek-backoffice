@@ -6,7 +6,7 @@ use App\Actions\User\CreateUserAction;
 use App\DTOs\User\CreateUserDTO;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\User\UserResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;

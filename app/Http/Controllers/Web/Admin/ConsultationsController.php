@@ -9,6 +9,8 @@ use App\Models\ConsultationReport;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class ConsultationsController extends Controller
@@ -62,23 +64,23 @@ class ConsultationsController extends Controller
         $perPage = min(50, max(1, (int) $request->input('per_page', 10)));
         $reports = $query->paginate($perPage);
 
-        $items = $reports->getCollection()->map(function (ConsultationReport $report) {
+        $items = $reports->getCollection()->map(function (ConsultationReport $report): array {
             $consultation = $report->consultation;
             $requester = $report->requester;
             $opposingParty = $report->opposingParty;
 
             return [
                 'id' => $report->id,
-                'requester_name' => $requester?->name ?? 'Unknown',
+                'requester_name' => $requester->name ?? 'Unknown',
                 'requester_role' => $report->requester_role ?? 'user',
-                'requester_avatar' => $requester?->photo_profile_url
-                    ?? 'https://ui-avatars.com/api/?name=' . urlencode($requester?->name ?? 'U') . '&background=ececec&color=333333&rounded=true&bold=true',
+                'requester_avatar' => $requester->photo_profile_url,
                 'reason' => $report->reason ?? '-',
-                'consultation_date' => $consultation?->consultation_date?->format('M d, Y') ?? '-',
-                'opposing_party_name' => $opposingParty?->name ?? 'Unknown',
-                'opposing_party_avatar' => $opposingParty?->photo_profile_url
-                    ?? 'https://ui-avatars.com/api/?name=' . urlencode($opposingParty?->name ?? 'U') . '&background=ececec&color=333333&rounded=true&bold=true',
-                'session_fee' => $consultation?->session_fee ?? 0,
+                'consultation_date' => $consultation?->consultation_date
+                    ? Carbon::parse($consultation->consultation_date)->format('M d, Y')
+                    : '-',
+                'opposing_party_name' => $opposingParty->name ?? 'Unknown',
+                'opposing_party_avatar' => $opposingParty->photo_profile_url,
+                'session_fee' => (int) ($consultation->session_fee ?? 0),
                 'action_status' => $report->action_status ?? 'pending',
                 'consultation_id' => $consultation?->id,
             ];
@@ -104,7 +106,8 @@ class ConsultationsController extends Controller
         $consultations = $query->get();
 
         $grouped = $consultations->groupBy('architect_id');
-        $queueRows = $grouped->map(function ($items, $architectId) {
+        /** @var Collection<int, array<string, mixed>> $queueRows */
+        $queueRows = $grouped->map(function ($items, $architectId): array {
             $first = $items->first();
             $architect = $first->architect;
             $totalConsultation = $items->count();
@@ -113,9 +116,8 @@ class ConsultationsController extends Controller
 
             return [
                 'architect_id' => (string) $architectId,
-                'architect_name' => $architect?->name ?? 'Unknown',
-                'architect_avatar' => $architect?->photo_profile_url
-                    ?? 'https://ui-avatars.com/api/?name=' . urlencode($architect?->name ?? 'A') . '&background=ececec&color=333333&rounded=true&bold=true',
+                'architect_name' => $architect->name ?? 'Unknown',
+                'architect_avatar' => $architect->photo_profile_url,
                 'total_earnings' => $totalEarnings,
                 'per_session' => $perSession,
                 'total_consultations' => $totalConsultation,

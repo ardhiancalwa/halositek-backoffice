@@ -3,10 +3,8 @@
 namespace App\Models;
 
 use App\Enums\AwardStatus;
-use Database\Factories\AwardFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MongoDB\Laravel\Eloquent\Model;
 
@@ -15,9 +13,6 @@ use MongoDB\Laravel\Eloquent\Model;
  */
 class Award extends Model
 {
-    /** @use HasFactory<AwardFactory> */
-    use HasFactory;
-
     use HasUuids;
 
     protected $connection = 'mongodb';

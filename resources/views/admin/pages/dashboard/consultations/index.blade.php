@@ -11,6 +11,8 @@
      data-payroll-summary-url="{{ route('admin.dashboard.consultations.payroll-summary') }}"
      data-architect-consultations-url="{{ route('admin.dashboard.consultations.architect-consultations', ['architectId' => ':id']) }}"
      data-release-payroll-url="{{ route('admin.dashboard.consultations.release-payroll', ['architectId' => ':id']) }}"
+     data-transcript-url="{{ route('admin.dashboard.consultations.transcript', ['consultation' => ':id']) }}"
+     data-report-status-url="{{ route('admin.dashboard.consultations.report-status', ['report' => ':id']) }}"
 >
     <!-- Toggle Buttons (Report / Payroll) -->
     <div class="mb-6 block">

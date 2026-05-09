@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const payrollSummaryUrl = consultationsWrapper?.dataset.payrollSummaryUrl;
     const architectConsultationsUrl = consultationsWrapper?.dataset.architectConsultationsUrl;
     const releasePayrollUrl = consultationsWrapper?.dataset.releasePayrollUrl;
+    const transcriptUrl = consultationsWrapper?.dataset.transcriptUrl;
+    const reportStatusUrl = consultationsWrapper?.dataset.reportStatusUrl;
 
     // Report elements
     const reportTableBody = document.getElementById('report-table-body');
@@ -63,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         pay: { page: 1 },
         history: { page: 1 },
         currentArchitectId: null,
+        currentReportId: null,
+        currentAction: null,
     };
 
     // ─── Loading Spinner HTML ───────────────────────────────────────
@@ -233,15 +237,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span class="font-extrabold text-slate-900 text-[15px]">${formatNumber(item.session_fee)}</span>
             </td>
             <td class="py-5 px-6 text-center whitespace-nowrap">
-                <button type="button" class="inline-flex items-center gap-1.5 text-sm font-bold text-[#E8820C] hover:text-[#c46908] transition-colors cursor-pointer" onclick="openTranscriptModal()">
+                <button type="button" class="inline-flex items-center gap-1.5 text-sm font-bold text-[#E8820C] hover:text-[#c46908] transition-colors cursor-pointer" onclick="openTranscriptModal('${item.consultation_id}')">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     View
                 </button>
             </td>
             <td class="py-5 px-6 text-center whitespace-nowrap">
                 <div class="flex items-center justify-center gap-2">
-                    <button type="button" class="bg-[#10B981] hover:bg-[#059669] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer" onclick="openPaymentModal('approve')">Approve</button>
-                    <button type="button" class="bg-[#F43F5E] hover:bg-[#E11D48] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer" onclick="openPaymentModal('decline')">Decline</button>
+                    <button type="button" class="bg-[#10B981] hover:bg-[#059669] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer" onclick="openPaymentModal('approve', '${item.id}')">Approve</button>
+                    <button type="button" class="bg-[#F43F5E] hover:bg-[#E11D48] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer" onclick="openPaymentModal('decline', '${item.id}')">Decline</button>
                 </div>
             </td>
         </tr>`;
@@ -468,17 +472,68 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ─── Modal openers (exposed globally) ───────────────────────────
-    window.openTranscriptModal = function () {
+    // ─── Modal openers (exposed globally) ───────────────────────────
+    window.openTranscriptModal = async function (consultationId) {
+        const modal = document.getElementById('transcriptModal');
+        const messagesContainer = modal.querySelector('[data-transcript-messages]');
+        const dateEl = modal.querySelector('[data-transcript-date]');
+        const reqNameEl = modal.querySelector('[data-transcript-requester-name]');
+        const archNameEl = modal.querySelector('[data-transcript-architect-name]');
+
+        if (!messagesContainer) return;
+
+        messagesContainer.innerHTML = '<div class="py-10 text-center text-slate-400">Loading transcript...</div>';
         showModal('transcriptModal');
+
+        const url = transcriptUrl.replace(':id', consultationId);
+        const res = await fetchData(url, {});
+
+        if (res && res.data) {
+            const data = res.data;
+            if (dateEl) dateEl.textContent = data.date;
+            if (reqNameEl) reqNameEl.textContent = data.user_name;
+            if (archNameEl) archNameEl.textContent = data.architect_name;
+
+            // Render transcript. If it's a string, show as a system message or single bubble
+            const content = data.transcript || 'No transcript available.';
+
+            messagesContainer.innerHTML = `
+                <div class="flex flex-col items-start">
+                    <p class="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">System / Full History</p>
+                    <div class="max-w-full rounded-2xl bg-white border border-slate-100 px-4 py-3 shadow-sm">
+                        <p class="text-[13px] leading-relaxed text-slate-700 whitespace-pre-line">${content}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            messagesContainer.innerHTML = '<div class="py-10 text-center text-red-400">Failed to load transcript.</div>';
+        }
     };
 
-    window.openPaymentModal = function (type) {
+    window.openPaymentModal = async function (type, reportId) {
+        payrollState.currentReportId = reportId;
+        payrollState.currentAction = type;
+
         const modal = document.getElementById('paymentModal');
         const iconWrapper = modal.querySelector('[data-payment-icon-wrapper]');
         const icon = modal.querySelector('[data-payment-icon]');
         const title = modal.querySelector('[data-payment-title]');
         const description = modal.querySelector('[data-payment-description]');
         const confirmBtn = modal.querySelector('[data-payment-confirm]');
+
+        // We can find the row data from the table to populate small details
+        const row = document.querySelector(`button[onclick*="'${reportId}'"]`)?.closest('tr');
+        if (row) {
+            const reqName = row.querySelector('.text-sm.font-extrabold')?.textContent;
+            const reqAvatar = row.querySelector('img')?.src;
+            const date = row.cells[2]?.textContent;
+            const amount = row.cells[4]?.textContent;
+
+            if (modal.querySelector('[data-payment-requester]')) modal.querySelector('[data-payment-requester]').textContent = reqName;
+            if (modal.querySelector('[data-payment-avatar]')) modal.querySelector('[data-payment-avatar]').src = reqAvatar;
+            if (modal.querySelector('[data-payment-date]')) modal.querySelector('[data-payment-date]').textContent = date;
+            if (modal.querySelector('[data-payment-amount]')) modal.querySelector('[data-payment-amount]').textContent = `Rp ${amount}`;
+        }
 
         if (type === 'approve') {
             iconWrapper.style.background = 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)';
@@ -502,6 +557,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showModal('paymentModal');
     };
+
+    const paymentConfirmBtn = document.querySelector('[data-payment-confirm]');
+    if (paymentConfirmBtn) {
+        paymentConfirmBtn.addEventListener('click', async () => {
+            if (!payrollState.currentReportId || !payrollState.currentAction) return;
+
+            const reportId = payrollState.currentReportId;
+            const status = payrollState.currentAction === 'approve' ? 'approved' : 'declined';
+            const url = reportStatusUrl.replace(':id', reportId);
+
+            paymentConfirmBtn.disabled = true;
+            paymentConfirmBtn.textContent = 'Processing...';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    hideModal('paymentModal');
+                    loadReportPage(reportState.page);
+                    loadReportStats();
+                } else {
+                    alert(result.message || 'Failed to update report status.');
+                }
+            } catch (error) {
+                console.error('Status update error:', error);
+                alert('An error occurred while updating report status.');
+            } finally {
+                paymentConfirmBtn.disabled = false;
+                paymentConfirmBtn.textContent = `Yes, ${status.charAt(0).toUpperCase() + status.slice(1)}`;
+            }
+        });
+    }
 
     window.openReleaseModal = async function (architectId) {
         payrollState.currentArchitectId = architectId;

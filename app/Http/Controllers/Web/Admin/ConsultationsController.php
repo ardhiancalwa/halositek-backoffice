@@ -191,4 +191,37 @@ class ConsultationsController extends Controller
 
         return ApiResponse::success(null, 'Payroll released successfully.');
     }
+
+    public function transcript(Consultation $consultation): JsonResponse
+    {
+        $transcript = $consultation->transcript;
+
+        // If it's a string, maybe split it by newlines or just return it
+        // If it's an array, return it as is.
+        // For now, let's assume it's a string based on seeder.
+
+        return ApiResponse::success([
+            'id' => $consultation->id,
+            'transcript' => $transcript,
+            'user_name' => $consultation->user?->name ?? 'User',
+            'architect_name' => $consultation->architect?->name ?? 'Architect',
+            'date' => $consultation->consultation_date?->format('M d, Y H:i') ?? '-',
+        ], 'Transcript retrieved successfully.');
+    }
+
+    public function updateReportStatus(ConsultationReport $report, Request $request): JsonResponse
+    {
+        $request->validate([
+            'status' => ['required', 'string', 'in:approved,declined'],
+        ]);
+
+        $status = $request->input('status');
+
+        $report->action_status = $status;
+        $report->actioned_by = auth()->id();
+        $report->actioned_at = now();
+        $report->save();
+
+        return ApiResponse::success(null, "Report status updated to {$status} successfully.");
+    }
 }

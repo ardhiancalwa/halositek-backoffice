@@ -43,7 +43,10 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
         Route::get('/report-data', [ConsultationsController::class, 'reportData'])->name('admin.dashboard.consultations.report-data');
         Route::get('/payroll-data', [ConsultationsController::class, 'payrollData'])->name('admin.dashboard.consultations.payroll-data');
     });
-    Route::get('/ai-bots', [AiBotsController::class, 'index'])->name('admin.dashboard.ai-bots.index');
+    Route::prefix('ai-bots')->group(function () {
+        Route::get('/', [AiBotsController::class, 'index'])->name('admin.dashboard.ai-bots.index');
+        Route::get('/logs-data', [AiBotsController::class, 'logsData'])->name('admin.dashboard.ai-bots.logs-data');
+    });
     Route::post('/logout', [AuthController::class, 'logout'])->name('admin.dashboard.logout');
 
     Route::prefix('users')->group(function () {

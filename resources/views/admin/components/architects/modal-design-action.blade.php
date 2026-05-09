@@ -18,8 +18,10 @@
     }
 
     $archName = $item->architect->name ?? 'Unknown';
-    $archPhoto = $item->architect && $item->architect->photo_profile 
-        ? Storage::url($item->architect->photo_profile) 
+    $archPhoto = $item->architect && $item->architect->photo_profile
+        ? (str_starts_with($item->architect->photo_profile, 'http://') || str_starts_with($item->architect->photo_profile, 'https://')
+            ? $item->architect->photo_profile
+            : Storage::url($item->architect->photo_profile))
         : null;
 
     $modalId = 'design-action-modal-' . $item->id;

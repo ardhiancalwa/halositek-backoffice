@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ─── DOM References ─────────────────────────────────────────────
     const wrapper = document.getElementById('ai-bots-wrapper');
     const logsDataUrl = wrapper?.dataset.logsUrl;
+    const statsUrl = wrapper?.dataset.statsUrl;
 
     const tableBody = document.getElementById('ai-bots-table-body');
     const prevBtn = document.getElementById('ai-bots-prev-page');
@@ -304,6 +305,45 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal('aiBotActionModal');
     };
 
+    // ─── Load Stats ─────────────────────────────────────────────────
+    async function loadAiBotsStats() {
+        if (!statsUrl) return;
+
+        try {
+            const res = await fetch(statsUrl, { headers: { Accept: 'application/json' } });
+            if (!res.ok) return;
+            const json = await res.json();
+            const data = json.data;
+            if (!data) return;
+
+            const total = data.total_generate || 1;
+            const statMap = {
+                total_generate: { value: data.total_generate ?? 0 },
+                total_success: { value: data.total_success ?? 0 },
+                total_failed: { value: data.total_failed ?? 0 },
+            };
+
+            Object.entries(statMap).forEach(([key, info]) => {
+                const valueEl = document.getElementById(`ai-stat-${key}`);
+                const barEl = document.getElementById(`ai-stat-bar-${key}`);
+
+                if (valueEl) {
+                    valueEl.innerHTML = `<h3 class="text-4xl font-black tracking-tight text-slate-900">${new Intl.NumberFormat('id-ID').format(info.value)}</h3>`;
+                }
+
+                if (barEl) {
+                    const barPercent = key === 'total_generate'
+                        ? Math.min(100, Math.max(5, Math.round((info.value / Math.max(info.value, 500)) * 100)))
+                        : Math.min(100, Math.max(3, Math.round((info.value / total) * 100)));
+                    setTimeout(() => { barEl.style.width = barPercent + '%'; }, 150);
+                }
+            });
+        } catch (err) {
+            console.error('Failed to load AI bots stats:', err);
+        }
+    }
+
     // ─── Initialize ─────────────────────────────────────────────────
+    loadAiBotsStats();
     loadPage(1);
 });

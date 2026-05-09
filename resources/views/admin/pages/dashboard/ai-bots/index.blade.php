@@ -6,6 +6,7 @@
 <div id="ai-bots-wrapper"
      class="max-w-7xl mx-auto pb-12"
      data-logs-url="{{ route('admin.dashboard.ai-bots.logs-data') }}"
+     data-stats-url="{{ route('admin.dashboard.ai-bots.stats') }}"
 >
 	<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-600">
 		<span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
@@ -16,9 +17,9 @@
 
 	@php
 		$metrics = [
-			['title' => 'Total Generates', 'value' => '142.832', 'bar' => 'bg-[#E8820C]', 'width' => '72%', 'icon' => 'icon-starGenerated.svg'],
-			['title' => 'Total Success', 'value' => '142.548', 'bar' => 'bg-emerald-500', 'width' => '91%', 'icon' => 'icon-success.svg'],
-			['title' => 'System Failures', 'value' => '284', 'bar' => 'bg-rose-500', 'width' => '20%', 'icon' => 'icon-warning.svg'],
+			['key' => 'total_generate', 'title' => 'Total Generates', 'bar' => 'bg-[#E8820C]', 'icon' => 'icon-starGenerated.svg'],
+			['key' => 'total_success', 'title' => 'Total Success', 'bar' => 'bg-emerald-500', 'icon' => 'icon-success.svg'],
+			['key' => 'total_failed', 'title' => 'System Failures', 'bar' => 'bg-rose-500', 'icon' => 'icon-warning.svg'],
 		];
 	@endphp
 
@@ -29,9 +30,12 @@
 				<img src="{{ asset('images/icons/' . $metric['icon']) }}" class="h-5 w-5" alt="{{ $metric['title'] }}">
 			</div>
 			<p class="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">{{ $metric['title'] }}</p>
-			<h3 class="mb-4 text-4xl font-black tracking-tight text-slate-900">{{ $metric['value'] }}</h3>
+			<div id="ai-stat-{{ $metric['key'] }}" class="mb-4">
+				{{-- Skeleton --}}
+				<div class="skeleton-pulse h-10 w-28 rounded-lg bg-slate-200"></div>
+			</div>
 			<div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-				<div class="h-full rounded-full {{ $metric['bar'] }}" style="width: {{ $metric['width'] }}"></div>
+				<div id="ai-stat-bar-{{ $metric['key'] }}" class="h-full rounded-full {{ $metric['bar'] }} transition-all duration-700 ease-out" style="width: 0%"></div>
 			</div>
 		</div>
 		@endforeach

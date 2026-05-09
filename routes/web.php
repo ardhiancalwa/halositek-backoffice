@@ -47,6 +47,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     });
     Route::prefix('ai-bots')->group(function () {
         Route::get('/', [AiBotsController::class, 'index'])->name('admin.dashboard.ai-bots.index');
+        Route::get('/stats', [AiBotsController::class, 'performanceStats'])->name('admin.dashboard.ai-bots.stats');
         Route::get('/logs-data', [AiBotsController::class, 'logsData'])->name('admin.dashboard.ai-bots.logs-data');
     });
     Route::post('/logout', [AuthController::class, 'logout'])->name('admin.dashboard.logout');

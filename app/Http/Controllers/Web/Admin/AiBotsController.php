@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Actions\AiChatbot\GetAiChatbotPerformanceAction;
 use App\Http\Controllers\Controller;
 use App\Http\Responses\ApiResponse;
 use App\Models\AiChatbotLog;
@@ -15,6 +16,11 @@ class AiBotsController extends Controller
     public function index(): Factory|View
     {
         return view('admin.pages.dashboard.ai-bots.index');
+    }
+
+    public function performanceStats(GetAiChatbotPerformanceAction $getPerformance): JsonResponse
+    {
+        return ApiResponse::success($getPerformance->execute());
     }
 
     public function logsData(Request $request): JsonResponse

@@ -153,27 +153,30 @@ class ConsultationsController extends Controller
             ->where('architect_id', $architectId)
             ->where('status', 'completed')
             ->where('payout_status', $status)
+            ->orderBy('consultation_date', 'desc')
             ->get();
 
         $items = $consultations->map(function (Consultation $consultation): array {
             return [
-                'user_name' => $consultation->user?->name ?? 'Unknown',
-                'date' => $consultation->consultation_date ? Carbon::parse($consultation->consultation_date)->format('M d, Y') : '-',
+                'user_name' => ($consultation->user->name ?? 'Unknown'),
+                'date' => $consultation->consultation_date ? $consultation->consultation_date->format('M d, Y') : '-',
                 'fee' => (int) ($consultation->session_fee ?? 0),
-                'status' => 'Verified',
+                'status' => (string) ($consultation->verification_status ?? 'unverified'),
             ];
         });
 
         $totalAmount = (int) $consultations->sum('session_fee');
-        $perSession = $consultations->count() > 0 ? (int) round($totalAmount / $consultations->count()) : 0;
+        $totalConsultation = $consultations->count();
+        $perSession = $totalConsultation > 0 ? (int) round($totalAmount / $totalConsultation) : 0;
 
         return ApiResponse::success([
-            'items' => $items,
-            'summary' => [
-                'total_amount' => $totalAmount,
-                'per_session' => $perSession,
-                'total_consultations' => $consultations->count(),
+            'architect_id' => $architectId,
+            'release_payment_items' => $items,
+            'payment_summary' => [
+                'consultation_per_session' => $perSession,
+                'total_user_consultation' => $totalConsultation,
             ],
+            'total_amount' => $totalAmount,
         ], 'Architect consultations retrieved successfully.');
     }
 
@@ -203,9 +206,9 @@ class ConsultationsController extends Controller
         return ApiResponse::success([
             'id' => $consultation->id,
             'transcript' => $transcript,
-            'user_name' => $consultation->user?->name ?? 'User',
-            'architect_name' => $consultation->architect?->name ?? 'Architect',
-            'date' => $consultation->consultation_date?->format('M d, Y H:i') ?? '-',
+            'user_name' => $consultation->user->name ?? 'User',
+            'architect_name' => $consultation->architect->name ?? 'Architect',
+            'date' => $consultation->consultation_date ? $consultation->consultation_date->format('M d, Y H:i') : '-',
         ], 'Transcript retrieved successfully.');
     }
 

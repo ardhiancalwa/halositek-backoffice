@@ -234,7 +234,7 @@ class ConsultationManagementController extends Controller
         $report->save();
 
         $actionedAt = $report->actioned_at;
-        $actionedAtIso = is_string($actionedAt) ? Carbon::parse($actionedAt)->toIso8601String() : null;
+        $actionedAtIso = $actionedAt->toIso8601String();
 
         return ApiResponse::success([
             'id' => (string) $report->getKey(),

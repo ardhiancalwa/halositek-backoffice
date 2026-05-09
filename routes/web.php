@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\Admin\AuthController;
 use App\Http\Controllers\Web\Admin\ConsultationsController;
 use App\Http\Controllers\Web\Admin\DashboardController;
 use App\Http\Controllers\Web\Admin\DesignController;
+use App\Http\Controllers\Web\Admin\PasswordResetController;
 use App\Http\Controllers\Web\Admin\SystemAdminController;
 use App\Http\Controllers\Web\Admin\UserController;
 use App\Http\Controllers\Web\Client\ClientController;
@@ -25,6 +26,11 @@ Route::prefix('auth')->middleware('guest')->group(function () {
         ->middleware(EnsureAdminLoginIsActive::class)
         ->name('admin.auth.login.submit');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('admin.auth.register');
+
+    Route::get('/forgot-password', [PasswordResetController::class, 'showForgotForm'])->name('admin.auth.forgot-password');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('admin.auth.forgot-password.submit');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('admin.auth.reset-password');
+    Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('admin.auth.reset-password.submit');
 });
 
 // Dashboard Pages

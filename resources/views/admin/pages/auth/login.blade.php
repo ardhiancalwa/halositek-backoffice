@@ -70,8 +70,11 @@
             </div>
         </div>
 
-        
-
+        <div class="mb-6 flex items-center justify-end">
+            <a href="{{ route('admin.auth.forgot-password') }}" class="auth-accent-link text-xs font-semibold transition hover:underline">
+                Forgot Password?
+            </a>
+        </div>
         <button
             type="submit"
             data-auth-submit

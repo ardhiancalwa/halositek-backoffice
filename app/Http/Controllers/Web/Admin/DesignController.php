@@ -37,6 +37,16 @@ class DesignController extends Controller
             $query->where('style', $selectedStyle);
         }
 
+        if ($request->filled('search')) {
+            $search = trim($request->string('search')->toString());
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('architect', function ($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
         $projects = $query
             ->paginate(12)
             ->withQueryString();

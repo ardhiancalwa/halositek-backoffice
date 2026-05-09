@@ -10,9 +10,7 @@
         <div class="bg-white p-6 rounded-2xl border border-slate-200">
             <div class="flex items-center gap-3 mb-2">
                 <div class="h-8 w-8 rounded-full bg-orange-50 flex items-center justify-center text-[#E8820C]">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <img src="{{ asset('images/dashboard/admin-icon-orange.svg') }}" alt="Registered Admin" class="h-5 w-5">
                 </div>
             </div>
             <p class="text-sm font-medium text-slate-500 mb-1">Registered Admin</p>
@@ -22,9 +20,7 @@
         <div class="bg-white p-6 rounded-2xl border border-slate-200">
             <div class="flex items-center gap-3 mb-2">
                 <div class="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <img src="{{ asset('images/dashboard/admin-icon-green.svg') }}" alt="Active Admin" class="h-5 w-5">
                 </div>
             </div>
             <p class="text-sm font-medium text-slate-500 mb-1">Active Admin</p>
@@ -60,7 +56,7 @@
                 data-status-filter="active"
                 class="status-filter-btn dashboard-filter-button text-sm font-semibold"
             >
-                Actived
+                Active
             </button>
             <button 
                 data-status-filter="suspend"
@@ -320,7 +316,7 @@
 @endcomponent
 
 @push('scripts')
-<script src="{{ asset('js/admin/pages/dashboard/admins/index.js') }}?v={{ filemtime(public_path('js/admin/pages/dashboard/users/index.js')) }}"></script>
+<script src="{{ asset('js/admin/pages/dashboard/admins/index.js') }}?v={{ filemtime(public_path('js/admin/pages/dashboard/admins/index.js')) }}"></script>
 @endpush
 
 @endsection

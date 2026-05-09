@@ -14,25 +14,27 @@
 
     <!-- Filter Section -->
     <div class="dashboard-filter-panel mb-6 p-6">
-        <div class="flex items-center gap-3 flex-wrap">
-            <button 
-                data-status-filter="all"
-                class="status-filter-btn dashboard-filter-button is-active text-sm font-semibold"
-            >
-                All Status
-            </button>
-            <button 
-                data-status-filter="active"
-                class="status-filter-btn dashboard-filter-button text-sm font-semibold"
-            >
-                Active
-            </button>
-            <button 
-                data-status-filter="suspend"
-                class="status-filter-btn dashboard-filter-button text-sm font-semibold"
-            >
-                Suspended
-            </button>
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 flex-wrap">
+                <button 
+                    data-status-filter="all"
+                    class="status-filter-btn dashboard-filter-button is-active text-sm font-semibold"
+                >
+                    All Status
+                </button>
+                <button 
+                    data-status-filter="active"
+                    class="status-filter-btn dashboard-filter-button text-sm font-semibold"
+                >
+                    Active
+                </button>
+                <button 
+                    data-status-filter="suspend"
+                    class="status-filter-btn dashboard-filter-button text-sm font-semibold"
+                >
+                    Suspended
+                </button>
+            </div>
         </div>
     </div>
     <!-- Table Section -->

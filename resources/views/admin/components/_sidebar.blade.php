@@ -27,7 +27,7 @@
                     'label' => 'Admin',
                     'route' => 'admin.dashboard.admins.index',
                     'match' => ['admin.dashboard.admins.*'],
-                    'icon' => 'user',
+                    'icon' => 'admin',
                 ],
                 
             ],
@@ -71,6 +71,16 @@
                     <img src="' . asset('images/dashboard/' . $baseName . '-gray.svg') . '" class="sidebar-user-icon sidebar-user-icon-default absolute inset-0 w-full h-full" alt="Icon">
                     <img src="' . asset('images/dashboard/' . $baseName . '-orange.svg') . '" class="sidebar-user-icon sidebar-user-icon-hover absolute inset-0 w-full h-full" alt="Icon">
                     <img src="' . asset('images/dashboard/' . $baseName . '.svg') . '" class="sidebar-user-icon sidebar-user-icon-active absolute inset-0 w-full h-full" alt="Icon">
+                </span>
+            ';
+        }
+
+        if ($icon === 'admin') {
+            return '
+                <span class="sidebar-user-icon-wrap relative block h-5 w-5">
+                    <img src="' . asset('images/dashboard/admin-icon-grey.svg') . '" class="sidebar-user-icon sidebar-user-icon-default absolute inset-0 w-full h-full" alt="Icon">
+                    <img src="' . asset('images/dashboard/admin-icon-orange.svg') . '" class="sidebar-user-icon sidebar-user-icon-hover absolute inset-0 w-full h-full" alt="Icon">
+                    <img src="' . asset('images/dashboard/admin-icon.svg') . '" class="sidebar-user-icon sidebar-user-icon-active absolute inset-0 w-full h-full" alt="Icon">
                 </span>
             ';
         }

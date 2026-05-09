@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\AwardStatus;
 use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Award\AwardResource;
@@ -10,6 +11,7 @@ use App\Models\Award;
 use App\Models\Project;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -127,14 +129,14 @@ class ArchitectController extends Controller
         ]);
     }
 
-    public function updateDesignStatus(Request $request, Project $project)
+    public function updateDesignStatus(Request $request, Project $project): RedirectResponse
     {
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:pending,approved,declined,PENDING,APPROVED,DECLINED'],
         ]);
 
         $status = strtolower($validated['status']);
-        
+
         $project->status = ProjectStatus::from($status);
         $project->save();
 
@@ -143,15 +145,15 @@ class ArchitectController extends Controller
             ->with('success', 'Design status updated successfully.');
     }
 
-    public function updateAwardStatus(Request $request, Award $award)
+    public function updateAwardStatus(Request $request, Award $award): RedirectResponse
     {
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:pending,approved,declined,PENDING,APPROVED,DECLINED'],
         ]);
 
         $status = strtolower($validated['status']);
-        
-        $award->status = \App\Enums\AwardStatus::from($status);
+
+        $award->status = AwardStatus::from($status);
         $award->save();
 
         return redirect()

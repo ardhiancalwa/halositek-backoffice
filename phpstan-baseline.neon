@@ -19,138 +19,70 @@ parameters:
 			path: app/DTOs/User/CreateUserDTO.php
 
 		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
+			message: '#^Method App\\Http\\Requests\\Api\\User\\StoreAdminRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: app/Http/Controllers/Api/V1/AuthController.php
-
+			path: app/Http/Requests/Api/User/StoreAdminRequest.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:login\(\) has no return type specified\.$#'
-			identifier: missingType.return
+			message: '#^Method App\\Http\\Requests\\Api\\User\\UpdateAdminRequest\:\:rules\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: app/Http/Controllers/Web/AuthController.php
+			path: app/Http/Requests/Api/User/UpdateAdminRequest.php
 
 		-
-			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:logout\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/Web/AuthController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:register\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/Web/AuthController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:showLogin\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/Web/AuthController.php
-
-		-
-			message: '#^Method App\\Http\\Controllers\\Web\\AuthController\:\:showRegister\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: app/Http/Controllers/Web/AuthController.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$architectProfile\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$account_status\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$created_at\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$created_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$email\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$email\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$email_verified_at\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$id\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$name\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$name\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$photo_profile\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$profile_picture\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$photo_profile_url\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$role\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$role\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\ArchitectProfileResource\:\:\$updated_at\.$#'
+			message: '#^Access to an undefined property App\\Http\\Resources\\User\\AdminResource\:\:\$updated_at\.$#'
 			identifier: property.notFound
 			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>rating" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 1
-			path: app/Http/Resources/ArchitectProfileResource.php
-
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$answer\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/FaqResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$created_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/FaqResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$id\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/FaqResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$is_active\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/FaqResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$question\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/FaqResource.php
-
-		-
-			message: '#^Access to an undefined property App\\Http\\Resources\\FaqResource\:\:\$updated_at\.$#'
-			identifier: property.notFound
-			count: 1
-			path: app/Http/Resources/FaqResource.php
+			path: app/Http/Resources/User/AdminResource.php
 
 		-
 			message: '#^Method App\\Http\\Responses\\ApiResponse\:\:error\(\) has parameter \$errors with no value type specified in iterable type array\.$#'
@@ -177,12 +109,6 @@ parameters:
 			path: app/Models/ArchitectProfile.php
 
 		-
-			message: '#^Method App\\Models\\ArchitectProfile\:\:user\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsTo does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/ArchitectProfile.php
-
-		-
 			message: '#^Class App\\Models\\ArchitectWishlist uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
 			identifier: missingType.generics
 			count: 1
@@ -199,7 +125,6 @@ parameters:
 			identifier: missingType.generics
 			count: 1
 			path: app/Models/ArchitectWishlist.php
-
 
 		-
 			message: '#^Class App\\Models\\Faq uses generic trait Illuminate\\Database\\Eloquent\\Factories\\HasFactory but does not specify its types\: TFactory$#'
@@ -220,42 +145,6 @@ parameters:
 			path: app/Models/User.php
 
 		-
-			message: '#^Method App\\Models\\User\:\:architectProfile\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\HasOne does not specify its types\: TRelatedModel, TDeclaringModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Method App\\Models\\User\:\:wishlistArchitects\(\) return type with generic class Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany does not specify its types\: TRelatedModel, TDeclaringModel, TPivotModel, TAccessor \(2\-4 required\)$#'
-			identifier: missingType.generics
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\UserRole will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\UserRole\:\:Admin will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\UserRole\:\:Architect will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Models/User.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between string and App\\Enums\\UserRole\:\:User will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: app/Models/User.php
-
-		-
 			message: '#^The @use tag of class App\\Models\\User describes Illuminate\\Database\\Eloquent\\Factories\\HasFactory but the class uses Laravel\\Sanctum\\HasApiTokens\.$#'
 			identifier: generics.wrongParent
 			count: 1
@@ -264,5 +153,5 @@ parameters:
 		-
 			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
 			identifier: larastan.noEnvCallsOutsideOfConfig
-			count: 9
+			count: 12
 			path: database/seeders/DatabaseSeeder.php

@@ -56,6 +56,16 @@ class UserFactory extends Factory
     }
 
     /**
+     * Set the user role to super admin.
+     */
+    public function superAdmin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::SuperAdmin,
+        ]);
+    }
+
+    /**
      * Set the user role to architect.
      */
     public function architect(): static

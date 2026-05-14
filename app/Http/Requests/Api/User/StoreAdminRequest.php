@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\User;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreAdminRequest extends FormRequest
@@ -11,6 +12,9 @@ class StoreAdminRequest extends FormRequest
         return true;
     }
 
+    /**
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [

@@ -48,7 +48,7 @@ class AdminController extends Controller
         }
 
         $query = User::query()
-            ->where('role', UserRole::Admin->value)
+            ->whereIn('role', [UserRole::Admin->value, UserRole::SuperAdmin->value])
             ->whereNotNull('role')
             ->latest();
 
@@ -162,7 +162,7 @@ class AdminController extends Controller
         }
 
         $admin = User::query()
-            ->where('role', UserRole::Admin->value)
+            ->whereIn('role', [UserRole::Admin->value, UserRole::SuperAdmin->value])
             ->findOrFail($id);
 
         return ApiResponse::success([
@@ -211,7 +211,7 @@ class AdminController extends Controller
         }
 
         $admin = User::query()
-            ->where('role', UserRole::Admin->value)
+            ->whereIn('role', [UserRole::Admin->value, UserRole::SuperAdmin->value])
             ->findOrFail($id);
 
         $validated = $request->validated();
@@ -257,13 +257,13 @@ class AdminController extends Controller
             return ApiResponse::forbidden('Only super admin can delete admin users.');
         }
 
-        $admin = User::query()
-            ->where('role', UserRole::Admin->value)
-            ->findOrFail($id);
-
-        if ($user->id === $admin->id) {
+        if ($user->id === $id) {
             return ApiResponse::forbidden('You cannot delete your own admin account.');
         }
+
+        $admin = User::query()
+            ->whereIn('role', [UserRole::Admin->value, UserRole::SuperAdmin->value])
+            ->findOrFail($id);
 
         $admin->delete();
 

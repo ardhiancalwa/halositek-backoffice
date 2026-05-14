@@ -23,7 +23,7 @@ use MongoDB\Laravel\Auth\User as Authenticatable;
  * @property UserRole $role
  * @property string|null $photo_profile
  * @property-read string $photo_profile_url
- * @property AccountStatus $account_status
+ * @property AccountStatus|null $account_status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */

@@ -23,7 +23,7 @@ class AdminResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role->value,
-            'account_status' => $this->account_status->value,
+            'account_status' => $this->account_status?->value,
             'photo_profile' => $this->photo_profile,
             'photo_profile_url' => $this->photo_profile_url,
             'created_at' => $this->created_at,

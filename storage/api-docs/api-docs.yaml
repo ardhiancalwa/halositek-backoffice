@@ -2390,6 +2390,258 @@ paths:
       security:
         -
           BearerAuth: []
+  /admins:
+    get:
+      tags:
+        - 'Admin Management'
+      summary: 'List all admins'
+      description: 'Returns a paginated list of admin users (super admin only).'
+      operationId: aeda23328789bb4eec2af32ea983882a
+      parameters:
+        -
+          name: search
+          in: query
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Admins retrieved successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Admins retrieved successfully.'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
+                    name: 'Admin User'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: active
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Super Admin'
+                    email: superadmin@halositek.com
+                    role: super_admin
+                    account_status: active
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 2
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/admins?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/admins?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    post:
+      tags:
+        - 'Admin Management'
+      summary: 'Create admin'
+      description: 'Creates a new admin user (super admin only).'
+      operationId: 10096a41e044e3c2b354786486cd81c7
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  example: 'New Admin'
+                email:
+                  type: string
+                  format: email
+                  example: admin@halositek.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                photo_profile:
+                  type: string
+                  format: binary
+              type: object
+      responses:
+        201:
+          description: 'Admin created successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Admin created successfully.'
+                data:
+                  admin:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRU
+                    name: 'New Admin'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: active
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/admins/{id}':
+    get:
+      tags:
+        - 'Admin Management'
+      summary: 'Get admin detail'
+      description: 'Returns details for a specific admin user (super admin only).'
+      operationId: 2aab989138ff79237b5d6ae82aa0bdfe
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Admin retrieved successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Admin retrieved successfully.'
+                data:
+                  admin:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Admin User'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: active
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    put:
+      tags:
+        - 'Admin Management'
+      summary: 'Update admin'
+      description: "Updates an admin user's account status (super admin only)."
+      operationId: 02618f9c2624f8c00a2d7bd678cc0f89
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                account_status:
+                  type: string
+                  example: active
+                  enum:
+                    - active
+                    - suspend
+              type: object
+      responses:
+        200:
+          description: 'Admin updated successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Admin updated successfully.'
+                data:
+                  admin:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Admin User'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: suspend
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - 'Admin Management'
+      summary: 'Delete admin'
+      description: 'Deletes an admin user (super admin only).'
+      operationId: 003112073f336036dd51e0c40a2a7c6f
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Admin deleted successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Admin deleted successfully.'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   /architects:
     get:
       tags:
@@ -3513,6 +3765,9 @@ tags:
   -
     name: Projects
     description: Projects
+  -
+    name: 'Admin Management'
+    description: 'Admin Management'
   -
     name: Architects
     description: Architects

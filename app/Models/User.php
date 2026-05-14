@@ -12,15 +12,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 
 /**
+ * @property string $id
  * @property string $name
  * @property string $email
+ * @property UserRole $role
  * @property string|null $photo_profile
  * @property-read string $photo_profile_url
- * @property AccountStatus $account_status
+ * @property AccountStatus|null $account_status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class User extends Authenticatable implements FilamentUser
 {
@@ -89,6 +94,11 @@ class User extends Authenticatable implements FilamentUser
     public function isUser(): bool
     {
         return $this->role === UserRole::User;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === UserRole::SuperAdmin;
     }
 
     public function hasRole(UserRole $role): bool

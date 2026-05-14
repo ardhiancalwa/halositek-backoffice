@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Consultation\ConversationController;
 use App\Http\Controllers\Api\Consultation\MessageController;
 use App\Http\Controllers\Api\Faq\FaqController;
 use App\Http\Controllers\Api\Project\ProjectController;
+use App\Http\Controllers\Api\User\AdminController;
 use App\Http\Controllers\Api\User\ArchitectController;
 use App\Http\Controllers\Api\User\UserController;
 use Illuminate\Support\Facades\Route;
@@ -102,6 +103,16 @@ Route::prefix('v1')->group(function () {
         Route::get('/ai-chatbot/performance', [AiChatbotManagementController::class, 'performance']);
         Route::get('/ai-chatbot/logs', [AiChatbotManagementController::class, 'activityLogs']);
         Route::get('/ai-chatbot/logs/{logId}', [AiChatbotManagementController::class, 'showActivityLog']);
+    });
+
+    // Super Admin only routes
+    Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
+        // Admin management
+        Route::get('/admins', [AdminController::class, 'index']);
+        Route::post('/admins', [AdminController::class, 'store']);
+        Route::get('/admins/{id}', [AdminController::class, 'show']);
+        Route::put('/admins/{id}', [AdminController::class, 'update']);
+        Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
     });
 
     // Public routes (down here to avoid intercepting wishlist if grouped)

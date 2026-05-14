@@ -14,32 +14,34 @@
 
     <!-- Filter Section -->
     <div class="dashboard-filter-panel mb-6 p-6">
-        <div class="flex items-center gap-3 flex-wrap">
-            <button 
-                data-status-filter="all"
-                class="status-filter-btn dashboard-filter-button is-active text-sm font-semibold"
-            >
-                All Status
-            </button>
-            <button 
-                data-status-filter="active"
-                class="status-filter-btn dashboard-filter-button text-sm font-semibold"
-            >
-                Active
-            </button>
-            <button 
-                data-status-filter="suspend"
-                class="status-filter-btn dashboard-filter-button text-sm font-semibold"
-            >
-                Suspended
-            </button>
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 flex-wrap">
+                <button 
+                    data-status-filter="all"
+                    class="status-filter-btn dashboard-filter-button is-active text-sm font-semibold"
+                >
+                    All Status
+                </button>
+                <button 
+                    data-status-filter="active"
+                    class="status-filter-btn dashboard-filter-button text-sm font-semibold"
+                >
+                    Active
+                </button>
+                <button 
+                    data-status-filter="suspend"
+                    class="status-filter-btn dashboard-filter-button text-sm font-semibold"
+                >
+                    Suspended
+                </button>
+            </div>
         </div>
     </div>
     <!-- Table Section -->
     <div
         id="users-table-wrapper"
         data-users-url="{{ route('admin.dashboard.users.data') }}"
-        data-user-update-url-template="{{ url('/api/v1/users/__ID__') }}"
+        data-user-update-url-template="{{ url('/dashboard/users/__ID__') }}"
     >
         @component('admin.components.table', ['headers' => [
             ['label' => 'Name', 'class' => 'text-left text-xs font-semibold uppercase tracking-wider text-slate-600'],

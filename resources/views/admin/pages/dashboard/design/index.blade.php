@@ -39,22 +39,24 @@
         </div>
     </div>
 
-    <div class="mb-7 flex flex-wrap items-center gap-2">
-        <a
-            href="{{ route('admin.dashboard.designs.index') }}"
-            class="inline-flex items-center rounded-full border px-4 py-2 text-xs font-semibold transition {{ $selectedStyle === null ? 'border-[#D97706] bg-[#D97706] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900' }}"
-        >
-            All Design
-        </a>
-
-        @foreach ($styleFilters as $styleFilter)
+    <div class="mb-7 flex items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2">
             <a
-                href="{{ route('admin.dashboard.designs.index', ['style' => $styleFilter['value']]) }}"
-                class="inline-flex items-center rounded-full border px-4 py-2 text-xs font-semibold transition {{ $selectedStyle === $styleFilter['value'] ? 'border-[#D97706] bg-[#D97706] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900' }}"
+                href="{{ route('admin.dashboard.designs.index') }}"
+                class="inline-flex items-center rounded-full border px-4 py-2 text-xs font-semibold transition {{ $selectedStyle === null ? 'border-[#D97706] bg-[#D97706] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900' }}"
             >
-                {{ $styleFilter['label'] }}
+                All Design
             </a>
-        @endforeach
+
+            @foreach ($styleFilters as $styleFilter)
+                <a
+                    href="{{ route('admin.dashboard.designs.index', ['style' => $styleFilter['value']]) }}"
+                    class="inline-flex items-center rounded-full border px-4 py-2 text-xs font-semibold transition {{ $selectedStyle === $styleFilter['value'] ? 'border-[#D97706] bg-[#D97706] text-white' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900' }}"
+                >
+                    {{ $styleFilter['label'] }}
+                </a>
+            @endforeach
+        </div>
     </div>
 
     @if ($projects->isEmpty())

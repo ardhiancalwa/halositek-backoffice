@@ -15,7 +15,7 @@ final class UpdateAwardAction
         $award->fill($attributes);
 
         if ($resetStatus) {
-            $award->status = AwardStatus::Pending->value;
+            $award->status = AwardStatus::Pending;
         }
 
         $award->save();

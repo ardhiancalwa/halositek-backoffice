@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AccountStatus;
 use App\Enums\UserRole;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,11 @@ use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 
 /**
+ * @property string $name
+ * @property string $email
  * @property string|null $photo_profile
+ * @property-read string $photo_profile_url
+ * @property AccountStatus $account_status
  */
 class User extends Authenticatable implements FilamentUser
 {
@@ -24,6 +29,11 @@ class User extends Authenticatable implements FilamentUser
 
     use HasFactory;
     use Notifiable;
+
+    public function getPhotoProfileUrlAttribute(): string
+    {
+        return $this->photo_profile ?? 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? 'U') . '&background=ececec&color=333333&rounded=true&bold=true';
+    }
 
     protected $connection = 'mongodb';
 

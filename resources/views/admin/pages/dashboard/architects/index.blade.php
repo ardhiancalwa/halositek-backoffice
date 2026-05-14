@@ -45,28 +45,30 @@
         </div>
     </div>
     
-    <!-- Status Filters -->
-    <div class="flex items-center gap-3">
-        <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => '']) }}"
-           class="px-5 py-2 rounded-full text-sm font-semibold shadow-sm transition-colors
-                  {{ $status === '' ? 'bg-[#E8820C] text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' }}">
-            All Status
-        </a>
-        <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'pending']) }}"
-           class="px-4 py-2 rounded-full text-sm font-medium transition-colors
-                  {{ $status === 'pending' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
-            Pending
-        </a>
-        <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'approved']) }}"
-           class="px-4 py-2 rounded-full text-sm font-medium transition-colors
-                  {{ $status === 'approved' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
-            Approved
-        </a>
-        <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'declined']) }}"
-           class="px-4 py-2 rounded-full text-sm font-medium transition-colors
-                  {{ $status === 'declined' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
-            Declined
-        </a>
+    <!-- Status Filters & Search -->
+    <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => '']) }}"
+               class="px-5 py-2 rounded-full text-sm font-semibold shadow-sm transition-colors
+                      {{ $status === '' ? 'bg-[#E8820C] text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50' }}">
+                All Status
+            </a>
+            <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'pending']) }}"
+               class="px-4 py-2 rounded-full text-sm font-medium transition-colors
+                      {{ $status === 'pending' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
+                Pending
+            </a>
+            <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'approved']) }}"
+               class="px-4 py-2 rounded-full text-sm font-medium transition-colors
+                      {{ $status === 'approved' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
+                Approved
+            </a>
+            <a href="{{ route('admin.dashboard.architects.index', ['type' => $type, 'status' => 'declined']) }}"
+               class="px-4 py-2 rounded-full text-sm font-medium transition-colors
+                      {{ $status === 'declined' ? 'bg-[#E8820C] text-white border border-transparent' : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50' }}">
+                Declined
+            </a>
+        </div>
     </div>
 
     <!-- Title and Dropdown -->
@@ -96,7 +98,7 @@
     </div>
 
     <!-- Data Table -->
-    <div class="overflow-x-auto w-full rounded-xl bg-white shadow-sm border border-slate-100">
+    <div id="table-section" class="overflow-x-auto w-full rounded-xl bg-white shadow-sm border border-slate-100">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-[#FDFBF7] text-slate-600 text-[11px] font-bold uppercase tracking-wider">
@@ -121,13 +123,16 @@
                     @php
                         $archName = $item->architect->name ?? 'Unknown';
                         $rawStatus = strtoupper($item->status instanceof \BackedEnum ? $item->status->value : ($item->status ?? 'pending'));
+                        $archPhoto = $item->architect && $item->architect->photo_profile
+                            ? (str_starts_with($item->architect->photo_profile, 'http') ? $item->architect->photo_profile : Storage::url($item->architect->photo_profile))
+                            : null;
                     @endphp
                     <tr class="hover:bg-slate-50/50 transition-colors">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-indigo-100 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                    @if($item->architect && $item->architect->photo_profile)
-                                        <img src="{{ Storage::url($item->architect->photo_profile) }}" alt="{{ $archName }}" class="w-full h-full object-cover">
+                                    @if($archPhoto)
+                                        <img src="{{ $archPhoto }}" alt="{{ $archName }}" class="w-full h-full object-cover">
                                     @else
                                         <svg class="w-4 h-4 text-indigo-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                                     @endif
@@ -168,16 +173,35 @@
 
                         @if($type !== 'design')
                             <td class="px-6 py-4 text-center">
-                                <button class="text-[#E8820C] hover:text-orange-600 transition-colors inline-block" title="View Proof">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                </button>
+                                @php
+                                    $fileUrl = $item->verification_file 
+                                        ? (str_starts_with($item->verification_file, 'http') ? $item->verification_file : Storage::url($item->verification_file))
+                                        : null;
+                                @endphp
+                                @if($fileUrl)
+                                    <a href="{{ $fileUrl }}" target="_blank" class="text-[#E8820C] hover:text-orange-600 transition-colors inline-block" title="View Proof">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </a>
+                                @else
+                                    <span class="text-slate-300 inline-block cursor-not-allowed" title="No proof uploaded">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </span>
+                                @endif
                             </td>
                         @endif
 
                         <td class="px-6 py-4 text-center">
-                            <button class="text-[#778BA5] hover:text-[#E8820C] transition-colors p-1" title="View details">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                            </button>
+                            @if($type === 'design')
+                                <button type="button" class="text-[#778BA5] hover:text-[#E8820C] transition-colors p-1" title="View details" data-open-design-modal="{{ $item->id }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                                @include('admin.components.architects.modal-design-action', ['item' => $item])
+                            @else
+                                <button type="button" class="text-[#778BA5] hover:text-[#E8820C] transition-colors p-1" title="View details" data-open-award-modal="{{ $item->id }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                </button>
+                                @include('admin.components.architects.modal-award-action', ['item' => $item])
+                            @endif
                         </td>
                     </tr>
                 @empty
@@ -200,61 +224,43 @@
 
         <!-- Pagination -->
         @if($items->hasPages())
-            <div class="px-6 py-4 border-t border-slate-100 flex items-center justify-end bg-white">
-                <div class="flex items-center gap-1 text-sm font-bold text-slate-500">
-                    {{-- Previous Button --}}
-                    @if($items->onFirstPage())
-                        <span class="p-1.5 rounded opacity-50 cursor-not-allowed">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                        </span>
-                    @else
-                        <a href="{{ $items->previousPageUrl() }}" class="p-1.5 rounded hover:bg-slate-100 transition-colors">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                        </a>
-                    @endif
+            @php
+                $items->fragment('table-section');
+                $currentPage = $items->currentPage();
+                $lastPage = $items->lastPage();
+                $pageStart = max(1, $currentPage - 2);
+                $pageEnd = min($lastPage, $currentPage + 2);
+                $pageLinks = [];
 
-                    {{-- Page Numbers --}}
-                    @php
-                        $currentPage = $items->currentPage();
-                        $lastPage = $items->lastPage();
-                        $pages = [];
+                if (($pageEnd - $pageStart) < 4) {
+                    if ($pageStart === 1) {
+                        $pageEnd = min($lastPage, $pageStart + 4);
+                    } elseif ($pageEnd === $lastPage) {
+                        $pageStart = max(1, $pageEnd - 4);
+                    }
+                }
 
-                        // Always show first 3 pages
-                        for ($i = 1; $i <= min(3, $lastPage); $i++) {
-                            $pages[] = $i;
-                        }
+                for ($page = $pageStart; $page <= $pageEnd; $page++) {
+                    $pageLinks[] = [
+                        'label' => $page,
+                        'url' => collect(request()->query())->isEmpty() ? $items->url($page) : $items->appends(request()->query())->url($page),
+                        'isActive' => $page === $currentPage,
+                    ];
+                }
+            @endphp
 
-                        // Show last page if there's a gap
-                        if ($lastPage > 4) {
-                            $pages[] = '...';
-                            $pages[] = $lastPage;
-                        } elseif ($lastPage === 4) {
-                            $pages[] = 4;
-                        }
-                    @endphp
-
-                    @foreach($pages as $page)
-                        @if($page === '...')
-                            <span class="px-1 text-slate-400">...</span>
-                        @elseif($page == $currentPage)
-                            <span class="w-8 h-8 rounded-md bg-[#C5923A] text-white flex items-center justify-center text-sm">{{ $page }}</span>
-                        @else
-                            <a href="{{ $items->url($page) }}" class="w-8 h-8 rounded-md hover:bg-slate-100 transition-colors flex items-center justify-center text-sm">{{ $page }}</a>
-                        @endif
-                    @endforeach
-
-                    {{-- Next Button --}}
-                    @if($items->hasMorePages())
-                        <a href="{{ $items->nextPageUrl() }}" class="p-1.5 rounded hover:bg-slate-100 transition-colors">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
-                        </a>
-                    @else
-                        <span class="p-1.5 rounded opacity-50 cursor-not-allowed">
-                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg>
-                        </span>
-                    @endif
-                </div>
-            </div>
+            @component('admin.components.pagination-footer', [
+                'currentPage' => $currentPage,
+                'totalPages' => $lastPage,
+                'pageLinks' => $pageLinks,
+                'previousUrl' => collect(request()->query())->isEmpty() ? $items->previousPageUrl() : $items->appends(request()->query())->previousPageUrl(),
+                'nextUrl' => collect(request()->query())->isEmpty() ? $items->nextPageUrl() : $items->appends(request()->query())->nextPageUrl(),
+                'previousDisabled' => $items->onFirstPage(),
+                'nextDisabled' => ! $items->hasMorePages(),
+                'wrapperClass' => '',
+                'footerClass' => 'border-t border-slate-100',
+            ])
+            @endcomponent
         @endif
     </div>
 </div>
@@ -280,6 +286,43 @@
                 }
             });
         }
+
+        // Modal Design Action functionality
+        const openButtons = document.querySelectorAll('[data-open-design-modal]');
+        openButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-open-design-modal');
+                const modal = document.querySelector(`[data-design-action-modal="${id}"]`);
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
+
+        const closeBtns = document.querySelectorAll('[data-design-action-modal] [data-modal-close], [data-design-action-modal] [data-modal-backdrop], [data-award-action-modal] [data-modal-close], [data-award-action-modal] [data-modal-backdrop]');
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modal = e.target.closest('[data-design-action-modal], [data-award-action-modal]');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Modal Award Action functionality
+        const openAwardButtons = document.querySelectorAll('[data-open-award-modal]');
+        openAwardButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-open-award-modal');
+                const modal = document.querySelector(`[data-award-action-modal="${id}"]`);
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            });
+        });
     });
 </script>
 @endpush

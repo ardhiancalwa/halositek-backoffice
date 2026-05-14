@@ -3,7 +3,11 @@
 @section('title', 'AI Bots - HaloSitek')
 
 @section('content')
-<div class="max-w-7xl mx-auto pb-12">
+<div id="ai-bots-wrapper"
+     class="max-w-7xl mx-auto pb-12"
+     data-logs-url="{{ route('admin.dashboard.ai-bots.logs-data') }}"
+     data-stats-url="{{ route('admin.dashboard.ai-bots.stats') }}"
+>
 	<div class="mb-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-emerald-600">
 		<span class="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
 		Bot Status: Active
@@ -13,89 +17,36 @@
 
 	@php
 		$metrics = [
-			['title' => 'Total Generates', 'value' => '142.832', 'bar' => 'bg-[#E8820C]', 'width' => '72%'],
-			['title' => 'Total Success', 'value' => '142.548', 'bar' => 'bg-emerald-500', 'width' => '91%'],
-			['title' => 'System Failures', 'value' => '284', 'bar' => 'bg-rose-500', 'width' => '20%'],
-		];
-
-		$activityLogs = [
-			[
-				'id' => 1,
-				'user' => 'Alex Rivera',
-				'date' => 'Oct 24, 2023',
-				'prompt' => 'Generate a series of brutalist architecture poster concepts for social media campaign.',
-				'status' => 'success',
-				'time' => '2 min',
-				'request' => 'Generate a series of brutalist architecture poster concepts for social media campaign.',
-				'outputImage' => 'https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=1200&q=80',
-			],
-			[
-				'id' => 2,
-				'user' => 'Elena Vance',
-				'date' => 'Oct 24, 2023',
-				'prompt' => 'Abstract interpretation of digital currency flowing through a neural lattice network.',
-				'status' => 'failed',
-				'time' => '2 min',
-				'request' => 'Abstract interpretation of digital currency flowing through a neural lattice network, hyper-realistic, 8k resolution, cinematic lighting.',
-				'errorTitle' => '[CRITICAL_ERROR] Model Content Filter Triggered',
-				'errorDetail' => 'Safety violation detected in prompt tokens [14, 89]. Generation halted by safety layer. Error Code: 504 Gateway Timeout (Internal Safety Denial).',
-			],
-			[
-				'id' => 3,
-				'user' => 'MarcusThorne',
-				'date' => 'Oct 24, 2023',
-				'prompt' => 'Auditing system security protocols for enterprise AI bot infrastructure.',
-				'status' => 'success',
-				'time' => '2 min',
-				'request' => 'Auditing system security protocols for enterprise AI bot infrastructure.',
-				'outputImage' => 'https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1200&q=80',
-			],
-			[
-				'id' => 4,
-				'user' => 'Sienna West',
-				'date' => 'Oct 24, 2023',
-				'prompt' => 'Write a poem about the stillness of a midnight city in rainy season.',
-				'status' => 'success',
-				'time' => '2 min',
-				'request' => 'Write a poem about the stillness of a midnight city in rainy season.',
-				'outputImage' => 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=1200&q=80',
-			],
-			[
-				'id' => 5,
-				'user' => 'Raisa Quinn',
-				'date' => 'Oct 24, 2023',
-				'prompt' => 'Create a cinematic product render of eco bottle on wet concrete floor.',
-				'status' => 'failed',
-				'time' => '3 min',
-				'request' => 'Create a cinematic product render of eco bottle on wet concrete floor with dramatic shadows and smoke.',
-				'errorTitle' => '[SYSTEM_ERROR] Diffusion Backend Unavailable',
-				'errorDetail' => 'Model endpoint timeout during image synthesis stage. Retry queue failed after 3 attempts.',
-			],
+			['key' => 'total_generate', 'title' => 'Total Generates', 'bar' => 'bg-[#E8820C]', 'icon' => 'icon-starGenerated.svg'],
+			['key' => 'total_success', 'title' => 'Total Success', 'bar' => 'bg-emerald-500', 'icon' => 'icon-success.svg'],
+			['key' => 'total_failed', 'title' => 'System Failures', 'bar' => 'bg-rose-500', 'icon' => 'icon-warning.svg'],
 		];
 	@endphp
 
 	<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
 		@foreach($metrics as $metric)
 		<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-			<div class="mb-4 inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-				<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2"></path>
-				</svg>
+			<div class="mb-4 inline-flex h-8 w-8 items-center justify-center rounded-lg bg-orange-50">
+				<img src="{{ asset('images/icons/' . $metric['icon']) }}" class="h-5 w-5" alt="{{ $metric['title'] }}">
 			</div>
 			<p class="mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">{{ $metric['title'] }}</p>
-			<h3 class="mb-4 text-4xl font-black tracking-tight text-slate-900">{{ $metric['value'] }}</h3>
+			<div id="ai-stat-{{ $metric['key'] }}" class="mb-4">
+				{{-- Skeleton --}}
+				<div class="skeleton-pulse h-10 w-28 rounded-lg bg-slate-200"></div>
+			</div>
 			<div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-				<div class="h-full rounded-full {{ $metric['bar'] }}" style="width: {{ $metric['width'] }}"></div>
+				<div id="ai-stat-bar-{{ $metric['key'] }}" class="h-full rounded-full {{ $metric['bar'] }} transition-all duration-700 ease-out" style="width: 0%"></div>
 			</div>
 		</div>
 		@endforeach
 	</div>
 
+	<!-- Filter Buttons -->
 	<div class="mb-6 flex flex-wrap items-center gap-3">
 		<button
 			type="button"
-			id="aiBotFilterAll"
-			class="rounded-full bg-[#E8820C] px-8 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_0_rgba(232,130,12,0.39)] transition-all cursor-pointer"
+			data-filter="all"
+			class="ai-bot-filter-btn rounded-full bg-[#E8820C] px-8 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_0_rgba(232,130,12,0.39)] transition-all cursor-pointer"
 			onclick="switchAiBotFilter('all')"
 		>
 			All Status
@@ -103,32 +54,30 @@
 
 		<button
 			type="button"
-			id="aiBotFilterSuccess"
-			class="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 cursor-pointer"
+			data-filter="success"
+			class="ai-bot-filter-btn rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 cursor-pointer"
 			onclick="switchAiBotFilter('success')"
 		>
-			<span class="inline-flex items-center gap-2">
-				Success
-			</span>
+			Success
 		</button>
 
 		<button
 			type="button"
-			id="aiBotFilterFailed"
-			class="rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 cursor-pointer"
+			data-filter="failed"
+			class="ai-bot-filter-btn rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 cursor-pointer"
 			onclick="switchAiBotFilter('failed')"
 		>
-			<span class="inline-flex items-center gap-2">
-				Failed
-			</span>
+			Failed
 		</button>
 	</div>
 
+	<!-- Activity Logs Header -->
 	<div class="mb-4 flex items-center justify-between">
 		<h2 class="text-xl font-black tracking-tight text-slate-900">Today Activity Logs</h2>
 		<span class="text-sm font-black text-emerald-500">+120</span>
 	</div>
 
+	<!-- Activity Logs Table -->
 	@component('admin.components.table', ['headers' => [
 		'USER',
 		['label' => 'DATE', 'class' => 'text-center'],
@@ -136,146 +85,38 @@
 		['label' => 'STATUS', 'class' => 'text-center'],
 		['label' => 'GENERATE TIME', 'class' => 'text-center'],
 		['label' => 'ACTIONS', 'class' => 'text-center']
-	]])
-		@foreach($activityLogs as $log)
-		<tr class="group transition-colors hover:bg-slate-50" data-ai-bot-row data-status="{{ $log['status'] }}">
-			<td class="whitespace-nowrap px-6 py-5">
-				<div class="flex items-center gap-3">
-					<img src="https://ui-avatars.com/api/?name={{ urlencode($log['user']) }}&background=ececec&color=333333&rounded=true&bold=true" class="h-10 w-10 rounded-full border border-slate-100 object-cover shadow-sm">
-					<span class="text-sm font-bold text-slate-900">{{ $log['user'] }}</span>
+	], 'tbodyId' => 'ai-bots-table-body'])
+		<tr>
+			<td colspan="6" class="px-6 py-12 text-center text-slate-500">
+				<div class="flex items-center justify-center gap-3">
+					<svg class="animate-spin h-5 w-5 text-[#E8820C]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+						<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+						<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+					</svg>
+					<span class="text-sm font-medium text-slate-400">Loading data...</span>
 				</div>
 			</td>
-			<td class="whitespace-nowrap px-6 py-5 text-center">
-				<span class="rounded-md bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-500">{{ $log['date'] }}</span>
-			</td>
-			<td class="px-6 py-5 text-sm font-medium text-slate-500">
-				<span class="line-clamp-1">"{{ $log['prompt'] }}"</span>
-			</td>
-			<td class="whitespace-nowrap px-6 py-5 text-center">
-				@if($log['status'] === 'success')
-					<span class="rounded bg-emerald-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-emerald-600">Success</span>
-				@else
-					<span class="rounded bg-rose-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-rose-600">Failed</span>
-				@endif
-			</td>
-			<td class="whitespace-nowrap px-6 py-5 text-center text-sm font-medium text-slate-500">{{ $log['time'] }}</td>
-			<td class="whitespace-nowrap px-6 py-5 text-center">
-				<button
-					type="button"
-					class="inline-flex items-center justify-center rounded-md p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
-					onclick="openAiBotActionModal({{ $log['id'] }})"
-					aria-label="View Action Details"
-				>
-					<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-						<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-						<path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z"></path>
-					</svg>
-				</button>
-			</td>
 		</tr>
-		@endforeach
+	@endcomponent
+
+	<!-- Pagination -->
+	@component('admin.components.pagination-footer', [
+		'currentPage' => 1,
+		'totalPages' => 1,
+		'previousDisabled' => true,
+		'nextDisabled' => false,
+		'currentPageId' => 'ai-bots-current-page',
+		'totalPagesId' => 'ai-bots-total-pages',
+		'prevButtonId' => 'ai-bots-prev-page',
+		'nextButtonId' => 'ai-bots-next-page',
+		'numbersId' => 'ai-bots-pagination-numbers',
+	])
 	@endcomponent
 </div>
 
 @include('admin.components.ai-bots.modal-action-detail')
 
-<script>
-	const aiBotActivityLogs = @json($activityLogs);
-
-	function showModal(id) {
-		const modal = document.getElementById(id);
-		if (modal) modal.classList.remove('hidden');
-	}
-
-	function hideModal(id) {
-		const modal = document.getElementById(id);
-		if (modal) modal.classList.add('hidden');
-	}
-
-	document.addEventListener('click', (e) => {
-		if (e.target.matches('[data-modal-backdrop]')) {
-			e.target.closest('[data-modal]').classList.add('hidden');
-		}
-
-		if (e.target.closest('[data-modal-close]')) {
-			e.target.closest('[data-modal]').classList.add('hidden');
-		}
-	});
-
-	document.addEventListener('keydown', (e) => {
-		if (e.key === 'Escape') {
-			document.querySelectorAll('[data-modal]:not(.hidden)').forEach((modal) => modal.classList.add('hidden'));
-		}
-	});
-
-	function switchAiBotFilter(filter) {
-		const rows = document.querySelectorAll('[data-ai-bot-row]');
-		const btnAll = document.getElementById('aiBotFilterAll');
-		const btnSuccess = document.getElementById('aiBotFilterSuccess');
-		const btnFailed = document.getElementById('aiBotFilterFailed');
-
-		rows.forEach((row) => {
-			const rowStatus = row.getAttribute('data-status');
-			const isVisible = filter === 'all' || rowStatus === filter;
-			row.classList.toggle('hidden', !isVisible);
-		});
-
-		btnAll.className = filter === 'all'
-			? 'rounded-full bg-[#E8820C] px-8 py-2.5 text-sm font-bold text-white shadow-[0_4px_14px_0_rgba(232,130,12,0.39)] transition-all cursor-pointer'
-			: 'rounded-full border border-slate-200 bg-white px-8 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 cursor-pointer';
-
-		btnSuccess.className = filter === 'success'
-			? 'rounded-full bg-emerald-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all cursor-pointer'
-			: 'rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 cursor-pointer';
-
-		btnFailed.className = filter === 'failed'
-			? 'rounded-full bg-rose-500 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all cursor-pointer'
-			: 'rounded-full border border-slate-200 bg-white px-6 py-2.5 text-sm font-bold text-slate-600 shadow-sm transition-colors hover:bg-slate-50 cursor-pointer';
-	}
-
-	function openAiBotActionModal(logId) {
-		const modal = document.getElementById('aiBotActionModal');
-		const successPanel = modal.querySelector('[data-ai-modal-success]');
-		const failurePanel = modal.querySelector('[data-ai-modal-failure]');
-		const statusIcon = modal.querySelector('[data-ai-modal-status-icon]');
-		const title = modal.querySelector('[data-ai-modal-title]');
-		const requestText = modal.querySelector('[data-ai-modal-request]');
-		const outputImage = modal.querySelector('[data-ai-modal-output-image]');
-		const errorTitle = modal.querySelector('[data-ai-modal-error-title]');
-		const errorDetail = modal.querySelector('[data-ai-modal-error-detail]');
-
-		const log = aiBotActivityLogs.find((item) => item.id === logId);
-		if (!log) return;
-
-		requestText.textContent = `"${log.request || log.prompt}"`;
-
-		if (log.status === 'success') {
-			title.textContent = 'Generation Success Actions';
-			statusIcon.className = 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600';
-			statusIcon.innerHTML = '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>';
-
-			successPanel.classList.remove('hidden');
-			failurePanel.classList.add('hidden');
-
-			outputImage.src = log.outputImage || '';
-			outputImage.alt = `Generated output by ${log.user}`;
-		} else {
-			title.textContent = 'Generation Failure Actions';
-			statusIcon.className = 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-rose-100 text-rose-600';
-			statusIcon.innerHTML = '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>';
-
-			successPanel.classList.add('hidden');
-			failurePanel.classList.remove('hidden');
-
-			errorTitle.textContent = log.errorTitle || '[ERROR] Unknown issue';
-			errorDetail.textContent = log.errorDetail || 'No diagnostic details were returned by the system.';
-		}
-
-		showModal('aiBotActionModal');
-	}
-
-	document.addEventListener('DOMContentLoaded', () => {
-		switchAiBotFilter('all');
-	});
-</script>
+@push('scripts')
+<script src="{{ asset('js/admin/pages/dashboard/ai-bots/index.js') }}?v={{ filemtime(public_path('js/admin/pages/dashboard/ai-bots/index.js')) }}"></script>
+@endpush
 @endsection

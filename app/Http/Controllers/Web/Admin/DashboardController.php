@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\AwardStatus;
+use App\Enums\ProjectStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Models\ArchitectProfile;
+use App\Models\Award;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
@@ -17,7 +19,29 @@ class DashboardController extends Controller
 {
     public function index(): Factory|View
     {
-        return view('admin.pages.dashboard.index');
+        $recentApprovedDesigns = Project::with('architect')
+            ->where('status', ProjectStatus::Approved->value)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        $pendingDesignApplications = Project::with('architect')
+            ->where('status', ProjectStatus::Pending->value)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        $pendingAwardApplications = Award::with('architect')
+            ->where('status', AwardStatus::Pending->value)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('admin.pages.dashboard.index', compact(
+            'recentApprovedDesigns',
+            'pendingDesignApplications',
+            'pendingAwardApplications'
+        ));
     }
 
     public function dashboardStats(): JsonResponse
@@ -54,6 +78,7 @@ class DashboardController extends Controller
             ->all();
 
         $users = User::query()
+            ->where('role', UserRole::User->value)
             ->where('created_at', '>=', $startDate)
             ->get(['created_at']);
 
@@ -106,13 +131,13 @@ class DashboardController extends Controller
             ->mapWithKeys(fn (int $offset): array => [$startDate->copy()->addDays($offset)->toDateString() => 0])
             ->all();
 
-        $architectProfiles = ArchitectProfile::query()
-            ->where('status', 'approved')
+        $architects = User::query()
+            ->where('role', UserRole::Architect->value)
             ->where('created_at', '>=', $startDate)
             ->get(['created_at']);
 
-        foreach ($architectProfiles as $architectProfile) {
-            $createdAt = data_get($architectProfile, 'created_at');
+        foreach ($architects as $architect) {
+            $createdAt = data_get($architect, 'created_at');
 
             if ($createdAt === null) {
                 continue;

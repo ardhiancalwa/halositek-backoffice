@@ -15,7 +15,7 @@ final class UpdateProjectAction
         $project->fill($attributes);
 
         if ($resetStatus) {
-            $project->status = ProjectStatus::Pending->value;
+            $project->status = ProjectStatus::Pending;
         }
 
         $project->save();

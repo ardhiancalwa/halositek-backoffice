@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Web\Admin;
 
+use App\Enums\AwardStatus;
+use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Award\AwardResource;
 use App\Http\Responses\ApiResponse;
@@ -9,6 +11,7 @@ use App\Models\Award;
 use App\Models\Project;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -40,12 +43,32 @@ class ArchitectController extends Controller
                 $query->where('status', $status);
             }
 
+            if ($request->filled('search')) {
+                $search = trim($request->string('search')->toString());
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('architect', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        });
+                });
+            }
+
             $items = $query->paginate($perPage)->withQueryString();
         } else {
             $query = Award::with('architect')->latest();
 
             if ($status && \in_array($status, ['pending', 'approved', 'declined'], true)) {
                 $query->where('status', $status);
+            }
+
+            if ($request->filled('search')) {
+                $search = trim($request->string('search')->toString());
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('architect', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        });
+                });
             }
 
             $items = $query->paginate($perPage)->withQueryString();
@@ -104,5 +127,37 @@ class ArchitectController extends Controller
                 ],
             ],
         ]);
+    }
+
+    public function updateDesignStatus(Request $request, Project $project): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:pending,approved,declined,PENDING,APPROVED,DECLINED'],
+        ]);
+
+        $status = strtolower($validated['status']);
+
+        $project->status = ProjectStatus::from($status);
+        $project->save();
+
+        return redirect()
+            ->route('admin.dashboard.architects.index', ['type' => 'design'])
+            ->with('success', 'Design status updated successfully.');
+    }
+
+    public function updateAwardStatus(Request $request, Award $award): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:pending,approved,declined,PENDING,APPROVED,DECLINED'],
+        ]);
+
+        $status = strtolower($validated['status']);
+
+        $award->status = AwardStatus::from($status);
+        $award->save();
+
+        return redirect()
+            ->route('admin.dashboard.architects.index', ['type' => 'award'])
+            ->with('success', 'Award status updated successfully.');
     }
 }

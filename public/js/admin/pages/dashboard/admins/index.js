@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     let currentPage = 1;
     let selectedStatus = 'all';
-    let searchQuery = '';
     const perPage = 15;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
@@ -18,22 +17,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modalRoot = document.getElementById('user-status-modal');
     const modalCloseButtons = modalRoot?.querySelectorAll('[data-modal-close]');
     const modalOverlay = modalRoot?.querySelector('[data-modal-overlay]');
+    const modalAvatar = document.getElementById('user-status-modal-avatar');
+    const editAdminName = document.getElementById('edit_admin_name');
+    const editAdminPassword = document.getElementById('edit_admin_password');
+    const editAdminEmail = document.getElementById('edit_admin_email');
+    const btnTriggerUpdate = document.getElementById('btn-trigger-update');
+    const confirmUpdateModal = document.getElementById('confirm-update-modal');
+    const btnConfirmUpdate = document.getElementById('btn-confirm-update');
     const statusForm = document.getElementById('user-status-form');
     const statusUserIdInput = document.getElementById('user-status-id');
     const statusSelect = document.getElementById('user-status-select');
-    const statusSubmitButton = document.getElementById('user-status-submit');
     const statusFeedback = document.getElementById('user-status-feedback');
-    const modalAvatar = document.getElementById('user-status-modal-avatar');
-    const modalName = document.getElementById('user-status-modal-name');
-    const modalEmail = document.getElementById('user-status-modal-email');
-    const modalEmailDetail = document.getElementById('user-status-modal-email-detail');
-    const modalMemberSince = document.getElementById('user-status-modal-member-since');
-    const modalStatusDot = document.getElementById('user-status-modal-dot');
-    const searchInput = document.getElementById('global-search-input');
     const usersById = new Map();
     let selectedUser = null;
 
-    if (!tableWrapper || !usersUrl || !userUpdateUrlTemplate || !tableBody || !prevPageBtn || !nextPageBtn || !paginationNumbers || !currentPageSpan || !totalPagesSpan || !modalRoot || !statusForm || !statusUserIdInput || !statusSelect || !statusSubmitButton || !statusFeedback || !modalAvatar || !modalName || !modalEmail || !modalEmailDetail || !modalMemberSince || !modalStatusDot) {
+    if (!tableWrapper || !usersUrl || !userUpdateUrlTemplate || !tableBody || !prevPageBtn || !nextPageBtn || !paginationNumbers || !currentPageSpan || !totalPagesSpan || !modalRoot || !statusForm || !statusUserIdInput || !statusSelect || !statusFeedback || !modalAvatar) {
         return;
     }
 
@@ -96,12 +94,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         statusSelect.value = user.account_status;
         modalAvatar.src = getAvatarUrl(user);
         modalAvatar.alt = user.name;
-        modalName.textContent = user.name;
-        modalEmail.textContent = user.email;
-        modalEmailDetail.textContent = user.email;
-        modalMemberSince.textContent = formatDate(user.member_since || user.created_at);
-        modalStatusDot.classList.toggle('bg-emerald-500', user.account_status === 'active');
-        modalStatusDot.classList.toggle('bg-red-500', user.account_status === 'suspend');
+        
+        editAdminName.value = user.name;
+        editAdminEmail.value = user.email;
+        editAdminPassword.value = ''; // Don't show existing pass
+
         setModalOpen(true);
     }
 
@@ -110,7 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setModalOpen(false);
     }
 
-    async function updateUserStatus(userId, accountStatus) {
+    async function updateUser(userId, data) {
         try {
             const response = await fetch(userUpdateUrlTemplate.replace('__ID__', userId), {
                 method: 'PUT',
@@ -120,9 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     'X-CSRF-TOKEN': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest',
                 },
-                body: JSON.stringify({
-                    account_status: accountStatus,
-                }),
+                body: JSON.stringify(data),
                 credentials: 'same-origin',
             });
 
@@ -131,17 +126,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) {
                 return {
                     success: false,
-                    message: payload?.message || 'Failed to update user status.',
+                    message: payload?.message || 'Failed to update user.',
                 };
             }
 
             return {
                 success: true,
-                message: payload?.message || 'User status updated successfully.',
+                message: payload?.message || 'User updated successfully.',
                 user: payload?.data?.user ?? null,
             };
         } catch (error) {
-            console.error('Error updating user status:', error);
+            console.error('Error updating user:', error);
 
             return {
                 success: false,
@@ -155,10 +150,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (status && status !== 'all') {
             url += `&status=${status}`;
-        }
-
-        if (searchQuery) {
-            url += `&search=${encodeURIComponent(searchQuery)}`;
         }
 
         try {
@@ -207,7 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </td>
                 <td class="px-6 py-4 text-sm text-slate-600">${user.email}</td>
-                <td class="px-6 py-4 text-sm text-slate-600">${formatDate(user.created_at)}</td>
+                <td class="px-6 py-4 text-sm text-slate-600">********</td>
                 <td class="px-6 py-4">
                     ${getStatusBadge(user.account_status)}
                 </td>
@@ -284,19 +275,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    if (searchInput) {
-        let searchTimeout;
-        searchInput.addEventListener('input', (event) => {
-            clearTimeout(searchTimeout);
-            searchQuery = event.target.value.trim();
-            
-            searchTimeout = setTimeout(async () => {
-                currentPage = 1;
-                await loadPage(1);
-            }, 300);
-        });
-    }
-
     prevPageBtn.addEventListener('click', () => {
         if (currentPage > 1) {
             loadPage(currentPage - 1);
@@ -345,33 +323,130 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    statusForm.addEventListener('submit', async (event) => {
+    btnTriggerUpdate.addEventListener('click', (event) => {
         event.preventDefault();
 
         if (!selectedUser) {
             return;
         }
+        
+        if (statusForm.checkValidity()) {
+            setModalOpen(false);
+            confirmUpdateModal.classList.remove('hidden');
+            confirmUpdateModal.classList.add('flex');
+        } else {
+            statusForm.reportValidity();
+        }
+    });
 
-        statusSubmitButton.disabled = true;
-        statusSubmitButton.textContent = 'Updating...';
-        statusFeedback.textContent = '';
-        statusFeedback.className = 'text-sm text-slate-500';
+    btnConfirmUpdate.addEventListener('click', async () => {
+        if (!selectedUser) return;
 
-        const result = await updateUserStatus(selectedUser.id, statusSelect.value);
+        btnConfirmUpdate.disabled = true;
+        btnConfirmUpdate.textContent = 'Updating...';
 
-        statusSubmitButton.disabled = false;
-        statusSubmitButton.textContent = 'Update Status';
+        const dataToUpdate = {
+            name: editAdminName.value,
+            email: editAdminEmail.value,
+            account_status: statusSelect.value,
+        };
+
+        if (editAdminPassword.value.trim() !== '') {
+            dataToUpdate.password = editAdminPassword.value;
+        }
+
+        const result = await updateUser(selectedUser.id, dataToUpdate);
+
+        btnConfirmUpdate.disabled = false;
+        btnConfirmUpdate.textContent = 'Save Changes';
+
+        confirmUpdateModal.classList.add('hidden');
+        confirmUpdateModal.classList.remove('flex');
 
         if (!result.success) {
-            statusFeedback.textContent = result.message;
-            statusFeedback.className = 'text-sm text-red-500';
+            alert(result.message);
+            setModalOpen(true);
             return;
         }
 
-        statusFeedback.textContent = result.message;
-        statusFeedback.className = 'text-sm text-emerald-600';
         closeStatusModal();
         await loadPage(currentPage);
+    });
+
+    // Add Admin Functionality
+    const addAdminBtn = document.getElementById('add-admin-btn');
+    const addAdminModal = document.getElementById('add-admin-modal');
+    const addAdminForm = document.getElementById('add-admin-form');
+    const btnProvisionAdmin = document.getElementById('btn-provision-admin');
+    const confirmAdminModal = document.getElementById('confirm-admin-modal');
+    const btnConfirmAdd = document.getElementById('btn-confirm-add');
+
+    // Close functionality for the Add Admin Modal
+    const closeAddAdminModal = () => {
+        addAdminModal.classList.add('hidden');
+        addAdminModal.classList.remove('flex');
+        addAdminForm.reset();
+    };
+
+    addAdminModal.querySelectorAll('[data-modal-close]').forEach(btn => {
+        btn.addEventListener('click', closeAddAdminModal);
+    });
+
+    addAdminBtn.addEventListener('click', () => {
+        addAdminModal.classList.remove('hidden');
+        addAdminModal.classList.add('flex');
+    });
+
+    btnProvisionAdmin.addEventListener('click', () => {
+        if (addAdminForm.checkValidity()) {
+            addAdminModal.classList.add('hidden');
+            addAdminModal.classList.remove('flex');
+            confirmAdminModal.classList.remove('hidden');
+            confirmAdminModal.classList.add('flex');
+        } else {
+            addAdminForm.reportValidity();
+        }
+    });
+
+    btnConfirmAdd.addEventListener('click', async () => {
+        const btn = btnConfirmAdd;
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Provising...';
+
+        const formData = new FormData(addAdminForm);
+        const url = `${usersUrl.split('?')[0].replace('/data', '')}`; 
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                },
+                body: JSON.stringify(Object.fromEntries(formData.entries()))
+            });
+
+            if (response.ok) {
+                confirmAdminModal.classList.add('hidden');
+                confirmAdminModal.classList.remove('flex');
+                closeAddAdminModal();
+                await loadPage(currentPage);
+                // Also update stats if they exist, reload the page to refresh stats easily
+                window.location.reload(); 
+            } else {
+                const err = await response.json();
+                alert(err.message || 'Failed to add admin');
+            }
+        } catch (e) {
+            alert('Failed to connect to server');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = originalText;
+            confirmAdminModal.classList.add('hidden');
+            confirmAdminModal.classList.remove('flex');
+        }
     });
 
     await loadPage(1);

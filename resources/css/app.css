@@ -635,4 +635,30 @@
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
     }
+
+    .skeleton-pulse {
+        position: relative;
+        overflow: hidden;
+        background-color: rgb(226 232 240);
+    }
+
+    .skeleton-pulse::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgb(241 245 249 / 0.6) 40%,
+            rgb(241 245 249 / 0.8) 50%,
+            rgb(241 245 249 / 0.6) 60%,
+            transparent 100%
+        );
+        animation: skeleton-shimmer 1.8s ease-in-out infinite;
+    }
+
+    @keyframes skeleton-shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
 }

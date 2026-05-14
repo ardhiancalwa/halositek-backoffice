@@ -39,6 +39,11 @@
     $styleLabel = filled($styleValue) ? ucfirst((string) $styleValue) : 'Not set';
     $architect = $project->architect;
     $architectName = $architect?->name ?: 'Unassigned architect';
+    $architectPhoto = $architect?->photo_profile
+        ? (str_starts_with($architect->photo_profile, 'http://') || str_starts_with($architect->photo_profile, 'https://')
+            ? $architect->photo_profile
+            : Storage::url($architect->photo_profile))
+        : null;
     $architectInitials = collect(explode(' ', trim($architectName)))
         ->filter()
         ->take(2)
@@ -99,8 +104,16 @@
                     <div class="mt-4">
                         <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">Architect</p>
                         <div class="mt-2 flex items-center gap-3">
-                            <div class="flex h-8 w-8 items-center justify-center rounded bg-orange-100 text-xs font-bold text-[#E8820C]">
-                                {{ $architectInitials ?: 'NA' }}
+                            <div class="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-orange-100 text-xs font-bold text-[#E8820C]">
+                                @if ($architectPhoto)
+                                    <img
+                                        src="{{ $architectPhoto }}"
+                                        alt="{{ $architectName }}"
+                                        class="h-full w-full object-cover"
+                                    >
+                                @else
+                                    {{ $architectInitials ?: 'NA' }}
+                                @endif
                             </div>
                             <p class="text-sm font-semibold text-slate-900">{{ $architectName }}</p>
                         </div>

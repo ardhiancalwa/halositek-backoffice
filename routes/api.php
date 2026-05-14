@@ -107,6 +107,7 @@ Route::prefix('v1')->group(function () {
     // Public routes (down here to avoid intercepting wishlist if grouped)
     // Actually wishlist is above, so we are safe.
     Route::get('/architects', [ArchitectController::class, 'index']);
+    Route::get('/architects/{id}', [ArchitectController::class, 'show']);
 
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::get('/projects/{id}', [ProjectController::class, 'show']);

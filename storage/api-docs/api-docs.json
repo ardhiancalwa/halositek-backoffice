@@ -3501,6 +3501,56 @@
                 ]
             }
         },
+        "/architects/{id}": {
+            "get": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "Get architect details",
+                "description": "Returns detailed information about a specific architect.",
+                "operationId": "4042d88e74afc260c66c5dd582015cae",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Architect details retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Data arsitek berhasil diambil.",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                        "name": "Architect User",
+                                        "email": "architect@halositek.com",
+                                        "headline": "Residential Specialist",
+                                        "total_projects": 5,
+                                        "total_awards": 2
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": []
+            }
+        },
         "/architects/{userId}/save": {
             "post": {
                 "tags": [

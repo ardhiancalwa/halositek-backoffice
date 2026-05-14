@@ -145,6 +145,48 @@ class ArchitectController extends Controller
     }
 
     /**
+     * @OA\Get(
+     *   path="/architects/{id}",
+     *   tags={"Architects"},
+     *   security={},
+     *   summary="Get architect details",
+     *   description="Returns detailed information about a specific architect.",
+     *
+     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(response=200, description="Architect details retrieved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Data arsitek berhasil diambil.", "data": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "name": "Architect User", "email": "architect@halositek.com", "headline": "Residential Specialist", "total_projects": 5, "total_awards": 2}})
+     * ),
+     *
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function show(string $id): JsonResponse
+    {
+        $architect = User::query()
+            ->where('id', $id)
+            ->where('role', UserRole::Architect->value)
+            ->whereHas('architectProfile', function ($query): void {
+                $query->where('status', 'approved');
+            })
+            ->with('architectProfile')
+            ->first();
+
+        if (! $architect) {
+            return ApiResponse::notFound('Arsitek tidak ditemukan.');
+        }
+
+        $this->attachPortfolioTotals(collect([$architect]));
+
+        return ApiResponse::success(
+            (new ArchitectProfileResource($architect))->resolve(),
+            'Data arsitek berhasil diambil.'
+        );
+    }
+
+    /**
      * @OA\Post(
      *   path="/architects/{userId}/save",
      *   tags={"Architects"},

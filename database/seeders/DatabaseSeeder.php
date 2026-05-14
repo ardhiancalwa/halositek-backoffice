@@ -18,6 +18,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::query()->firstOrCreate(
+            ['email' => env('SEED_SUPER_ADMIN_EMAIL', 'superadmin@halositek.com')],
+            [
+                'name' => env('SEED_SUPER_ADMIN_NAME', 'Super Admin User'),
+                'password' => Hash::make(env('SEED_SUPER_ADMIN_PASSWORD', 'Password123!')),
+                'role' => UserRole::SuperAdmin->value,
+            ]
+        );
+
+        User::query()->firstOrCreate(
             ['email' => env('SEED_ADMIN_EMAIL', 'admin@halositek.com')],
             [
                 'name' => env('SEED_ADMIN_NAME', 'Admin User'),

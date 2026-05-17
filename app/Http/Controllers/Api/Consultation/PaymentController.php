@@ -358,31 +358,29 @@ class PaymentController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
-        $payments->setCollection(
-            $payments->getCollection()->map(function (Payment $payment): array {
-                return [
-                    'id' => (string) $payment->getKey(),
-                    'order_id' => (string) $payment->order_id,
-                    'status' => (string) $payment->status,
-                    'refund_status' => (string) ($payment->refund_status ?? 'none'),
-                    'amount' => (int) $payment->amount,
-                    'tax_amount' => (int) ($payment->user_tax_amount ?? round(((int) $payment->amount) * self::USER_CONSULTATION_TAX_PERCENT / 100)),
-                    'total_paid_amount' => (int) ($payment->total_paid_amount ?? ((int) $payment->amount + (int) ($payment->user_tax_amount ?? round(((int) $payment->amount) * self::USER_CONSULTATION_TAX_PERCENT / 100)))),
-                    'duration_hours' => (int) $payment->duration_hours,
-                    'payment_method' => $payment->payment_method,
-                    'paid_at' => $payment->paid_at?->toIso8601String(),
-                    'created_at' => $payment->created_at?->toIso8601String(),
-                    'consultation_id' => $payment->consultation_id,
-                    'conversation_id' => $payment->conversation_id,
-                    'architect' => [
-                        'id' => (string) ($payment->architect?->getKey() ?? ''),
-                        'name' => (string) ($payment->architect?->name ?? ''),
-                        'photo_profile_url' => $payment->architect?->photo_profile_url,
-                    ],
-                ];
-            })
-        );
+        $items = $payments->getCollection()->map(function (Payment $payment): array {
+            return [
+                'id' => (string) $payment->getKey(),
+                'order_id' => (string) $payment->order_id,
+                'status' => (string) $payment->status,
+                'refund_status' => (string) ($payment->refund_status ?? 'none'),
+                'amount' => (int) $payment->amount,
+                'tax_amount' => (int) ($payment->user_tax_amount ?? round(((int) $payment->amount) * self::USER_CONSULTATION_TAX_PERCENT / 100)),
+                'total_paid_amount' => (int) ($payment->total_paid_amount ?? ((int) $payment->amount + (int) ($payment->user_tax_amount ?? round(((int) $payment->amount) * self::USER_CONSULTATION_TAX_PERCENT / 100)))),
+                'duration_hours' => (int) $payment->duration_hours,
+                'payment_method' => $payment->payment_method,
+                'paid_at' => $payment->paid_at?->toIso8601String(),
+                'created_at' => $payment->created_at?->toIso8601String(),
+                'consultation_id' => $payment->consultation_id,
+                'conversation_id' => $payment->conversation_id,
+                'architect' => [
+                    'id' => (string) ($payment->architect?->getKey() ?? ''),
+                    'name' => (string) ($payment->architect->name ?? ''),
+                    'photo_profile_url' => $payment->architect?->photo_profile_url,
+                ],
+            ];
+        })->all();
 
-        return ApiResponse::paginated($payments, 'Riwayat pembayaran berhasil diambil.');
+        return ApiResponse::paginatedItems($items, $payments, 'Riwayat pembayaran berhasil diambil.');
     }
 }

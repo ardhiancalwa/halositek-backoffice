@@ -26,6 +26,7 @@ use MongoDB\Laravel\Eloquent\Model;
  * @property int $total_paid_amount
  * @property int $duration_hours
  * @property string $status
+ * @property string|null $refund_status
  * @property string|null $payment_method
  * @property array<string, mixed>|null $midtrans_response
  * @property Carbon|null $paid_at

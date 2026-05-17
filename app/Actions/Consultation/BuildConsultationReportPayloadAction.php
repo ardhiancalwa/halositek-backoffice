@@ -66,7 +66,7 @@ final class BuildConsultationReportPayloadAction
     {
         return [
             'id' => $requester ? (string) $requester->getKey() : '',
-            'name' => $requester?->name ?? '',
+            'name' => $requester->name ?? '',
             'role' => $role,
             'photo_profile' => $requester?->photo_profile,
             'photo_profile_url' => $requester && $requester->photo_profile
@@ -82,7 +82,7 @@ final class BuildConsultationReportPayloadAction
     {
         return [
             'id' => $opposing ? (string) $opposing->getKey() : '',
-            'name' => $opposing?->name ?? '',
+            'name' => $opposing->name ?? '',
             'photo_profile' => $opposing?->photo_profile,
             'photo_profile_url' => $opposing && $opposing->photo_profile
                 ? Storage::url((string) $opposing->photo_profile)

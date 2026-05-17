@@ -35,7 +35,7 @@ class ProcessConsultationRefundJob implements ShouldQueue
     /**
      * The number of seconds to wait before retrying the job.
      *
-     * @var int
+     * @var array<int>
      */
     public $backoff = [300, 600, 1200, 2400]; // 5m, 10m, 20m, 40m
 

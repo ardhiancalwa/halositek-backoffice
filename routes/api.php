@@ -127,8 +127,6 @@ Route::prefix('v1')->group(function () {
         Route::put('/admins/{id}', [AdminController::class, 'update']);
         Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
     });
-
-    // Public routes (down here to avoid intercepting wishlist if grouped)
     // Actually wishlist is above, so we are safe.
     Route::get('/architects', [ArchitectController::class, 'index']);
     Route::get('/architects/{id}', [ArchitectController::class, 'show']);

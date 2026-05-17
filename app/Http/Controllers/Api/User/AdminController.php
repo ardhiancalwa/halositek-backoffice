@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\User;
 
 use App\Actions\User\CreateUserAction;
 use App\DTOs\User\CreateUserDTO;
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\User\StoreAdminRequest;
 use App\Http\Requests\Api\User\UpdateAdminRequest;
@@ -25,7 +24,7 @@ class AdminController extends Controller
      *   tags={"Admin Management"},
      *   security={{"BearerAuth":{}}},
      *   summary="List all admins",
-     *   description="Returns a paginated list of admin users (super admin only).",
+     *   description="Returns a paginated list of admin and super admin users (super admin only).",
      *
      *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
      *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
@@ -48,8 +47,7 @@ class AdminController extends Controller
         }
 
         $query = User::query()
-            ->whereIn('role', [UserRole::Admin->value, UserRole::SuperAdmin->value])
-            ->whereNotNull('role')
+            ->whereIn('role', ['admin', 'super_admin'])
             ->latest();
 
         if ($request->filled('search')) {
@@ -76,7 +74,7 @@ class AdminController extends Controller
      *   tags={"Admin Management"},
      *   security={{"BearerAuth":{}}},
      *   summary="Create admin",
-     *   description="Creates a new admin user (super admin only).",
+     *   description="Creates a new admin or super admin user (super admin only).",
      *
      *   @OA\RequestBody(
      *     required=true,
@@ -86,11 +84,12 @@ class AdminController extends Controller
      *
      *       @OA\Schema(
      *         type="object",
-     *         required={"name","email","password"},
+     *         required={"name","email","password","role"},
      *
      *         @OA\Property(property="name", type="string", example="New Admin"),
      *         @OA\Property(property="email", type="string", format="email", example="admin@halositek.com"),
      *         @OA\Property(property="password", type="string", format="password", example="password123"),
+     *         @OA\Property(property="role", type="string", enum={"admin","super_admin"}, example="admin"),
      *         @OA\Property(property="photo_profile", type="string", format="binary")
      *       )
      *     )
@@ -119,11 +118,7 @@ class AdminController extends Controller
             $photoProfilePath = $request->file('photo_profile')->store('users/profiles', 'public');
         }
 
-        $validated = $request->validated();
-        $validated['role'] = UserRole::Admin->value;
-        $validated['photo_profile'] = $photoProfilePath;
-
-        $dto = CreateUserDTO::fromArray($validated);
+        $dto = CreateUserDTO::fromRequest($request, $photoProfilePath);
         $admin = $action->execute($dto);
 
         return ApiResponse::created([
@@ -154,15 +149,15 @@ class AdminController extends Controller
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
-    public function show(Request $request, string $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
-        $user = $request->user();
+        $user = auth()->user();
         if (! $user || ! $user->isSuperAdmin()) {
             return ApiResponse::forbidden('Only super admin can access admin management.');
         }
 
         $admin = User::query()
-            ->whereIn('role', [UserRole::Admin->value, UserRole::SuperAdmin->value])
+            ->whereIn('role', ['admin', 'super_admin'])
             ->findOrFail($id);
 
         return ApiResponse::success([
@@ -178,7 +173,7 @@ class AdminController extends Controller
      *   tags={"Admin Management"},
      *   security={{"BearerAuth":{}}},
      *   summary="Update admin",
-     *   description="Updates an admin user's account status (super admin only).",
+     *   description="Updates an admin user's role or account status (super admin only).",
      *
      *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
      *
@@ -187,6 +182,7 @@ class AdminController extends Controller
      *
      *     @OA\JsonContent(
      *
+     *       @OA\Property(property="role", type="string", enum={"admin","super_admin"}, example="admin"),
      *       @OA\Property(property="account_status", type="string", enum={"active","suspend"}, example="active")
      *     )
      *   ),
@@ -211,10 +207,18 @@ class AdminController extends Controller
         }
 
         $admin = User::query()
-            ->whereIn('role', [UserRole::Admin->value, UserRole::SuperAdmin->value])
+            ->whereIn('role', ['admin', 'super_admin'])
             ->findOrFail($id);
 
+        if ($user->id === $admin->id && $request->filled('role')) {
+            return ApiResponse::forbidden('You cannot change your own role.');
+        }
+
         $validated = $request->validated();
+
+        if (isset($validated['role'])) {
+            $admin->role = $validated['role'];
+        }
 
         if (isset($validated['account_status'])) {
             $admin->account_status = $validated['account_status'];
@@ -250,20 +254,20 @@ class AdminController extends Controller
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
-    public function destroy(Request $request, string $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
-        $user = $request->user();
+        $user = auth()->user();
         if (! $user || ! $user->isSuperAdmin()) {
             return ApiResponse::forbidden('Only super admin can delete admin users.');
         }
 
-        if ($user->id === $id) {
+        $admin = User::query()
+            ->whereIn('role', ['admin', 'super_admin'])
+            ->findOrFail($id);
+
+        if ($user->id === $admin->id) {
             return ApiResponse::forbidden('You cannot delete your own admin account.');
         }
-
-        $admin = User::query()
-            ->whereIn('role', [UserRole::Admin->value, UserRole::SuperAdmin->value])
-            ->findOrFail($id);
 
         $admin->delete();
 

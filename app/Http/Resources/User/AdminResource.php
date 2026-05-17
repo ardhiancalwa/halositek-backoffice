@@ -2,13 +2,9 @@
 
 namespace App\Http\Resources\User;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @mixin User
- */
 class AdminResource extends JsonResource
 {
     /**
@@ -23,7 +19,7 @@ class AdminResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role->value,
-            'account_status' => $this->account_status?->value,
+            'account_status' => $this->account_status->value,
             'photo_profile' => $this->photo_profile,
             'photo_profile_url' => $this->photo_profile_url,
             'created_at' => $this->created_at,

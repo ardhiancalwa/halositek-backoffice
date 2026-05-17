@@ -2,8 +2,13 @@
 
 namespace App\Http\Resources\Consultation;
 
+use App\Enums\UserRole;
+use App\Http\Resources\User\ArchitectProfileResource;
+use App\Http\Resources\User\UserResource;
 use App\Models\Consultation;
 use App\Models\Conversation;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -42,17 +47,71 @@ class ConversationResource extends JsonResource
             ];
         }
 
+        $participants = $conversation->relationLoaded('participants')
+            ? $conversation->participants
+            : User::query()
+                ->whereIn('id', $participantIds)
+                ->with('architectProfile')
+                ->get();
+
+        $userParticipant = $participants->first(fn ($u) => $u->role === UserRole::User) ?? $participants->first(fn ($u) => $u->role !== UserRole::Architect);
+        $architectParticipant = $participants->first(fn ($u) => $u->role === UserRole::Architect);
+
+        $lastChatTime = $conversation->relationLoaded('lastMessage') && $conversation->lastMessage !== null
+            ? $conversation->lastMessage->created_at
+            : $conversation->updated_at;
+
+        $lastChatFormatted = $this->formatLastChatTime($lastChatTime);
+
         return [
             'id' => (string) $conversation->getKey(),
             'name' => $conversation->name,
             'is_group' => (bool) $conversation->is_group,
             'participant_ids' => $participantIds,
+            'user' => $userParticipant ? new UserResource($userParticipant) : null,
+            'architect' => $architectParticipant ? new ArchitectProfileResource($architectParticipant) : null,
             'last_read_at' => $lastReadAt[$authUserId] ?? null,
             'consultation_id' => $conversation->consultation_id,
             'consultation_session' => $consultationSession,
             'can_send_message' => $consultationSession === null ? true : (bool) $consultationSession['is_active'],
+            'last_chat_formatted' => $lastChatFormatted,
             'created_at' => $conversation->created_at?->toIso8601String(),
             'updated_at' => $conversation->updated_at?->toIso8601String(),
         ];
+    }
+
+    private function formatLastChatTime(?Carbon $dateTime): ?string
+    {
+        if (! $dateTime) {
+            return null;
+        }
+
+        $now = now();
+        $diffInHours = $dateTime->diffInHours($now);
+
+        if ($diffInHours < 24) {
+            return $dateTime->format('H:i');
+        }
+
+        if ($dateTime->isYesterday()) {
+            return 'Kemarin';
+        }
+
+        $diffInDays = $dateTime->diffInDays($now);
+        if ($diffInDays < 7) {
+            $days = [
+                0 => 'Minggu',
+                1 => 'Senin',
+                2 => 'Selasa',
+                3 => 'Rabu',
+                4 => 'Kamis',
+                5 => 'Jumat',
+                6 => 'Sabtu',
+            ];
+
+            return $days[$dateTime->dayOfWeek];
+        }
+
+        return $dateTime->format('d/m/Y');
     }
 }

@@ -1397,6 +1397,78 @@ paths:
       security:
         -
           BearerAuth: []
+  '/consultations/reports/users/{userId}':
+    get:
+      tags:
+        - 'Consultation Report'
+      summary: 'List reports by user or architect ID'
+      description: 'Mengambil semua laporan (report) yang melibatkan user ID tertentu (sebagai pelapor atau terlapor).'
+      operationId: 22fe901fa507e53c9ffe47bb43ab578e
+      parameters:
+        -
+          name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        -
+          name: search
+          in: query
+          description: 'Cari berdasarkan nama pelapor atau terlapor'
+          required: false
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 50
+            minimum: 1
+      responses:
+        200:
+          description: 'Daftar report berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Daftar report berhasil diambil.'
+                data:
+                  -
+                    id: 01J3REPORT0001
+                    requester:
+                      id: 01J3USER001
+                      name: 'Ayu Pratama'
+                      role: user
+                      photo_profile: users/profiles/ayu.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                    reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                    consultation_date: '2026-04-27T10:30:00+00:00'
+                    opposing_party:
+                      id: 01J3ARCH001
+                      name: 'Dimas Arsitek'
+                      photo_profile: users/profiles/dimas.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                    nominal: 300000
+                    transcript: 'Riwayat chat konsultasi...'
+                    action_report: new
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        -
+          BearerAuth: []
   /chat/conversations:
     get:
       tags:
@@ -1414,6 +1486,13 @@ paths:
             example: 15
             maximum: 50
             minimum: 1
+        -
+          name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            example: Ardhian
       responses:
         200:
           description: 'Daftar percakapan berhasil diambil'
@@ -1645,11 +1724,10 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               required:
                 - conversation_id
-                - body
               properties:
                 conversation_id:
                   type: string
@@ -1657,9 +1735,10 @@ paths:
                 body:
                   type: string
                   example: 'Halo, kabar kamu gimana?'
+                  nullable: true
                 attachment:
                   type: string
-                  example: null
+                  format: binary
                   nullable: true
               type: object
       responses:
@@ -1862,18 +1941,10 @@ paths:
             schema:
               required:
                 - architect_id
-                - duration_hours
-                - amount
               properties:
                 architect_id:
                   type: string
                   example: 01J3ARCHITECT001
-                duration_hours:
-                  type: integer
-                  example: 2
-                amount:
-                  type: integer
-                  example: 150000
               type: object
       responses:
         201:
@@ -2796,12 +2867,116 @@ paths:
       security:
         -
           BearerAuth: []
+  '/projects/{id}/save':
+    post:
+      tags:
+        - Projects
+      summary: 'Save project to wishlist'
+      description: "Saves a specific project to the authenticated user's saved list."
+      operationId: 621b00f34b06749f7acb1577822dd642
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Project saved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Project saved successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          $ref: '#/components/responses/ConflictError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - Projects
+      summary: 'Remove project from saved list'
+      description: "Removes a specific project from the authenticated user's saved list."
+      operationId: 829602c0613b2403f6cf5c98a1f36634
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Project removed from saved list successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Project removed from saved list successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /projects/saved:
+    get:
+      tags:
+        - Projects
+      summary: 'List saved projects'
+      description: "Returns the authenticated user's saved project list."
+      operationId: 49e53bf6fac19e7fcf5acf908180c663
+      responses:
+        200:
+          description: 'Saved projects retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Saved projects retrieved successfully'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    name: 'Modern House'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 12
+                  total: 1
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   /admins:
     get:
       tags:
         - 'Admin Management'
       summary: 'List all admins'
-      description: 'Returns a paginated list of admin users (super admin only).'
+      description: 'Returns a paginated list of admin and super admin users (super admin only).'
       operationId: aeda23328789bb4eec2af32ea983882a
       parameters:
         -
@@ -2860,7 +3035,7 @@ paths:
       tags:
         - 'Admin Management'
       summary: 'Create admin'
-      description: 'Creates a new admin user (super admin only).'
+      description: 'Creates a new admin or super admin user (super admin only).'
       operationId: 10096a41e044e3c2b354786486cd81c7
       requestBody:
         required: true
@@ -2871,6 +3046,7 @@ paths:
                 - name
                 - email
                 - password
+                - role
               properties:
                 name:
                   type: string
@@ -2883,6 +3059,12 @@ paths:
                   type: string
                   format: password
                   example: password123
+                role:
+                  type: string
+                  example: admin
+                  enum:
+                    - admin
+                    - super_admin
                 photo_profile:
                   type: string
                   format: binary
@@ -2961,7 +3143,7 @@ paths:
       tags:
         - 'Admin Management'
       summary: 'Update admin'
-      description: "Updates an admin user's account status (super admin only)."
+      description: "Updates an admin user's role or account status (super admin only)."
       operationId: 02618f9c2624f8c00a2d7bd678cc0f89
       parameters:
         -
@@ -2976,6 +3158,12 @@ paths:
           application/json:
             schema:
               properties:
+                role:
+                  type: string
+                  example: admin
+                  enum:
+                    - admin
+                    - super_admin
                 account_status:
                   type: string
                   example: active
@@ -3230,6 +3418,52 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         500:
           $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /architects/earnings:
+    get:
+      tags:
+        - Architects
+      summary: 'Get architect earnings per release payment'
+      description: 'Returns a paginated list of released payout payments (earnings) for the authenticated architect.'
+      operationId: 1f07774663b8a8755da16b48fbfb907f
+      parameters:
+        -
+          name: per_page
+          in: query
+          schema:
+            type: integer
+        -
+          name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Earnings retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Data earnings berhasil diambil.'
+                data:
+                  total_gross_earnings: 1000000
+                  total_tax_paid: 100000
+                  total_net_earnings: 900000
+                  earnings:
+                    -
+                      consultation_id: 01J3CONS001
+                      gross_fee: 500000
+                      tax_deduction: 50000
+                      net_earning: 450000
+                      released_at: '2026-04-27T12:00:00Z'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
       security:
         -
           BearerAuth: []

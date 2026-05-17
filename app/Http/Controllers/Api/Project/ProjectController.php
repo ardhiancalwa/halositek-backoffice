@@ -6,6 +6,7 @@ use App\Actions\Project\CreateProjectAction;
 use App\Actions\Project\UpdateProjectAction;
 use App\DTOs\Project\CreateProjectDTO;
 use App\DTOs\Project\UpdateProjectDTO;
+use App\Enums\ApiStatus;
 use App\Enums\ProjectStyle;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Project\StoreProjectRequest;
@@ -13,6 +14,7 @@ use App\Http\Requests\Api\Project\UpdateProjectRequest;
 use App\Http\Resources\Project\ProjectResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\Project;
+use App\Models\SavedProject;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -482,5 +484,149 @@ class ProjectController extends Controller
             'liked' => false,
             'like_count' => (int) $project->likes_count,
         ], 'Project unliked successfully.');
+    }
+
+    /**
+     * @OA\Post(
+     *   path="/projects/{id}/save",
+     *   tags={"Projects"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Save project to wishlist",
+     *   description="Saves a specific project to the authenticated user's saved list.",
+     *
+     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(response=200, description="Project saved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Project saved successfully", "data": null})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=409, ref="#/components/responses/ConflictError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function save(string $id): JsonResponse
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return ApiResponse::unauthorized();
+        }
+
+        $project = Project::find($id);
+
+        if (! $project) {
+            return ApiResponse::notFound('Project tidak ditemukan.');
+        }
+
+        $exists = SavedProject::query()
+            ->where('user_id', (string) $user->id)
+            ->where('project_id', $project->id)
+            ->exists();
+
+        if ($exists) {
+            return ApiResponse::error('Project sudah tersimpan.', ApiStatus::CONFLICT);
+        }
+
+        SavedProject::create([
+            'user_id' => (string) $user->id,
+            'project_id' => $project->id,
+        ]);
+
+        return ApiResponse::success(message: 'Project berhasil disimpan.');
+    }
+
+    /**
+     * @OA\Delete(
+     *   path="/projects/{id}/save",
+     *   tags={"Projects"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Remove project from saved list",
+     *   description="Removes a specific project from the authenticated user's saved list.",
+     *
+     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(response=200, description="Project removed from saved list successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Project removed from saved list successfully", "data": null})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function unsave(string $id): JsonResponse
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            return ApiResponse::unauthorized();
+        }
+
+        $savedProject = SavedProject::query()
+            ->where('user_id', (string) $user->id)
+            ->where('project_id', $id)
+            ->first();
+
+        if (! $savedProject) {
+            return ApiResponse::notFound('Project tidak ditemukan di daftar simpan.');
+        }
+
+        $savedProject->delete();
+
+        return ApiResponse::success(message: 'Project berhasil dihapus dari daftar simpan.');
+    }
+
+    /**
+     * @OA\Get(
+     *   path="/projects/saved",
+     *   tags={"Projects"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="List saved projects",
+     *   description="Returns the authenticated user's saved project list.",
+     *
+     *   @OA\Response(response=200, description="Saved projects retrieved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Saved projects retrieved successfully", "data": {{"id": "01HZX9M1F45M2Z6K7T9K7Y8QRP", "name": "Modern House"}}, "meta": {"current_page": 1, "last_page": 1, "per_page": 12, "total": 1}})
+     * ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function savedList(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $perPage = min(50, (int) $request->input('per_page', 12));
+
+        $saved = SavedProject::query()
+            ->where('user_id', (string) $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        $projectIds = collect($saved->items())
+            ->pluck('project_id')
+            ->values();
+
+        $projectsById = Project::query()
+            ->whereIn('id', $projectIds)
+            ->with('architect')
+            ->get()
+            ->keyBy('id');
+
+        $orderedProjects = $projectIds
+            ->map(fn (string $id) => $projectsById->get($id))
+            ->filter()
+            ->values();
+
+        $saved->setCollection(
+            ProjectResource::collection($orderedProjects)->collection
+        );
+
+        return ApiResponse::paginated($saved, 'Daftar project yang disimpan berhasil diambil.');
     }
 }

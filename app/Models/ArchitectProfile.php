@@ -17,6 +17,8 @@ use MongoDB\Laravel\Eloquent\Model;
  * @property string|null $location
  * @property string|null $specialization
  * @property float|null $rating
+ * @property int|null $consultation_fee
+ * @property int|null $consultation_duration
  */
 class ArchitectProfile extends Model
 {
@@ -39,6 +41,8 @@ class ArchitectProfile extends Model
         'location',
         'specialization',
         'rating',
+        'consultation_fee',
+        'consultation_duration',
     ];
 
     /**
@@ -51,6 +55,8 @@ class ArchitectProfile extends Model
         return [
             'status' => 'string',
             'rating' => 'float',
+            'consultation_fee' => 'integer',
+            'consultation_duration' => 'integer',
         ];
     }
 

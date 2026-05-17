@@ -1,16 +1,5 @@
 parameters:
 	ignoreErrors:
-		-
-			message: '#^Call to an undefined method Illuminate\\Http\\Request\:\:validated\(\)\.$#'
-			identifier: method.notFound
-			count: 4
-			path: app/DTOs/Auth/RegisterUserDTO.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Http\\Request\:\:validated\(\)\.$#'
-			identifier: method.notFound
-			count: 5
-			path: app/DTOs/User/CreateUserDTO.php
 
 		-
 			message: '#^Method App\\DTOs\\User\\CreateUserDTO\:\:fromArray\(\) has parameter \$data with no value type specified in iterable type array\.$#'

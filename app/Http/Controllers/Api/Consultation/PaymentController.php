@@ -8,6 +8,7 @@ use App\Enums\ApiStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Consultation\InitiateConsultationPaymentRequest;
 use App\Http\Responses\ApiResponse;
+use App\Models\ArchitectProfile;
 use App\Models\Consultation;
 use App\Models\Payment;
 use App\Models\User;
@@ -36,11 +37,9 @@ class PaymentController extends Controller
      *     required=true,
      *
      *     @OA\JsonContent(
-     *       required={"architect_id","duration_hours","amount"},
+     *       required={"architect_id"},
      *
-     *       @OA\Property(property="architect_id", type="string", example="01J3ARCHITECT001"),
-     *       @OA\Property(property="duration_hours", type="integer", example=2),
-     *       @OA\Property(property="amount", type="integer", example=150000)
+     *       @OA\Property(property="architect_id", type="string", example="01J3ARCHITECT001")
      *     )
      *   ),
      *
@@ -107,8 +106,20 @@ class PaymentController extends Controller
             ]);
         }
 
-        $durationHours = (int) $request->validated('duration_hours');
-        $consultationAmount = (int) $request->validated('amount');
+        $architectProfile = $architect->architectProfile;
+        $durationHours = $architectProfile instanceof ArchitectProfile
+            ? (int) ($architectProfile->consultation_duration ?? 0)
+            : 0;
+        $consultationAmount = $architectProfile instanceof ArchitectProfile
+            ? (int) ($architectProfile->consultation_fee ?? 0)
+            : 0;
+
+        if ($durationHours <= 0 || $consultationAmount <= 0) {
+            return ApiResponse::validationError([
+                'architect_id' => ['Arsitek yang dipilih belum mengatur biaya atau durasi konsultasi yang valid.'],
+            ]);
+        }
+
         $taxAmount = (int) round($consultationAmount * self::USER_CONSULTATION_TAX_PERCENT / 100);
         $totalPaidAmount = $consultationAmount + $taxAmount;
         $orderId = sprintf('CONS-%s-%s', now()->format('YmdHis'), Str::upper(Str::random(8)));

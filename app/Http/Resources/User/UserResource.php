@@ -27,6 +27,7 @@ class UserResource extends JsonResource
             'photo_profile_url' => $user->photo_profile ? Storage::url($user->photo_profile) : null,
             'role' => $user->role,
             'account_status' => $user->account_status,
+            'headline' => $user->isArchitect() ? ($user->architectProfile->headline ?? null) : null,
             'member_since' => $user->created_at?->toIso8601String(),
             'created_at' => $user->created_at?->toIso8601String(),
             'updated_at' => $user->updated_at?->toIso8601String(),

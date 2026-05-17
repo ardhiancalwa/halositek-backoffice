@@ -119,12 +119,17 @@ class MessageController extends Controller
      *   @OA\RequestBody(
      *     required=true,
      *
-     *     @OA\JsonContent(
-     *       required={"conversation_id", "body"},
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
      *
-     *       @OA\Property(property="conversation_id", type="string", example="01J2CHATCONVERSATION001"),
-     *       @OA\Property(property="body", type="string", example="Halo, kabar kamu gimana?"),
-     *       @OA\Property(property="attachment", type="string", nullable=true, example=null)
+     *       @OA\Schema(
+     *         type="object",
+     *         required={"conversation_id"},
+     *
+     *         @OA\Property(property="conversation_id", type="string", example="01J2CHATCONVERSATION001"),
+     *         @OA\Property(property="body", type="string", nullable=true, example="Halo, kabar kamu gimana?"),
+     *         @OA\Property(property="attachment", type="string", format="binary", nullable=true)
+     *       )
      *     )
      *   ),
      *
@@ -188,8 +193,13 @@ class MessageController extends Controller
      */
     public function store(SendMessageRequest $request, SendMessageAction $action, HaloSitekAIService $ai): JsonResponse
     {
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('chat/attachments', 'public');
+        }
+
         $message = $action->execute(
-            SendMessageDTO::fromRequest($request),
+            SendMessageDTO::fromRequest($request, $attachmentPath),
             $request->user(),
         );
 
@@ -204,7 +214,7 @@ class MessageController extends Controller
 
         $userId = (string) ($user->getAttribute('_id') ?? $user->getKey());
         $message->role = Message::ROLE_USER;
-        $message->type = Message::TYPE_TEXT;
+        $message->type = $message->attachment ? Message::TYPE_IMAGE : Message::TYPE_TEXT;
         $message->content = is_string($message->body) ? $message->body : '';
         $message->save();
 

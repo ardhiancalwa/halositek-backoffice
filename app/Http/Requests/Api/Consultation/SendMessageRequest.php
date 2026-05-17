@@ -17,14 +17,14 @@ class SendMessageRequest extends FormRequest
     }
 
     /**
-     * @return array<string, array<int, string>>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
         return [
             'conversation_id' => ['required', 'string', 'exists:conversations,_id'],
-            'body' => ['required_without:attachment', 'string', 'max:4000'],
-            'attachment' => ['nullable', 'string', 'max:2048'],
+            'body' => ['required_without:attachment', 'nullable', 'string', 'max:4000'],
+            'attachment' => ['nullable'],
         ];
     }
 }

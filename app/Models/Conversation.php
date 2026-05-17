@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,6 +22,7 @@ use MongoDB\Laravel\Eloquent\Model;
  * @property Carbon|null $updated_at
  * @property-read Message|null $lastMessage
  * @property-read Consultation|null $consultation
+ * @property-read Collection<int, User>|null $participants
  */
 class Conversation extends Model
 {

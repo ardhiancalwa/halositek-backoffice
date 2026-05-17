@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Models\ArchitectProfile;
 use App\Models\Consultation;
 use App\Models\Conversation;
 use App\Models\Payment;
@@ -38,12 +39,16 @@ it('initiates midtrans payment for consultation', function () {
 
     $user = User::factory()->create(['role' => UserRole::User->value]);
     $architect = User::factory()->architect()->create();
+    ArchitectProfile::create([
+        'user_id' => (string) $architect->getKey(),
+        'status' => 'approved',
+        'consultation_fee' => 150000,
+        'consultation_duration' => 2,
+    ]);
 
     actingAs($user, 'sanctum')
         ->postJson('/api/v1/consultations/payments/initiate', [
             'architect_id' => (string) $architect->getKey(),
-            'duration_hours' => 2,
-            'amount' => 150000,
         ])
         ->assertCreated()
         ->assertJsonPath('data.status', 'pending')
@@ -71,6 +76,19 @@ it('blocks new payment for same architect while session is still active but allo
     $architectA = User::factory()->architect()->create();
     $architectB = User::factory()->architect()->create();
 
+    ArchitectProfile::create([
+        'user_id' => (string) $architectA->getKey(),
+        'status' => 'approved',
+        'consultation_fee' => 100000,
+        'consultation_duration' => 1,
+    ]);
+    ArchitectProfile::create([
+        'user_id' => (string) $architectB->getKey(),
+        'status' => 'approved',
+        'consultation_fee' => 100000,
+        'consultation_duration' => 1,
+    ]);
+
     Consultation::create([
         'user_id' => (string) $user->getKey(),
         'architect_id' => (string) $architectA->getKey(),
@@ -85,8 +103,6 @@ it('blocks new payment for same architect while session is still active but allo
     actingAs($user, 'sanctum')
         ->postJson('/api/v1/consultations/payments/initiate', [
             'architect_id' => (string) $architectA->getKey(),
-            'duration_hours' => 1,
-            'amount' => 100000,
         ])
         ->assertStatus(422)
         ->assertJsonPath('errors.architect_id.0', 'Sesi konsultasi dengan arsitek ini masih berjalan. Tunggu sesi selesai untuk membuat sesi baru.');
@@ -94,8 +110,6 @@ it('blocks new payment for same architect while session is still active but allo
     actingAs($user, 'sanctum')
         ->postJson('/api/v1/consultations/payments/initiate', [
             'architect_id' => (string) $architectB->getKey(),
-            'duration_hours' => 1,
-            'amount' => 100000,
         ])
         ->assertCreated()
         ->assertJsonPath('data.consultation_details.architect_id', (string) $architectB->getKey());
@@ -113,12 +127,16 @@ it('handles midtrans webhook and creates consultation session with conversation'
 
     $user = User::factory()->create(['role' => UserRole::User->value]);
     $architect = User::factory()->architect()->create();
+    ArchitectProfile::create([
+        'user_id' => (string) $architect->getKey(),
+        'status' => 'approved',
+        'consultation_fee' => 100000,
+        'consultation_duration' => 1,
+    ]);
 
     $initiateResponse = actingAs($user, 'sanctum')
         ->postJson('/api/v1/consultations/payments/initiate', [
             'architect_id' => (string) $architect->getKey(),
-            'duration_hours' => 1,
-            'amount' => 100000,
         ])
         ->assertCreated();
 

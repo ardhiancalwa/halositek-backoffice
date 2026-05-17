@@ -4,7 +4,7 @@ namespace App\DTOs\User;
 
 use App\Enums\AccountStatus;
 use App\Enums\UserRole;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Http\FormRequest as Request;
 
 final readonly class CreateUserDTO
 {
@@ -15,6 +15,7 @@ final readonly class CreateUserDTO
         public UserRole $role = UserRole::User,
         public AccountStatus $accountStatus = AccountStatus::Active,
         public ?string $photo_profile = null,
+        public ?string $headline = null,
     ) {
     }
 
@@ -27,6 +28,7 @@ final readonly class CreateUserDTO
             role: UserRole::tryFrom($request->validated('role', 'user')) ?? UserRole::User,
             accountStatus: AccountStatus::tryFrom($request->validated('account_status', 'active')) ?? AccountStatus::Active,
             photo_profile: $photoProfilePath,
+            headline: $request->validated('headline'),
         );
     }
 
@@ -43,6 +45,7 @@ final readonly class CreateUserDTO
             ? (is_string($data['account_status']) ? AccountStatus::tryFrom($data['account_status']) ?? AccountStatus::Active : $data['account_status'])
             : AccountStatus::Active,
             photo_profile: $data['photo_profile'] ?? null,
+            headline: $data['headline'] ?? null,
         );
     }
 }

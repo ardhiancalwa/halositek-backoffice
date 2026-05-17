@@ -288,6 +288,14 @@ class UserController extends Controller
         $user->fill($data);
         $user->save();
 
+        if ($user->isArchitect() && $request->has('headline')) {
+            $user->architectProfile()->updateOrCreate(
+                ['user_id' => (string) $user->id],
+                ['headline' => $request->input('headline')]
+            );
+            $user->load('architectProfile');
+        }
+
         return ApiResponse::success([
             'user' => new UserResource($user),
         ], 'Profile updated successfully.');

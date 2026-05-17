@@ -3,6 +3,8 @@
 namespace App\Http\Resources\User;
 
 use App\Enums\UserRole;
+use App\Http\Resources\Award\AwardResource;
+use App\Http\Resources\Project\ProjectResource;
 use App\Models\ArchitectProfile;
 use App\Models\User;
 use Carbon\CarbonInterface;
@@ -44,6 +46,10 @@ class ArchitectProfileResource extends JsonResource
             'total_awards' => (int) ($user?->getAttribute('total_awards') ?? 0),
             'specialization' => $profile?->getAttribute('specialization'),
             'rating' => (float) ($profile?->getAttribute('rating') ?? 0),
+            'consultation_fee' => (int) ($profile?->getAttribute('consultation_fee') ?? 0),
+            'consultation_duration' => (int) ($profile?->getAttribute('consultation_duration') ?? 1),
+            'projects' => ProjectResource::collection($this->whenLoaded('projects')),
+            'awards' => AwardResource::collection($this->whenLoaded('awards')),
         ];
     }
 }

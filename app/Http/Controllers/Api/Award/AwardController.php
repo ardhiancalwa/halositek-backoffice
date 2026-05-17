@@ -79,6 +79,10 @@ class AwardController extends Controller
         return ApiResponse::paginated($awards, 'Awards retrieved successfully.', meta: [
             'pending_count' => $pendingCount,
             'approved_count' => $approvedCount,
+            'total_pending' => $pendingCount,
+            'total_approved' => $approvedCount,
+            'total_pending_awards' => $pendingCount,
+            'total_approved_awards' => $approvedCount,
         ]);
     }
 

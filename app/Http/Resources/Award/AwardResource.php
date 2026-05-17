@@ -32,15 +32,13 @@ class AwardResource extends JsonResource
                 ? Storage::url($award->verification_file)
                 : null,
             'status' => $award->status,
-            'architect' => $this->whenLoaded('architect', function () use ($award) {
-                return [
-                    'id' => $award->architect->id,
-                    'name' => $award->architect->name,
-                    'email' => $award->architect->email,
-                    'photo_profile' => $award->architect->photo_profile,
-                    'photo_profile_url' => $award->architect->photo_profile ? Storage::url($award->architect->photo_profile) : null,
-                ];
-            }),
+            'architect' => $award->architect ? [
+                'id' => $award->architect->id,
+                'name' => $award->architect->name,
+                'email' => $award->architect->email,
+                'photo_profile' => $award->architect->photo_profile,
+                'photo_profile_url' => $award->architect->photo_profile ? Storage::url($award->architect->photo_profile) : null,
+            ] : null,
             'created_at' => $award->created_at?->toIso8601String(),
             'updated_at' => $award->updated_at?->toIso8601String(),
         ];

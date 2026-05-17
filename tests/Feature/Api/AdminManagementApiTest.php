@@ -61,10 +61,7 @@ describe('Admin Management - Super Admin Only', function () {
             ->assertJsonPath('data.admin.role', 'admin')
             ->assertJsonPath('data.admin.name', 'New Admin');
 
-        $this->assertDatabaseHas('users', [
-            'email' => 'newadmin@halositek.com',
-            'role' => 'admin',
-        ]);
+        expect(User::query()->where('email', 'newadmin@halositek.com')->where('role', 'admin')->exists())->toBeTrue();
     });
 
     it('super admin can create another super admin', function () {
@@ -104,7 +101,7 @@ describe('Admin Management - Super Admin Only', function () {
             ->assertJsonPath('data.admin.role', 'super_admin');
 
         $admin->refresh();
-        $this->assertEquals('super_admin', $admin->role->value);
+        expect($admin->role->value)->toBe('super_admin');
     });
 
     it('super admin can update admin account status', function () {
@@ -139,7 +136,7 @@ describe('Admin Management - Super Admin Only', function () {
             ->assertOk()
             ->assertJsonPath('message', 'Admin deleted successfully.');
 
-        $this->assertDatabaseMissing('users', ['id' => $admin->id]);
+        expect(User::query()->where('id', $admin->id)->exists())->toBeFalse();
     });
 
     it('super admin cannot delete themselves', function () {

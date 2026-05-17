@@ -41,7 +41,7 @@ class AdminController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $user = auth()->user();
         if (! $user || ! $user->isSuperAdmin()) {
             return ApiResponse::forbidden('Only super admin can access admin management.');
         }

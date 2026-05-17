@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Api\User;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAdminRequest extends FormRequest
@@ -12,12 +11,10 @@ class UpdateAdminRequest extends FormRequest
         return true;
     }
 
-    /**
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
+            'role' => ['sometimes', 'string', 'in:admin,super_admin'],
             'account_status' => ['sometimes', 'string', 'in:active,suspend'],
         ];
     }

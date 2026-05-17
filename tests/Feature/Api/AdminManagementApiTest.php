@@ -55,12 +55,53 @@ describe('Admin Management - Super Admin Only', function () {
                 'name' => 'New Admin',
                 'email' => 'newadmin@halositek.com',
                 'password' => 'SecurePassword123!',
+                'role' => 'admin',
             ])
             ->assertCreated()
             ->assertJsonPath('data.admin.role', 'admin')
             ->assertJsonPath('data.admin.name', 'New Admin');
 
         expect(User::query()->where('email', 'newadmin@halositek.com')->where('role', 'admin')->exists())->toBeTrue();
+    });
+
+    it('super admin can create another super admin', function () {
+        $superAdmin = User::factory()->superAdmin()->create();
+
+        actingAs($superAdmin, 'sanctum')
+            ->postJson('/api/v1/admins', [
+                'name' => 'Another Super Admin',
+                'email' => 'anothersuperadmin@halositek.com',
+                'password' => 'SecurePassword123!',
+                'role' => 'super_admin',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.admin.role', 'super_admin');
+    });
+
+    it('super admin can view admin details', function () {
+        $superAdmin = User::factory()->superAdmin()->create();
+        $admin = User::factory()->admin()->create(['name' => 'Admin User', 'email' => 'admin@halositek.com']);
+
+        actingAs($superAdmin, 'sanctum')
+            ->getJson("/api/v1/admins/{$admin->id}")
+            ->assertOk()
+            ->assertJsonPath('data.admin.id', $admin->id)
+            ->assertJsonPath('data.admin.name', 'Admin User');
+    });
+
+    it('super admin can update admin role', function () {
+        $superAdmin = User::factory()->superAdmin()->create();
+        $admin = User::factory()->admin()->create();
+
+        actingAs($superAdmin, 'sanctum')
+            ->putJson("/api/v1/admins/{$admin->id}", [
+                'role' => 'super_admin',
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.admin.role', 'super_admin');
+
+        $admin->refresh();
+        expect($admin->role->value)->toBe('super_admin');
     });
 
     it('super admin can update admin account status', function () {
@@ -73,6 +114,17 @@ describe('Admin Management - Super Admin Only', function () {
             ])
             ->assertOk()
             ->assertJsonPath('data.admin.account_status', 'suspend');
+    });
+
+    it('super admin cannot change their own role', function () {
+        $superAdmin = User::factory()->superAdmin()->create();
+
+        actingAs($superAdmin, 'sanctum')
+            ->putJson("/api/v1/admins/{$superAdmin->id}", [
+                'role' => 'admin',
+            ])
+            ->assertForbidden()
+            ->assertJsonPath('message', 'You cannot change your own role.');
     });
 
     it('super admin can delete another admin', function () {
@@ -114,6 +166,7 @@ describe('Admin Management - Access Control', function () {
                 'name' => 'New Admin',
                 'email' => 'newadmin@halositek.com',
                 'password' => 'SecurePassword123!',
+                'role' => 'admin',
             ])
             ->assertForbidden();
     });
@@ -167,6 +220,44 @@ describe('Admin Management - Validation', function () {
 
         actingAs($superAdmin, 'sanctum')
             ->postJson('/api/v1/admins', [])
+            ->assertUnprocessable();
+    });
+
+    it('creates admin with email uniqueness validation', function () {
+        $superAdmin = User::factory()->superAdmin()->create();
+        $existing = User::factory()->create(['email' => 'duplicate@halositek.com']);
+
+        actingAs($superAdmin, 'sanctum')
+            ->postJson('/api/v1/admins', [
+                'name' => 'New Admin',
+                'email' => 'duplicate@halositek.com',
+                'password' => 'SecurePassword123!',
+                'role' => 'admin',
+            ])
+            ->assertUnprocessable();
+    });
+
+    it('creates admin with role validation', function () {
+        $superAdmin = User::factory()->superAdmin()->create();
+
+        actingAs($superAdmin, 'sanctum')
+            ->postJson('/api/v1/admins', [
+                'name' => 'New Admin',
+                'email' => 'newadmin@halositek.com',
+                'password' => 'SecurePassword123!',
+                'role' => 'invalid_role',
+            ])
+            ->assertUnprocessable();
+    });
+
+    it('updates admin with valid role values', function () {
+        $superAdmin = User::factory()->superAdmin()->create();
+        $admin = User::factory()->admin()->create();
+
+        actingAs($superAdmin, 'sanctum')
+            ->putJson("/api/v1/admins/{$admin->id}", [
+                'role' => 'invalid_role',
+            ])
             ->assertUnprocessable();
     });
 });

@@ -882,6 +882,8 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         500:
           $ref: '#/components/responses/ServerError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
       security:
         -
           BearerAuth: []
@@ -956,6 +958,8 @@ paths:
           $ref: '#/components/responses/ValidationError'
         500:
           $ref: '#/components/responses/ServerError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
       security:
         -
           BearerAuth: []
@@ -964,6 +968,7 @@ paths:
       tags:
         - 'Consultation Management'
       summary: 'Approve or decline consultation report'
+      description: 'Menerapkan keputusan report sekaligus rule buyback: report oleh user + approved => refund user; report oleh architect + declined => refund user; selain itu payment tidak berubah.'
       operationId: 06c3c161f1be71337c86ba7c68f89bb0
       parameters:
         -
@@ -1000,6 +1005,8 @@ paths:
                   id: 01J3REPORT0001
                   action_report: approved
                   actioned_at: '2026-04-27T12:30:00+00:00'
+                  buyback_applied: true
+                  payment_status: refunded
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
@@ -1208,6 +1215,188 @@ paths:
       security:
         -
           BearerAuth: []
+  '/consultations/{consultationId}/reports':
+    get:
+      tags:
+        - 'Consultation Report'
+      summary: 'List reports for a consultation'
+      operationId: fa50bf6ff897242d9aea597f863836be
+      parameters:
+        -
+          name: consultationId
+          in: path
+          required: true
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 50
+            minimum: 1
+      responses:
+        200:
+          description: 'Report list retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Daftar report berhasil diambil.'
+                data:
+                  -
+                    id: 01J3REPORT0001
+                    requester:
+                      id: 01J3USER001
+                      name: 'Ayu Pratama'
+                      role: user
+                      photo_profile: users/profiles/ayu.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                    reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                    consultation_date: '2026-04-27T10:30:00+00:00'
+                    opposing_party:
+                      id: 01J3ARCH001
+                      name: 'Dimas Arsitek'
+                      photo_profile: users/profiles/dimas.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                    nominal: 300000
+                    transcript: 'Riwayat chat konsultasi...'
+                    action_report: new
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/consultations/01J3CONS001/reports?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/consultations/01J3CONS001/reports?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        -
+          BearerAuth: []
+    post:
+      tags:
+        - 'Consultation Report'
+      summary: 'Create consultation report'
+      operationId: 87d030d5e2c5cc1f2bd5e4f906a0fea9
+      parameters:
+        -
+          name: consultationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  example: 'Arsitek tidak hadir pada jadwal konsultasi.'
+              type: object
+      responses:
+        201:
+          description: 'Report created'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Report berhasil dibuat.'
+                data:
+                  id: 01J3REPORT0001
+                  requester:
+                    id: 01J3USER001
+                    name: 'Ayu Pratama'
+                    role: user
+                    photo_profile: users/profiles/ayu.webp
+                    photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                  reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                  consultation_date: '2026-04-27T10:30:00+00:00'
+                  opposing_party:
+                    id: 01J3ARCH001
+                    name: 'Dimas Arsitek'
+                    photo_profile: users/profiles/dimas.webp
+                    photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                  nominal: 300000
+                  transcript: 'Riwayat chat konsultasi...'
+                  action_report: new
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+      security:
+        -
+          BearerAuth: []
+  '/consultations/reports/{reportId}':
+    get:
+      tags:
+        - 'Consultation Report'
+      summary: 'Get report detail'
+      operationId: 5ac870f6869337747cb53b4496218c8e
+      parameters:
+        -
+          name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Report retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Detail report berhasil diambil.'
+                data:
+                  id: 01J3REPORT0001
+                  requester:
+                    id: 01J3USER001
+                    name: 'Ayu Pratama'
+                    role: user
+                    photo_profile: users/profiles/ayu.webp
+                    photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                  reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                  consultation_date: '2026-04-27T10:30:00+00:00'
+                  opposing_party:
+                    id: 01J3ARCH001
+                    name: 'Dimas Arsitek'
+                    photo_profile: users/profiles/dimas.webp
+                    photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                  nominal: 300000
+                  transcript: 'Riwayat chat konsultasi...'
+                  action_report: new
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        -
+          BearerAuth: []
   /chat/conversations:
     get:
       tags:
@@ -1323,6 +1512,8 @@ paths:
                   updated_at: '2026-04-19T10:00:00+00:00'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
         422:
           $ref: '#/components/responses/ValidationError'
         500:
@@ -1657,6 +1848,221 @@ paths:
       security:
         -
           BearerAuth: []
+  /consultations/payments/initiate:
+    post:
+      tags:
+        - 'Consultation Payment'
+      summary: 'Initiate consultation payment'
+      description: 'Membuat transaksi Midtrans Snap untuk pembayaran konsultasi.'
+      operationId: b77e4838d5d26f9d147e85096afb4e9d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - architect_id
+                - duration_hours
+                - amount
+              properties:
+                architect_id:
+                  type: string
+                  example: 01J3ARCHITECT001
+                duration_hours:
+                  type: integer
+                  example: 2
+                amount:
+                  type: integer
+                  example: 150000
+              type: object
+      responses:
+        201:
+          description: 'Pembayaran berhasil dibuat'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Pembayaran konsultasi berhasil dibuat.'
+                data:
+                  payment_id: 01J3PAYMENT001
+                  order_id: CONS-20260515231400-ABCD1234
+                  status: pending
+                  snap_token: snap-token-123
+                  redirect_url: 'https://app.sandbox.midtrans.com/snap/v2/vtweb/snap-token-123'
+                  consultation_details:
+                    architect_id: 01J3ARCHITECT001
+                    architect_name: 'Arsitek A'
+                    architect_photo: 'https://...'
+                    duration_hours: 2
+                    amount: 150000
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
+      security:
+        -
+          BearerAuth: []
+  '/consultations/payments/{paymentId}/status':
+    get:
+      tags:
+        - 'Consultation Payment'
+      summary: 'Get payment status'
+      description: 'Mengambil status pembayaran dan sinkronisasi status ke Midtrans jika masih pending.'
+      operationId: d2788f38f560af4a3c5837bd40a9fb5f
+      parameters:
+        -
+          name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Status pembayaran berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Status pembayaran berhasil diambil.'
+                data:
+                  payment_id: 01J3PAYMENT001
+                  order_id: CONS-20260515231400-ABCD1234
+                  status: completed
+                  transaction_id: trx-123
+                  consultation_id: 01J3CONS001
+                  conversation_id: 01J3CONV001
+                  can_enter_consultation: true
+                  paid_at: '2026-05-15T23:20:00+07:00'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        -
+          BearerAuth: []
+  /consultations/payments/history:
+    get:
+      tags:
+        - 'Consultation Payment'
+      summary: 'Get payment history'
+      description: 'Mengambil riwayat pembayaran konsultasi milik user yang login.'
+      operationId: a6e718f7882c5bffc27baffd34269986
+      parameters:
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 15
+            maximum: 50
+            minimum: 1
+      responses:
+        200:
+          description: 'Riwayat pembayaran berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Riwayat pembayaran berhasil diambil.'
+                data:
+                  -
+                    id: 01J3PAYMENT001
+                    order_id: CONS-20260515231400-ABCD1234
+                    status: completed
+                    amount: 150000
+                    duration_hours: 2
+                    payment_method: bank_transfer
+                    paid_at: '2026-05-15T23:20:00+07:00'
+                    consultation_id: 01J3CONS001
+                    conversation_id: 01J3CONV001
+                    architect:
+                      id: 01J3ARCHITECT001
+                      name: 'Arsitek A'
+                      photo_profile_url: 'https://...'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        -
+          BearerAuth: []
+  /webhooks/midtrans:
+    post:
+      tags:
+        - 'Consultation Payment'
+      summary: 'Handle Midtrans webhook'
+      description: "Menerima notifikasi pembayaran dari Midtrans dan memperbarui status payment. Pada environment local/testing, signature_key otomatis digenerate bila kosong atau bernilai 'string' untuk kebutuhan test manual."
+      operationId: 17b961709c1c47d6f4a4b3c007410cf6
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - order_id
+                - status_code
+                - transaction_status
+                - gross_amount
+              properties:
+                order_id:
+                  type: string
+                  example: CONS-20260515231400-ABCD1234
+                status_code:
+                  type: string
+                  example: '200'
+                transaction_status:
+                  type: string
+                  example: settlement
+                transaction_id:
+                  type: string
+                  example: trx-123
+                gross_amount:
+                  type: string
+                  example: '150000.00'
+                payment_type:
+                  type: string
+                  example: bank_transfer
+                signature_key:
+                  description: "Wajib di production. Di local/testing boleh kosong atau 'string' untuk auto-generate."
+                  type: string
+                  nullable: true
+              type: object
+      responses:
+        200:
+          description: 'Webhook pembayaran berhasil diproses'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Webhook pembayaran berhasil diproses.'
+                data:
+                  payment_id: 01J3PAYMENT001
+                  order_id: CONS-20260515231400-ABCD1234
+                  status: completed
+                  consultation_id: 01J3CONS001
+                  conversation_id: 01J3CONV001
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
   /faqs:
     get:
       tags:
@@ -3757,8 +4163,14 @@ tags:
     name: 'Consultation Management'
     description: 'Consultation Management'
   -
+    name: 'Consultation Report'
+    description: 'Consultation Report'
+  -
     name: Chat
     description: Chat
+  -
+    name: 'Consultation Payment'
+    description: 'Consultation Payment'
   -
     name: FAQ
     description: FAQ

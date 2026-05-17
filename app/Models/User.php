@@ -81,6 +81,11 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === UserRole::SuperAdmin;
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;
@@ -96,19 +101,19 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === UserRole::User;
     }
 
-    public function isSuperAdmin(): bool
-    {
-        return $this->role === UserRole::SuperAdmin;
-    }
-
     public function hasRole(UserRole $role): bool
     {
         return $this->role === $role;
     }
 
+    public function isAdminOrSuperAdmin(): bool
+    {
+        return $this->role === UserRole::Admin || $this->role === UserRole::SuperAdmin;
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->isAdmin();
+        return $this->isAdminOrSuperAdmin();
     }
 
     /**
@@ -165,6 +170,22 @@ class User extends Authenticatable implements FilamentUser
     public function consultationsAsArchitect(): HasMany
     {
         return $this->hasMany(Consultation::class, 'architect_id');
+    }
+
+    /**
+     * @return HasMany<Payment, self>
+     */
+    public function paymentsAsUser(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<Payment, self>
+     */
+    public function paymentsAsArchitect(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'architect_id');
     }
 
     /**

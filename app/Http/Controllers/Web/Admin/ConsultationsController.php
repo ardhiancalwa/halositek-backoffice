@@ -15,6 +15,8 @@ use Illuminate\View\View;
 
 class ConsultationsController extends Controller
 {
+    private const ARCHITECT_RELEASE_TAX_PERCENT = 10;
+
     public function index(): Factory|View
     {
         return view('admin.pages.dashboard.consultations.index');
@@ -37,12 +39,18 @@ class ConsultationsController extends Controller
 
     public function payrollSummary(): JsonResponse
     {
-        $pendingAmount = Consultation::query()
+        $pendingConsultations = Consultation::query()
             ->where('status', 'completed')
             ->where('payout_status', 'pending')
-            ->sum('session_fee');
+            ->get();
+
+        $pendingGross = (int) $pendingConsultations->sum('session_fee');
+        $pendingTax = (int) $pendingConsultations->sum(fn (Consultation $consultation): int => $this->resolvePayoutTaxAmount($consultation));
+        $pendingAmount = (int) $pendingConsultations->sum(fn (Consultation $consultation): int => $this->resolvePayoutAmount($consultation));
 
         return ApiResponse::success([
+            'pending_payouts_gross' => $pendingGross,
+            'pending_payouts_tax' => $pendingTax,
             'pending_payouts' => (int) $pendingAmount,
         ]);
     }
@@ -111,13 +119,17 @@ class ConsultationsController extends Controller
             $first = $items->first();
             $architect = $first->architect;
             $totalConsultation = $items->count();
-            $totalEarnings = (int) $items->sum('session_fee');
+            $totalGrossEarnings = (int) $items->sum('session_fee');
+            $totalTax = (int) $items->sum(fn (Consultation $consultation): int => $this->resolvePayoutTaxAmount($consultation));
+            $totalEarnings = (int) $items->sum(fn (Consultation $consultation): int => $this->resolvePayoutAmount($consultation));
             $perSession = $totalConsultation > 0 ? (int) round($totalEarnings / $totalConsultation) : 0;
 
             return [
                 'architect_id' => (string) $architectId,
                 'architect_name' => $architect->name ?? 'Unknown',
                 'architect_avatar' => $architect->photo_profile_url,
+                'total_gross_earnings' => $totalGrossEarnings,
+                'total_tax' => $totalTax,
                 'total_earnings' => $totalEarnings,
                 'per_session' => $perSession,
                 'total_consultations' => $totalConsultation,
@@ -160,12 +172,16 @@ class ConsultationsController extends Controller
             return [
                 'user_name' => ($consultation->user->name ?? 'Unknown'),
                 'date' => $consultation->consultation_date ? $consultation->consultation_date->format('M d, Y') : '-',
-                'fee' => (int) ($consultation->session_fee ?? 0),
+                'gross_fee' => (int) ($consultation->session_fee ?? 0),
+                'tax_amount' => $this->resolvePayoutTaxAmount($consultation),
+                'fee' => $this->resolvePayoutAmount($consultation),
                 'status' => (string) ($consultation->verification_status ?? 'unverified'),
             ];
         });
 
-        $totalAmount = (int) $consultations->sum('session_fee');
+        $totalGrossAmount = (int) $consultations->sum('session_fee');
+        $totalTaxAmount = (int) $consultations->sum(fn (Consultation $consultation): int => $this->resolvePayoutTaxAmount($consultation));
+        $totalAmount = (int) $consultations->sum(fn (Consultation $consultation): int => $this->resolvePayoutAmount($consultation));
         $totalConsultation = $consultations->count();
         $perSession = $totalConsultation > 0 ? (int) round($totalAmount / $totalConsultation) : 0;
 
@@ -176,20 +192,30 @@ class ConsultationsController extends Controller
                 'consultation_per_session' => $perSession,
                 'total_user_consultation' => $totalConsultation,
             ],
+            'total_gross_amount' => $totalGrossAmount,
+            'total_tax_amount' => $totalTaxAmount,
             'total_amount' => $totalAmount,
         ], 'Architect consultations retrieved successfully.');
     }
 
     public function releasePayroll(string $architectId): JsonResponse
     {
-        $updated = Consultation::query()
+        $consultations = Consultation::query()
             ->where('architect_id', $architectId)
             ->where('status', 'completed')
             ->where('payout_status', 'pending')
-            ->update(['payout_status' => 'released']);
+            ->get();
 
-        if ($updated === 0) {
+        if ($consultations->isEmpty()) {
             return ApiResponse::notFound('No pending payouts found for this architect.');
+        }
+
+        foreach ($consultations as $consultation) {
+            $consultation->payout_status = 'released';
+            $consultation->payout_released_at = now();
+            $consultation->payout_tax_amount = $this->resolvePayoutTaxAmount($consultation);
+            $consultation->payout_amount = $this->resolvePayoutAmount($consultation);
+            $consultation->save();
         }
 
         return ApiResponse::success(null, 'Payroll released successfully.');
@@ -226,5 +252,25 @@ class ConsultationsController extends Controller
         $report->save();
 
         return ApiResponse::success(null, "Report status updated to {$status} successfully.");
+    }
+
+    private function resolvePayoutTaxAmount(Consultation $consultation): int
+    {
+        $storedTaxAmount = $consultation->payout_tax_amount;
+        if (is_numeric($storedTaxAmount)) {
+            return (int) $storedTaxAmount;
+        }
+
+        return (int) round(((int) $consultation->session_fee) * self::ARCHITECT_RELEASE_TAX_PERCENT / 100);
+    }
+
+    private function resolvePayoutAmount(Consultation $consultation): int
+    {
+        $storedPayoutAmount = $consultation->payout_amount;
+        if (is_numeric($storedPayoutAmount)) {
+            return (int) $storedPayoutAmount;
+        }
+
+        return max(0, (int) $consultation->session_fee - $this->resolvePayoutTaxAmount($consultation));
     }
 }

@@ -5,8 +5,11 @@ use App\Http\Controllers\Api\Analystics\AnalyticsController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Award\AwardController;
 use App\Http\Controllers\Api\Consultation\ConsultationManagementController;
+use App\Http\Controllers\Api\Consultation\ConsultationReportController;
 use App\Http\Controllers\Api\Consultation\ConversationController;
 use App\Http\Controllers\Api\Consultation\MessageController;
+use App\Http\Controllers\Api\Consultation\PaymentController;
+use App\Http\Controllers\Api\Consultation\PaymentWebhookController;
 use App\Http\Controllers\Api\Faq\FaqController;
 use App\Http\Controllers\Api\Project\ProjectController;
 use App\Http\Controllers\Api\User\AdminController;
@@ -43,6 +46,17 @@ Route::prefix('v1')->group(function () {
             Route::post('/conversations/{conversationId}/read', [MessageController::class, 'markAsRead']);
             Route::post('/conversations/{conversationId}/typing', [MessageController::class, 'typing']);
         });
+
+        Route::prefix('/consultations/payments')->group(function () {
+            Route::post('/initiate', [PaymentController::class, 'initiate']);
+            Route::get('/history', [PaymentController::class, 'history']);
+            Route::get('/{paymentId}/status', [PaymentController::class, 'status']);
+        });
+
+        Route::get('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'index']);
+        Route::post('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'store']);
+        Route::get('/consultations/reports/stats', [ConsultationManagementController::class, 'reportStats'])->middleware('role:admin');
+        Route::get('/consultations/reports/{reportId}', [ConsultationReportController::class, 'show']);
 
         // Project CRUD (Architect/Admin)
         Route::post('/projects', [ProjectController::class, 'store']);
@@ -90,7 +104,6 @@ Route::prefix('v1')->group(function () {
         Route::delete('/faqs/{id}', [FaqController::class, 'destroy']);
 
         // Consultation management
-        Route::get('/consultations/reports/stats', [ConsultationManagementController::class, 'reportStats']);
         Route::get('/consultations/reports', [ConsultationManagementController::class, 'reportList']);
         Route::put('/consultations/reports/{reportId}/action', [ConsultationManagementController::class, 'updateReportAction']);
 
@@ -114,8 +127,6 @@ Route::prefix('v1')->group(function () {
         Route::put('/admins/{id}', [AdminController::class, 'update']);
         Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
     });
-
-    // Public routes (down here to avoid intercepting wishlist if grouped)
     // Actually wishlist is above, so we are safe.
     Route::get('/architects', [ArchitectController::class, 'index']);
     Route::get('/architects/{id}', [ArchitectController::class, 'show']);
@@ -128,4 +139,6 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/faqs', [FaqController::class, 'index']);
     Route::get('/faqs/{id}', [FaqController::class, 'show']);
+
+    Route::post('/webhooks/midtrans', [PaymentWebhookController::class, 'handleMidtrans']);
 });

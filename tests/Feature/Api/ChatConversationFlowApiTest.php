@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Jobs\GenerateAssistantReplyJob;
+use App\Models\Consultation;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
@@ -19,9 +20,40 @@ afterEach(function () {
     DB::connection('mongodb')->table('personal_access_tokens')->delete();
 });
 
+function createActiveConsultation(User $user, User $architect): Conversation
+{
+    $conversation = Conversation::create([
+        'name' => 'Consultation Session',
+        'is_group' => false,
+        'participant_ids' => [(string) $user->getKey(), (string) $architect->getKey()],
+        'last_read_at' => [
+            (string) $user->getKey() => now()->toIso8601String(),
+            (string) $architect->getKey() => now()->toIso8601String(),
+        ],
+    ]);
+
+    $consultation = Consultation::create([
+        'user_id' => (string) $user->getKey(),
+        'architect_id' => (string) $architect->getKey(),
+        'consultation_date' => now(),
+        'duration_hours' => 2,
+        'status' => 'active',
+        'verification_status' => 'unverified',
+        'payout_status' => 'pending',
+        'conversation_id' => (string) $conversation->getKey(),
+    ]);
+
+    $conversation->consultation_id = (string) $consultation->getKey();
+    $conversation->save();
+
+    return $conversation;
+}
+
 it('supports main private conversation flow', function () {
     $sender = User::factory()->create(['role' => UserRole::User->value]);
     $receiver = User::factory()->create(['role' => UserRole::Architect->value]);
+
+    createActiveConsultation($sender, $receiver);
 
     $createResponse = actingAs($sender, 'sanctum')
         ->postJson('/api/v1/chat/conversations', [
@@ -80,6 +112,8 @@ it('does not duplicate private conversations for same participants', function ()
     $userA = User::factory()->create(['role' => UserRole::User->value]);
     $userB = User::factory()->create(['role' => UserRole::Architect->value]);
 
+    createActiveConsultation($userA, $userB);
+
     actingAs($userA, 'sanctum')
         ->postJson('/api/v1/chat/conversations', [
             'is_group' => false,
@@ -104,6 +138,8 @@ it('queues ai generation for image-like user message and returns processing resp
 
     $sender = User::factory()->create(['role' => UserRole::User->value]);
     $receiver = User::factory()->create(['role' => UserRole::Architect->value]);
+
+    createActiveConsultation($sender, $receiver);
 
     $createResponse = actingAs($sender, 'sanctum')
         ->postJson('/api/v1/chat/conversations', [
@@ -157,6 +193,8 @@ it('returns 503 when ai service is unavailable in main chat message endpoint', f
 
     $sender = User::factory()->create(['role' => UserRole::User->value]);
     $receiver = User::factory()->create(['role' => UserRole::Architect->value]);
+
+    createActiveConsultation($sender, $receiver);
 
     $createResponse = actingAs($sender, 'sanctum')
         ->postJson('/api/v1/chat/conversations', [

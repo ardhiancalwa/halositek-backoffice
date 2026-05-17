@@ -1,10 +1,12 @@
 <?php
 
+use App\Models\ArchitectProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 afterEach(function () {
     DB::connection('mongodb')->table('users')->delete();
+    DB::connection('mongodb')->table('architect_profiles')->delete();
     DB::connection('mongodb')->table('personal_access_tokens')->delete();
 });
 
@@ -57,6 +59,21 @@ it('can register as architect', function () {
     $response->assertCreated()
         ->assertJsonPath('success', true)
         ->assertJsonPath('data.role', 'architect');
+
+    $user = User::where('email', 'architect@example.com')->first();
+    expect($user)->not->toBeNull();
+    expect($user->role->value)->toBe('architect');
+
+    // Assert that the architect profile was automatically created and approved
+    $profile = ArchitectProfile::where('user_id', $user->id)->first();
+    expect($profile)->not->toBeNull();
+    expect($profile->status)->toBe('approved');
+
+    // Assert that they appear in the public architect list
+    $listResponse = $this->getJson('/api/v1/architects');
+    $listResponse->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.0.id', $user->id);
 });
 
 it('cannot register as admin', function () {

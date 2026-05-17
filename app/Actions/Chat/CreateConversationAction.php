@@ -3,6 +3,7 @@
 namespace App\Actions\Chat;
 
 use App\DTOs\Consultation\CreateConversationDTO;
+use App\Models\Consultation;
 use App\Models\Conversation;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
@@ -27,7 +28,7 @@ final class CreateConversationAction
         if (! $dto->isGroup) {
             sort($participantIds);
 
-            $existing = Conversation::query()
+            $existingMatches = Conversation::query()
                 ->where('is_group', false)
                 ->where(static function ($query) use ($participantIds): void {
                     $first = sprintf('%%"%s"%%', $participantIds[0]);
@@ -40,7 +41,7 @@ final class CreateConversationAction
                         });
                 })
                 ->get()
-                ->first(static function (Conversation $conversation) use ($participantIds): bool {
+                ->filter(static function (Conversation $conversation) use ($participantIds): bool {
                     $conversationParticipants = $conversation->getRawOriginal('participant_ids');
                     if (is_string($conversationParticipants)) {
                         try {
@@ -57,10 +58,42 @@ final class CreateConversationAction
                     sort($normalized);
 
                     return $normalized === $participantIds;
+                })
+                ->values();
+
+            if ($existingMatches->isNotEmpty()) {
+                // Prioritaskan percakapan yang memiliki sesi konsultasi aktif
+                $preferred = $existingMatches->first(static function (Conversation $conversation): bool {
+                    if (empty($conversation->consultation_id)) {
+                        return false;
+                    }
+                    $consultation = Consultation::find($conversation->consultation_id);
+
+                    return $consultation instanceof Consultation && $consultation->isSessionActive();
                 });
 
-            if ($existing instanceof Conversation) {
-                return $existing;
+                if ($preferred instanceof Conversation) {
+                    return $preferred;
+                }
+
+                // Jika tidak ada yang aktif, pilih percakapan dengan konsultasi terbaru
+                $latest = null;
+                $latestDate = null;
+                foreach ($existingMatches as $conv) {
+                    if (empty($conv->consultation_id)) {
+                        continue;
+                    }
+                    $consultation = Consultation::find($conv->consultation_id);
+                    if ($consultation instanceof Consultation && $consultation->consultation_date) {
+                        $date = $consultation->consultation_date;
+                        if ($latestDate === null || $date->gt($latestDate)) {
+                            $latestDate = $date;
+                            $latest = $conv;
+                        }
+                    }
+                }
+
+                return $latest ?? $existingMatches->first();
             }
         }
 

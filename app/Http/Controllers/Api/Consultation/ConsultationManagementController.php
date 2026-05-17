@@ -2,22 +2,29 @@
 
 namespace App\Http\Controllers\Api\Consultation;
 
+use App\Actions\Consultation\BuildConsultationReportPayloadAction;
+use App\Actions\Consultation\RecordPaymentHistoryAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Consultation\ConsultationReportActionRequest;
 use App\Http\Requests\Api\Consultation\ConsultationReportFilterRequest;
 use App\Http\Requests\Api\Consultation\PayrollReleaseRequest;
 use App\Http\Responses\ApiResponse;
+use App\Jobs\ProcessConsultationRefundJob;
 use App\Models\Consultation;
 use App\Models\ConsultationReport;
+use App\Models\Payment;
+use App\Models\Refund;
+use App\Services\MidtransService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 class ConsultationManagementController extends Controller
 {
+    private const ARCHITECT_RELEASE_TAX_PERCENT = 10;
+
     /**
      * @OA\Get(
      *   path="/consultations/reports/stats",
@@ -46,7 +53,8 @@ class ConsultationManagementController extends Controller
      *
      *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
      *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
-     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError"),
+     *   @OA\Response(response=503, ref="#/components/responses/ServiceUnavailableError")
      * )
      */
     public function reportStats(): JsonResponse
@@ -115,17 +123,20 @@ class ConsultationManagementController extends Controller
      *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
      *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
      *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
-     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError"),
+     *   @OA\Response(response=503, ref="#/components/responses/ServiceUnavailableError")
      * )
      */
-    public function reportList(ConsultationReportFilterRequest $request): JsonResponse
-    {
+    public function reportList(
+        ConsultationReportFilterRequest $request,
+        BuildConsultationReportPayloadAction $payloadBuilder
+    ): JsonResponse {
         $validated = $request->validated();
         $perPage = (int) ($validated['per_page'] ?? 15);
         $role = $validated['role'] ?? null;
 
         $query = ConsultationReport::query()
-            ->with(['consultation', 'requester', 'opposingParty'])
+            ->with(['consultation', 'requester', 'opposingParty', 'consultation.payment'])
             ->latest();
 
         if (is_string($role) && $role !== '') {
@@ -135,42 +146,7 @@ class ConsultationManagementController extends Controller
         $reports = $query->paginate($perPage);
 
         $items = $reports->getCollection()
-            ->map(function (ConsultationReport $report): array {
-                $consultation = $report->consultation;
-                $requester = $report->requester;
-                $opposing = $report->opposingParty;
-
-                $consultationDate = $consultation?->consultation_date;
-                $consultationDateIso = is_string($consultationDate)
-                    ? Carbon::parse($consultationDate)->toIso8601String()
-                    : null;
-
-                return [
-                    'id' => (string) $report->getKey(),
-                    'requester' => [
-                        'id' => (string) $requester->getKey(),
-                        'name' => (string) $requester->name,
-                        'role' => (string) $report->requester_role,
-                        'photo_profile' => $requester->photo_profile,
-                        'photo_profile_url' => $requester->photo_profile
-                            ? Storage::url((string) $requester->photo_profile)
-                            : null,
-                    ],
-                    'reason' => (string) $report->reason,
-                    'consultation_date' => $consultationDateIso,
-                    'opposing_party' => [
-                        'id' => (string) $opposing->getKey(),
-                        'name' => (string) $opposing->name,
-                        'photo_profile' => $opposing->photo_profile,
-                        'photo_profile_url' => $opposing->photo_profile
-                            ? Storage::url((string) $opposing->photo_profile)
-                            : null,
-                    ],
-                    'nominal' => (int) $consultation->session_fee,
-                    'transcript' => (string) ($consultation->transcript ?? ''),
-                    'action_report' => (string) ($report->action_status ?? 'new'),
-                ];
-            })
+            ->map(fn (ConsultationReport $report): array => $payloadBuilder->execute($report))
             ->values()
             ->all();
 
@@ -183,6 +159,7 @@ class ConsultationManagementController extends Controller
      *   tags={"Consultation Management"},
      *   security={{"BearerAuth":{}}},
      *   summary="Approve or decline consultation report",
+     *   description="Menerapkan keputusan report sekaligus rule buyback: report oleh user + approved => refund user; report oleh architect + declined => refund user; selain itu payment tidak berubah.",
      *
      *   @OA\Parameter(name="reportId", in="path", required=true, @OA\Schema(type="string")),
      *
@@ -208,7 +185,9 @@ class ConsultationManagementController extends Controller
      *         "data": {
      *           "id": "01J3REPORT0001",
      *           "action_report": "approved",
-     *           "actioned_at": "2026-04-27T12:30:00+00:00"
+     *           "actioned_at": "2026-04-27T12:30:00+00:00",
+     *           "buyback_applied": true,
+     *           "payment_status": "refunded"
      *         }
      *       }
      *     )
@@ -223,7 +202,9 @@ class ConsultationManagementController extends Controller
      */
     public function updateReportAction(
         ConsultationReportActionRequest $request,
-        string $reportId
+        string $reportId,
+        RecordPaymentHistoryAction $recordPaymentHistory,
+        MidtransService $midtrans
     ): JsonResponse {
         $report = ConsultationReport::findOrFail($reportId);
         $action = $request->validated('action');
@@ -233,6 +214,85 @@ class ConsultationManagementController extends Controller
         $report->actioned_at = now();
         $report->save();
 
+        $requesterRole = (string) ($report->requester_role ?? '');
+        $shouldApplyBuyback = (
+            ($requesterRole === 'user' && $action === 'approved')
+            || ($requesterRole === 'architect' && $action === 'declined')
+        );
+
+        $buybackApplied = false;
+        $paymentStatus = null;
+        $refundStatus = null;
+
+        if ($shouldApplyBuyback) {
+            $payment = Payment::query()
+                ->where('consultation_id', (string) $report->consultation_id)
+                ->first();
+
+            if (! ($payment instanceof Payment)) {
+                return ApiResponse::validationError([
+                    'consultation_id' => ['Payment konsultasi tidak ditemukan untuk proses buyback.'],
+                ]);
+            }
+
+            if ($payment->refund_status === 'refunded') {
+                $buybackApplied = true;
+                $paymentStatus = (string) $payment->status;
+                $refundStatus = (string) $payment->refund_status;
+
+                $actionedAt = $report->actioned_at;
+                $actionedAtIso = $actionedAt->toIso8601String();
+
+                return ApiResponse::success([
+                    'id' => (string) $report->getKey(),
+                    'action_report' => (string) $report->action_status,
+                    'actioned_at' => $actionedAtIso,
+                    'buyback_applied' => $buybackApplied,
+                    'payment_status' => $paymentStatus,
+                    'refund_status' => $refundStatus,
+                ], 'Action report berhasil diperbarui.');
+            }
+
+            // Create refund record
+            $refund = Refund::create([
+                'payment_id' => (string) $payment->getKey(),
+                'order_id' => (string) $payment->order_id,
+                'report_id' => (string) $report->getKey(),
+                'amount' => (int) $payment->amount,
+                'reason' => 'Buyback consultation report #' . (string) $report->getKey(),
+                'status' => 'approved',
+            ]);
+
+            // Update refund status and dispatch job
+            $payment->refund_status = 'approved';
+            $payment->save();
+
+            $recordPaymentHistory->execute(
+                $payment,
+                'buyback_refund_approved',
+                'consultation_report_action',
+                [
+                    'report_id' => (string) $report->getKey(),
+                    'refund_id' => (string) $refund->getKey(),
+                    'requester_role' => $requesterRole,
+                    'action' => $action,
+                    'order_id' => (string) $payment->order_id,
+                    'amount' => (int) $payment->amount,
+                ],
+                'Admin menyetujui refund buyback. Memulai proses refund async.'
+            );
+
+            ProcessConsultationRefundJob::dispatch(
+                (string) $payment->getKey(),
+                (string) $report->getKey(),
+                (string) $refund->getKey()
+            );
+
+            $buybackApplied = true;
+            $paymentStatus = (string) $payment->status;
+            $refundStatus = (string) $payment->refund_status;
+        }
+
         $actionedAt = $report->actioned_at;
         $actionedAtIso = $actionedAt->toIso8601String();
 
@@ -240,6 +300,9 @@ class ConsultationManagementController extends Controller
             'id' => (string) $report->getKey(),
             'action_report' => (string) $report->action_status,
             'actioned_at' => $actionedAtIso,
+            'buyback_applied' => $buybackApplied,
+            'payment_status' => $paymentStatus,
+            'refund_status' => $refundStatus,
         ], 'Action report berhasil diperbarui.');
     }
 
@@ -271,12 +334,18 @@ class ConsultationManagementController extends Controller
      */
     public function payrollSummary(): JsonResponse
     {
-        $pendingAmount = Consultation::query()
+        $pendingConsultations = Consultation::query()
             ->where('status', 'completed')
             ->where('payout_status', 'pending')
-            ->sum('session_fee');
+            ->get();
+
+        $pendingGross = (int) $pendingConsultations->sum('session_fee');
+        $pendingTax = (int) $pendingConsultations->sum(fn (Consultation $consultation): int => $this->resolvePayoutTaxAmount($consultation));
+        $pendingAmount = (int) $pendingConsultations->sum(fn (Consultation $consultation): int => $this->resolvePayoutAmount($consultation));
 
         return ApiResponse::success([
+            'pending_payouts_gross' => $pendingGross,
+            'pending_payouts_tax' => $pendingTax,
             'pending_payouts' => (int) $pendingAmount,
         ]);
     }
@@ -346,12 +415,16 @@ class ConsultationManagementController extends Controller
             /** @var Consultation $first */
             $first = $items->first();
             $totalConsultation = $items->count();
-            $totalEarnings = (int) $items->sum('session_fee');
+            $totalGrossEarnings = (int) $items->sum('session_fee');
+            $totalTax = (int) $items->sum(fn (Consultation $consultation): int => $this->resolvePayoutTaxAmount($consultation));
+            $totalEarnings = (int) $items->sum(fn (Consultation $consultation): int => $this->resolvePayoutAmount($consultation));
             $perSession = $totalConsultation > 0 ? (int) round($totalEarnings / $totalConsultation) : 0;
 
             return [
                 'architect_id' => (string) $architectId,
                 'architect_name' => (string) $first->architect->name,
+                'total_gross_earnings' => $totalGrossEarnings,
+                'total_tax' => $totalTax,
                 'total_earnings' => $totalEarnings,
                 'per_session_earning' => $perSession,
                 'total_consultation' => $totalConsultation,
@@ -438,13 +511,17 @@ class ConsultationManagementController extends Controller
                     'name' => (string) $consultation->user->name,
                 ],
                 'date' => $consultationDateIso,
-                'fee_per_session' => (int) $consultation->session_fee,
+                'fee_per_session' => $this->resolvePayoutAmount($consultation),
+                'gross_fee_per_session' => (int) $consultation->session_fee,
+                'tax_per_session' => $this->resolvePayoutTaxAmount($consultation),
                 'verification_status' => (string) ($consultation->verification_status ?? 'unverified'),
             ];
         })->values();
 
         $totalConsultation = $consultations->count();
-        $totalAmount = (int) $consultations->sum('session_fee');
+        $totalGrossAmount = (int) $consultations->sum('session_fee');
+        $totalTaxAmount = (int) $consultations->sum(fn (Consultation $consultation): int => $this->resolvePayoutTaxAmount($consultation));
+        $totalAmount = (int) $consultations->sum(fn (Consultation $consultation): int => $this->resolvePayoutAmount($consultation));
         $perSession = $totalConsultation > 0 ? (int) round($totalAmount / $totalConsultation) : 0;
 
         return ApiResponse::success([
@@ -454,6 +531,8 @@ class ConsultationManagementController extends Controller
                 'consultation_per_session' => $perSession,
                 'total_user_consultation' => $totalConsultation,
             ],
+            'total_gross_amount' => $totalGrossAmount,
+            'total_tax_amount' => $totalTaxAmount,
             'total_amount' => $totalAmount,
         ], 'Detail release payment berhasil diambil.');
     }
@@ -525,11 +604,22 @@ class ConsultationManagementController extends Controller
         }
 
         $releasedIds = [];
+        $releasedGrossTotal = 0;
+        $releasedTaxTotal = 0;
+        $releasedNetTotal = 0;
         foreach ($consultations as $consultation) {
+            $grossAmount = (int) $consultation->session_fee;
+            $taxAmount = $this->resolvePayoutTaxAmount($consultation);
+            $netAmount = $this->resolvePayoutAmount($consultation);
             $consultation->payout_status = 'released';
             $consultation->payout_released_at = now();
+            $consultation->payout_tax_amount = $taxAmount;
+            $consultation->payout_amount = $netAmount;
             $consultation->save();
             $releasedIds[] = (string) $consultation->getKey();
+            $releasedGrossTotal += $grossAmount;
+            $releasedTaxTotal += $taxAmount;
+            $releasedNetTotal += $netAmount;
         }
 
         return ApiResponse::success([
@@ -537,7 +627,29 @@ class ConsultationManagementController extends Controller
             'release_status' => 'selesai',
             'released_consultation_ids' => $releasedIds,
             'released_count' => count($releasedIds),
-            'released_total_amount' => (int) $consultations->sum('session_fee'),
+            'released_gross_total_amount' => $releasedGrossTotal,
+            'released_total_tax' => $releasedTaxTotal,
+            'released_total_amount' => $releasedNetTotal,
         ], 'Release payment berhasil diproses.');
+    }
+
+    private function resolvePayoutTaxAmount(Consultation $consultation): int
+    {
+        $storedTaxAmount = $consultation->payout_tax_amount;
+        if (is_numeric($storedTaxAmount)) {
+            return (int) $storedTaxAmount;
+        }
+
+        return (int) round(((int) $consultation->session_fee) * self::ARCHITECT_RELEASE_TAX_PERCENT / 100);
+    }
+
+    private function resolvePayoutAmount(Consultation $consultation): int
+    {
+        $storedPayoutAmount = $consultation->payout_amount;
+        if (is_numeric($storedPayoutAmount)) {
+            return (int) $storedPayoutAmount;
+        }
+
+        return max(0, (int) $consultation->session_fee - $this->resolvePayoutTaxAmount($consultation));
     }
 }

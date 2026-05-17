@@ -18,6 +18,7 @@ final class GetUserConversationsAction
         $quotedUserId = sprintf('%%"%s"%%', $userId);
 
         $paginator = Conversation::query()
+            ->with('consultation')
             ->where(static function ($query) use ($userId, $quotedUserId): void {
                 $query->where('participant_ids', 'all', [$userId])
                     ->orWhere('participant_ids', 'like', $quotedUserId);

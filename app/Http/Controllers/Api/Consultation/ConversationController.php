@@ -10,7 +10,9 @@ use App\Http\Requests\Api\Consultation\CreateConversationRequest;
 use App\Http\Resources\Consultation\ChatListResource;
 use App\Http\Resources\Consultation\ConversationResource;
 use App\Http\Responses\ApiResponse;
+use App\Models\Consultation;
 use App\Models\Conversation;
+use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -129,16 +131,61 @@ class ConversationController extends Controller
      *   ),
      *
      *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
      *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
     public function store(CreateConversationRequest $request, CreateConversationAction $action): JsonResponse
     {
-        $conversation = $action->execute(
-            CreateConversationDTO::fromRequest($request),
-            $request->user(),
-        );
+        /** @var User $user */
+        $user = $request->user();
+        $dto = CreateConversationDTO::fromRequest($request);
+
+        if (! $dto->isGroup) {
+            $authUserId = (string) $user->getKey();
+            $participantIds = array_values(array_unique(array_merge(
+                [$authUserId],
+                array_map('strval', $dto->participantIds),
+            )));
+
+            if (count($participantIds) === 2) {
+                $otherParticipantId = $participantIds[0] === $authUserId
+                    ? $participantIds[1]
+                    : $participantIds[0];
+                $otherUser = User::find($otherParticipantId);
+
+                if ($otherUser instanceof User) {
+                    $userId = null;
+                    $architectId = null;
+
+                    if ($user->isUser() && $otherUser->isArchitect()) {
+                        $userId = $authUserId;
+                        $architectId = (string) $otherUser->getKey();
+                    } elseif ($user->isArchitect() && $otherUser->isUser()) {
+                        $userId = (string) $otherUser->getKey();
+                        $architectId = $authUserId;
+                    }
+
+                    if ($userId !== null && $architectId !== null) {
+                        $consultation = Consultation::query()
+                            ->where('user_id', $userId)
+                            ->where('architect_id', $architectId)
+                            ->whereNotNull('conversation_id')
+                            ->latest('consultation_date')
+                            ->first();
+
+                        if (! $consultation instanceof Consultation || ! $consultation->isSessionActive()) {
+                            return ApiResponse::forbidden(
+                                'Silakan lakukan pembayaran konsultasi terlebih dahulu untuk memulai percakapan.'
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        $conversation = $action->execute($dto, $user);
 
         return ApiResponse::created(
             (new ConversationResource($conversation))->resolve($request),
@@ -186,7 +233,7 @@ class ConversationController extends Controller
      */
     public function show(Request $request, string $conversationId): JsonResponse
     {
-        $conversation = Conversation::findOrFail($conversationId);
+        $conversation = Conversation::query()->with('consultation')->findOrFail($conversationId);
         $participantIds = array_map('strval', $conversation->participant_ids ?? []);
 
         if (! in_array((string) $request->user()->getKey(), $participantIds, true)) {

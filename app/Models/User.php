@@ -168,6 +168,22 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
+     * @return HasMany<Payment, self>
+     */
+    public function paymentsAsUser(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<Payment, self>
+     */
+    public function paymentsAsArchitect(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'architect_id');
+    }
+
+    /**
      * @return HasMany<ConsultationReport, self>
      */
     public function consultationReports(): HasMany

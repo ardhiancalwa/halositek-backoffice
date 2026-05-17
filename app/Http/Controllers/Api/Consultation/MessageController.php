@@ -14,6 +14,7 @@ use App\Http\Resources\Consultation\ConversationResource;
 use App\Http\Resources\Consultation\MessageResource;
 use App\Http\Responses\ApiResponse;
 use App\Jobs\GenerateAssistantReplyJob;
+use App\Models\Consultation;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
@@ -594,6 +595,15 @@ class MessageController extends Controller
 
         if (! in_array($userId, $participantIds, true)) {
             throw new AuthorizationException('Anda tidak memiliki akses ke percakapan ini.');
+        }
+
+        $consultation = $conversation->consultation_id
+            ? Consultation::find((string) $conversation->consultation_id)
+            : null;
+        if ($consultation instanceof Consultation && ! $consultation->isSessionActive()) {
+            return ApiResponse::validationError([
+                'conversation_id' => ['Sesi konsultasi sudah berakhir, chat hanya dapat dibaca.'],
+            ]);
         }
 
         $isTyping = (bool) $request->boolean('is_typing', true);

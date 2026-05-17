@@ -3,12 +3,14 @@
 use App\Actions\User\CreateUserAction;
 use App\DTOs\User\CreateUserDTO;
 use App\Enums\UserRole;
+use App\Models\ArchitectProfile;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 afterEach(function () {
     DB::connection('mongodb')->table('users')->delete();
+    DB::connection('mongodb')->table('architect_profiles')->delete();
 });
 
 it('creates a user from DTO', function () {
@@ -68,6 +70,10 @@ it('can assign architect role', function () {
     $user = $action->execute($dto);
 
     expect($user->role)->toBe(UserRole::Architect);
+
+    $profile = ArchitectProfile::where('user_id', $user->id)->first();
+    expect($profile)->not->toBeNull();
+    expect($profile->status)->toBe('approved');
 });
 
 it('can assign admin role', function () {

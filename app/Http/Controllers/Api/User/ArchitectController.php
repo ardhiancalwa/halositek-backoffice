@@ -10,6 +10,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\ArchitectProfile;
 use App\Models\ArchitectWishlist;
 use App\Models\Award;
+use App\Models\Consultation;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -46,7 +47,7 @@ class ArchitectController extends Controller
             ->whereHas('architectProfile', function ($query): void {
                 $query->where('status', 'approved');
             })
-            ->with('architectProfile')
+            ->with(['architectProfile', 'projects', 'awards'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -93,7 +94,7 @@ class ArchitectController extends Controller
         $architectsById = User::query()
             ->where('role', UserRole::Architect->value)
             ->whereIn('id', $architectIds)
-            ->with('architectProfile')
+            ->with(['architectProfile', 'projects', 'awards'])
             ->get()
             ->keyBy('id');
 
@@ -171,7 +172,7 @@ class ArchitectController extends Controller
             ->whereHas('architectProfile', function ($query): void {
                 $query->where('status', 'approved');
             })
-            ->with('architectProfile')
+            ->with(['architectProfile', 'projects', 'awards'])
             ->first();
 
         if (! $architect) {
@@ -318,5 +319,95 @@ class ArchitectController extends Controller
             (new ArchitectProfileResource($architect))->resolve($request),
             'Status arsitek berhasil diperbarui.',
         );
+    }
+
+    /**
+     * @OA\Get(
+     *   path="/architects/earnings",
+     *   tags={"Architects"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Get architect earnings per release payment",
+     *   description="Returns a paginated list of released payout payments (earnings) for the authenticated architect.",
+     *
+     *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
+     *   @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="Earnings retrieved successfully",
+     *
+     *     @OA\JsonContent(
+     *       example={"success": true, "status_code": 200, "message": "Data earnings berhasil diambil.", "data": {"total_gross_earnings": 1000000, "total_tax_paid": 100000, "total_net_earnings": 900000, "earnings": {{"consultation_id": "01J3CONS001", "gross_fee": 500000, "tax_deduction": 50000, "net_earning": 450000, "released_at": "2026-04-27T12:00:00Z"}}}}
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError")
+     * )
+     */
+    public function earnings(Request $request): JsonResponse
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+
+        if ($user === null) {
+            return ApiResponse::unauthorized();
+        }
+
+        if ($user->role !== UserRole::Architect) {
+            return ApiResponse::forbidden('Hanya arsitek yang dapat mengakses data earnings.');
+        }
+
+        $perPage = min(100, max(1, (int) $request->input('per_page', 15)));
+
+        $query = Consultation::query()
+            ->with('user')
+            ->where('architect_id', (string) $user->id)
+            ->where('status', 'completed')
+            ->where('payout_status', 'released')
+            ->orderBy('payout_released_at', 'desc');
+
+        $aggregateQuery = Consultation::query()
+            ->where('architect_id', (string) $user->id)
+            ->where('status', 'completed')
+            ->where('payout_status', 'released');
+
+        $totalGross = (int) $aggregateQuery->sum('session_fee');
+        $totalTax = (int) $aggregateQuery->sum('payout_tax_amount');
+        $totalNet = (int) $aggregateQuery->sum('payout_amount');
+
+        $paginated = $query->paginate($perPage);
+
+        $items = collect($paginated->items())->map(function (Consultation $consultation): array {
+            $releasedAt = $consultation->payout_released_at;
+            $releasedAtIso = $releasedAt ? $releasedAt->toIso8601String() : null;
+
+            return [
+                'consultation_id' => (string) $consultation->getKey(),
+                'user' => $consultation->user ? [
+                    'id' => (string) $consultation->user->getKey(),
+                    'name' => (string) $consultation->user->name,
+                    'email' => (string) $consultation->user->email,
+                ] : null,
+                'date' => $consultation->consultation_date ? $consultation->consultation_date->toIso8601String() : null,
+                'gross_fee' => (int) $consultation->session_fee,
+                'tax_deduction' => (int) ($consultation->payout_tax_amount ?? 0),
+                'net_earning' => (int) ($consultation->payout_amount ?? 0),
+                'released_at' => $releasedAtIso,
+            ];
+        })->all();
+
+        return ApiResponse::success([
+            'total_gross_earnings' => $totalGross,
+            'total_tax_paid' => $totalTax,
+            'total_net_earnings' => $totalNet,
+            'earnings' => $items,
+            'meta' => [
+                'current_page' => $paginated->currentPage(),
+                'last_page' => $paginated->lastPage(),
+                'per_page' => $paginated->perPage(),
+                'total' => $paginated->total(),
+            ],
+        ], 'Data earnings berhasil diambil.');
     }
 }

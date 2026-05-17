@@ -158,7 +158,13 @@ it('filters awards and includes pending and approved counts in meta', function (
         ->assertJsonPath('success', true)
         ->assertJsonPath('meta.total', 2)
         ->assertJsonPath('meta.pending_count', 1)
-        ->assertJsonPath('meta.approved_count', 1);
+        ->assertJsonPath('meta.approved_count', 1)
+        ->assertJsonPath('meta.total_pending', 1)
+        ->assertJsonPath('meta.total_approved', 1)
+        ->assertJsonPath('meta.total_pending_awards', 1)
+        ->assertJsonPath('meta.total_approved_awards', 1)
+        ->assertJsonPath('data.0.architect.id', $architectA->id)
+        ->assertJsonPath('data.0.architect.name', $architectA->name);
 });
 
 it('enforces word count limits when creating award', function () {

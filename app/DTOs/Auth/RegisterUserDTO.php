@@ -3,7 +3,7 @@
 namespace App\DTOs\Auth;
 
 use App\Enums\UserRole;
-use Illuminate\Http\Request;
+use Illuminate\Foundation\Http\FormRequest as Request;
 
 final readonly class RegisterUserDTO
 {
@@ -13,6 +13,7 @@ final readonly class RegisterUserDTO
         public string $password,
         public UserRole $role = UserRole::User,
         public ?string $photo_profile = null,
+        public ?string $headline = null,
     ) {
     }
 
@@ -24,6 +25,7 @@ final readonly class RegisterUserDTO
             password: $request->validated('password'),
             role: UserRole::tryFrom($request->validated('role', 'user')) ?? UserRole::User,
             photo_profile: $photoProfilePath,
+            headline: $request->validated('headline'),
         );
     }
 }

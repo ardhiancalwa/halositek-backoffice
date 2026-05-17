@@ -9,11 +9,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Auth\LoginRequest;
 use App\Http\Requests\Api\Auth\RefreshTokenRequest;
 use App\Http\Requests\Api\Auth\RegisterRequest;
+use App\Http\Resources\Project\ProjectResource;
+use App\Http\Resources\User\ArchitectProfileResource;
+use App\Http\Resources\User\UserResource;
 use App\Http\Responses\ApiResponse;
+use App\Models\ArchitectWishlist;
+use App\Models\Award;
+use App\Models\Payment;
 use App\Models\PersonalAccessToken;
+use App\Models\Project;
+use App\Models\SavedProject;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use OpenApi\Annotations as OA;
 
@@ -272,7 +281,100 @@ class AuthController extends Controller
      */
     public function me(Request $request): JsonResponse
     {
-        return ApiResponse::success($request->user());
+        /** @var User $user */
+        $user = $request->user();
+
+        // 1. Saved projects
+        $savedProjectIds = SavedProject::query()
+            ->where('user_id', (string) $user->id)
+            ->pluck('project_id')
+            ->values();
+        $savedProjects = Project::query()
+            ->whereIn('id', $savedProjectIds)
+            ->with('architect')
+            ->get();
+
+        // 2. Saved architects
+        $savedArchitectIds = ArchitectWishlist::query()
+            ->where('user_id', (string) $user->id)
+            ->pluck('architect_id')
+            ->values();
+        $savedArchitects = User::query()
+            ->where('role', UserRole::Architect->value)
+            ->whereIn('id', $savedArchitectIds)
+            ->with('architectProfile')
+            ->get();
+        $this->attachPortfolioTotals($savedArchitects);
+
+        // 3. Payment histories
+        $payments = Payment::query()
+            ->where('user_id', (string) $user->getKey())
+            ->with('architect')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $paymentHistories = $payments->map(function (Payment $payment): array {
+            return [
+                'id' => (string) $payment->getKey(),
+                'order_id' => (string) $payment->order_id,
+                'status' => (string) $payment->status,
+                'refund_status' => (string) ($payment->refund_status ?? 'none'),
+                'amount' => (int) $payment->amount,
+                'tax_amount' => (int) ($payment->user_tax_amount ?? round(((int) $payment->amount) * 10 / 100)),
+                'total_paid_amount' => (int) ($payment->total_paid_amount ?? ((int) $payment->amount + (int) ($payment->user_tax_amount ?? round(((int) $payment->amount) * 10 / 100)))),
+                'duration_hours' => (int) $payment->duration_hours,
+                'payment_method' => $payment->payment_method,
+                'paid_at' => $payment->paid_at?->toIso8601String(),
+                'created_at' => $payment->created_at?->toIso8601String(),
+                'consultation_id' => $payment->consultation_id,
+                'conversation_id' => $payment->conversation_id,
+                'architect' => [
+                    'id' => (string) ($payment->architect?->getKey() ?? ''),
+                    'name' => (string) ($payment->architect->name ?? ''),
+                    'photo_profile_url' => $payment->architect?->photo_profile_url,
+                ],
+            ];
+        })->all();
+
+        $userData = (new UserResource($user))->resolve($request);
+        $userData['saved_projects'] = ProjectResource::collection($savedProjects);
+        $userData['saved_architects'] = ArchitectProfileResource::collection($savedArchitects);
+        $userData['payment_histories'] = $paymentHistories;
+
+        return ApiResponse::success($userData, 'Profile retrieved successfully.');
+    }
+
+    /**
+     * @param  Collection<int, User>  $architects
+     */
+    private function attachPortfolioTotals(Collection $architects): void
+    {
+        if ($architects->isEmpty()) {
+            return;
+        }
+
+        $architectIds = $architects
+            ->pluck('id')
+            ->filter()
+            ->values()
+            ->all();
+
+        $projectCounts = Project::query()
+            ->whereIn('architect_id', $architectIds)
+            ->get(['architect_id'])
+            ->groupBy('architect_id')
+            ->map(static fn (Collection $items): int => $items->count());
+
+        $awardCounts = Award::query()
+            ->whereIn('architect_id', $architectIds)
+            ->get(['architect_id'])
+            ->groupBy('architect_id')
+            ->map(static fn (Collection $items): int => $items->count());
+
+        $architects->each(function (User $architect) use ($projectCounts, $awardCounts): void {
+            $architect->setAttribute('total_projects', (int) ($projectCounts->get($architect->id) ?? 0));
+            $architect->setAttribute('total_awards', (int) ($awardCounts->get($architect->id) ?? 0));
+        });
     }
 
     /**

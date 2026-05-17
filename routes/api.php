@@ -56,6 +56,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'index']);
         Route::post('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'store']);
         Route::get('/consultations/reports/stats', [ConsultationManagementController::class, 'reportStats'])->middleware('role:admin');
+        Route::get('/consultations/reports/users/{userId}', [ConsultationReportController::class, 'reportsByUser']);
         Route::get('/consultations/reports/{reportId}', [ConsultationReportController::class, 'show']);
 
         // Project CRUD (Architect/Admin)
@@ -67,10 +68,17 @@ Route::prefix('v1')->group(function () {
         Route::post('/projects/{id}/like', [ProjectController::class, 'like']);
         Route::delete('/projects/{id}/like', [ProjectController::class, 'unlike']);
 
+        // Project wishlist/saved
+        Route::get('/projects/saved', [ProjectController::class, 'savedList']);
+        Route::post('/projects/{id}/save', [ProjectController::class, 'save']);
+        Route::delete('/projects/{id}/save', [ProjectController::class, 'unsave']);
+
         // Award CRUD (Architect/Admin)
         Route::post('/awards', [AwardController::class, 'store']);
         Route::put('/awards/{id}', [AwardController::class, 'update']);
         Route::delete('/awards/{id}', [AwardController::class, 'destroy']);
+
+        Route::get('/architects/earnings', [ArchitectController::class, 'earnings']);
 
         // Architect wishlist
         Route::get('/architects/wishlist', [ArchitectController::class, 'wishlist']);

@@ -5,6 +5,7 @@ namespace App\Http\Resources\Consultation;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class MessageResource extends JsonResource
 {
@@ -30,6 +31,7 @@ class MessageResource extends JsonResource
             'content' => is_string($message->content) ? $message->content : null,
             'body' => $message->body,
             'attachment' => $message->attachment,
+            'attachment_url' => $message->attachment ? Storage::url($message->attachment) : null,
             'read_at' => $message->read_at?->toIso8601String(),
             'is_mine' => $isMine,
             'sender' => $this->whenLoaded('sender', function () use ($message): ?array {

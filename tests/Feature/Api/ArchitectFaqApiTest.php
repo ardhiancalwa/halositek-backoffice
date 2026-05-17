@@ -2,6 +2,7 @@
 
 use App\Models\ArchitectProfile;
 use App\Models\Award;
+use App\Models\Consultation;
 use App\Models\Faq;
 use App\Models\Project;
 use App\Models\User;
@@ -13,6 +14,7 @@ afterEach(function () {
     DB::connection('mongodb')->table('architect_wishlists')->delete();
     DB::connection('mongodb')->table('architect_profiles')->delete();
     DB::connection('mongodb')->table('faqs')->delete();
+    DB::connection('mongodb')->table('consultations')->delete();
     DB::connection('mongodb')->table('users')->delete();
     DB::connection('mongodb')->table('personal_access_tokens')->delete();
 });
@@ -167,4 +169,69 @@ it('allows admin to manage faq lifecycle', function () {
 
     $delete->assertOk()
         ->assertJsonPath('success', true);
+});
+
+it('allows an architect to retrieve their own released earnings list and totals', function () {
+    $architect = User::factory()->architect()->create(['name' => 'Dimas Arsitek']);
+    $user = User::factory()->create(['name' => 'Ayu Pratama']);
+    $otherArchitect = User::factory()->architect()->create();
+
+    // 1. Released Consultation for our architect
+    Consultation::create([
+        'user_id' => (string) $user->getKey(),
+        'architect_id' => (string) $architect->getKey(),
+        'consultation_date' => now()->subDays(2),
+        'duration_hours' => 2,
+        'session_fee' => 500000,
+        'payout_status' => 'released',
+        'payout_released_at' => now()->subDay(),
+        'payout_tax_amount' => 50000,
+        'payout_amount' => 450000,
+        'status' => 'completed',
+    ]);
+
+    // 2. Pending Consultation for our architect (not yet released, should not show in earnings)
+    Consultation::create([
+        'user_id' => (string) $user->getKey(),
+        'architect_id' => (string) $architect->getKey(),
+        'consultation_date' => now(),
+        'duration_hours' => 1,
+        'session_fee' => 300000,
+        'payout_status' => 'pending',
+        'status' => 'completed',
+    ]);
+
+    // 3. Released Consultation for another architect
+    Consultation::create([
+        'user_id' => (string) $user->getKey(),
+        'architect_id' => (string) $otherArchitect->getKey(),
+        'consultation_date' => now()->subDays(3),
+        'duration_hours' => 1,
+        'session_fee' => 400000,
+        'payout_status' => 'released',
+        'payout_released_at' => now()->subDays(2),
+        'payout_tax_amount' => 40000,
+        'payout_amount' => 360000,
+        'status' => 'completed',
+    ]);
+
+    // Test as authenticated architect
+    $response = $this->actingAs($architect, 'sanctum')
+        ->getJson('/api/v1/architects/earnings');
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.total_gross_earnings', 500000)
+        ->assertJsonPath('data.total_tax_paid', 50000)
+        ->assertJsonPath('data.total_net_earnings', 450000)
+        ->assertJsonCount(1, 'data.earnings')
+        ->assertJsonPath('data.earnings.0.gross_fee', 500000)
+        ->assertJsonPath('data.earnings.0.tax_deduction', 50000)
+        ->assertJsonPath('data.earnings.0.net_earning', 450000)
+        ->assertJsonPath('data.earnings.0.user.name', 'Ayu Pratama');
+
+    // Test as standard user (forbidden)
+    $this->actingAs($user, 'sanctum')
+        ->getJson('/api/v1/architects/earnings')
+        ->assertForbidden();
 });

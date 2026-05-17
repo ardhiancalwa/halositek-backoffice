@@ -29,6 +29,7 @@ class ConversationController extends Controller
      *   description="Mengambil daftar percakapan milik user yang sedang login.",
      *
      *   @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer", minimum=1, maximum=50, example=15)),
+     *   @OA\Parameter(name="search", in="query", required=false, @OA\Schema(type="string", example="Ardhian")),
      *
      *   @OA\Response(
      *     response=200,
@@ -79,7 +80,31 @@ class ConversationController extends Controller
     public function index(Request $request, GetUserConversationsAction $action): JsonResponse
     {
         $perPage = min(50, (int) $request->input('per_page', 15));
-        $conversations = $action->execute($request->user(), $perPage);
+        $search = $request->input('search');
+        $conversations = $action->execute($request->user(), $perPage, $search);
+
+        // Batch load participants to avoid N+1 queries
+        $allParticipantIds = $conversations->getCollection()
+            ->pluck('participant_ids')
+            ->flatten()
+            ->unique()
+            ->values()
+            ->all();
+
+        $participants = User::query()
+            ->whereIn('id', $allParticipantIds)
+            ->with('architectProfile')
+            ->get()
+            ->keyBy('id');
+
+        $conversations->getCollection()->each(function (Conversation $conv) use ($participants) {
+            $convParticipants = collect($conv->participant_ids ?? [])
+                ->map(fn ($pid) => $participants->get($pid))
+                ->filter()
+                ->values();
+
+            $conv->setRelation('participants', $convParticipants);
+        });
 
         $conversations->setCollection(
             ChatListResource::collection($conversations->getCollection())->collection
@@ -239,6 +264,13 @@ class ConversationController extends Controller
         if (! in_array((string) $request->user()->getKey(), $participantIds, true)) {
             throw new AuthorizationException('Anda tidak memiliki akses ke percakapan ini.');
         }
+
+        $participants = User::query()
+            ->whereIn('id', $participantIds)
+            ->with('architectProfile')
+            ->get();
+
+        $conversation->setRelation('participants', $participants);
 
         return ApiResponse::success(
             (new ConversationResource($conversation))->resolve($request),

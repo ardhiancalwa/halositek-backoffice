@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Consultation;
 
 use App\Actions\Consultation\BuildConsultationReportPayloadAction;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Consultation\StoreConsultationReportRequest;
 use App\Http\Responses\ApiResponse;
@@ -260,6 +261,121 @@ class ConsultationReportController extends Controller
             $payloadBuilder->execute($report),
             'Detail report berhasil diambil.',
         );
+    }
+
+    /**
+     * @OA\Get(
+     *   path="/consultations/reports/users/{userId}",
+     *   tags={"Consultation Report"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="List reports by user or architect ID",
+     *   description="Mengambil semua laporan yang melibatkan user ID tertentu.",
+     *
+     *   @OA\Parameter(name="userId", in="path", required=true, @OA\Schema(type="string")),
+     *   @OA\Parameter(
+     *     name="search",
+     *     in="query",
+     *     required=false,
+     *
+     *     @OA\Schema(type="string"),
+     *     description="Cari berdasarkan nama pelapor atau terlapor"
+     *   ),
+     *
+     *   @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer", minimum=1, maximum=50)),
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="Daftar report berhasil diambil",
+     *
+     *     @OA\JsonContent(
+     *       example={
+     *         "success": true,
+     *         "status_code": 200,
+     *         "message": "Daftar report berhasil diambil.",
+     *         "data": {
+     *           {
+     *             "id": "01J3REPORT0001",
+     *             "requester": {
+     *               "id": "01J3USER001",
+     *               "name": "Ayu Pratama",
+     *               "role": "user",
+     *               "photo_profile": "users/profiles/ayu.webp",
+     *               "photo_profile_url": "http://localhost:8000/storage/users/profiles/ayu.webp"
+     *             },
+     *             "reason": "Arsitek tidak hadir pada jadwal konsultasi.",
+     *             "consultation_date": "2026-04-27T10:30:00+00:00",
+     *             "opposing_party": {
+     *               "id": "01J3ARCH001",
+     *               "name": "Dimas Arsitek",
+     *               "photo_profile": "users/profiles/dimas.webp",
+     *               "photo_profile_url": "http://localhost:8000/storage/users/profiles/dimas.webp"
+     *             },
+     *             "nominal": 300000,
+     *             "transcript": "Riwayat chat konsultasi...",
+     *             "action_report": "new"
+     *           }
+     *         },
+     *         "meta": {"current_page": 1, "last_page": 1, "per_page": 15, "total": 1}
+     *       }
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError")
+     * )
+     */
+    public function reportsByUser(
+        Request $request,
+        string $userId,
+        BuildConsultationReportPayloadAction $payloadBuilder
+    ): JsonResponse {
+        /** @var User $currentUser */
+        $currentUser = $request->user();
+
+        if (
+            $currentUser->role !== UserRole::Admin
+            && $currentUser->role !== UserRole::SuperAdmin
+            && (string) $currentUser->getKey() !== $userId
+        ) {
+            return ApiResponse::forbidden('Anda tidak memiliki akses ke report ini.');
+        }
+
+        $perPage = min(50, max(1, (int) $request->input('per_page', 15)));
+        $search = $request->input('search');
+
+        $query = ConsultationReport::query()
+            ->with(['consultation', 'requester', 'opposingParty', 'consultation.payment'])
+            ->where(static function ($q) use ($userId): void {
+                $q->where('requester_id', $userId)
+                    ->orWhere('opposing_party_id', $userId);
+            });
+
+        if ($search !== null && $search !== '') {
+            $matchingUserIds = User::query()
+                ->where('name', 'like', '%' . $search . '%')
+                ->get()
+                ->map(fn (User $u) => (string) $u->getKey())
+                ->all();
+
+            if (empty($matchingUserIds)) {
+                $query->where('id', '=', 'none');
+            } else {
+                $query->where(static function ($q) use ($matchingUserIds): void {
+                    $q->whereIn('requester_id', $matchingUserIds)
+                        ->orWhereIn('opposing_party_id', $matchingUserIds);
+                });
+            }
+        }
+
+        $reports = $query->latest()->paginate($perPage);
+
+        $items = $reports->getCollection()
+            ->map(fn (ConsultationReport $report): array => $payloadBuilder->execute($report))
+            ->values()
+            ->all();
+
+        return ApiResponse::paginatedItems($items, $reports, 'Daftar report berhasil diambil.');
     }
 
     private function resolveRequesterRole(User $user, Consultation $consultation): ?string

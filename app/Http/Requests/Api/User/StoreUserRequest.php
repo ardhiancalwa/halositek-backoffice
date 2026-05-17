@@ -30,6 +30,7 @@ class StoreUserRequest extends FormRequest
             'role' => ['sometimes', 'string', 'in:user,architect,admin'],
             'account_status' => ['sometimes', 'string', 'in:active,suspend'],
             'photo_profile' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'headline' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

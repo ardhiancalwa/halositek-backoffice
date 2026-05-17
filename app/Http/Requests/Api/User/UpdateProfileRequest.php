@@ -31,6 +31,7 @@ class UpdateProfileRequest extends FormRequest
             'email' => ['sometimes', 'required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($userId)],
             'password' => ['sometimes', 'required', 'string', 'min:8'],
             'photo_profile' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'headline' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

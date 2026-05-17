@@ -23,8 +23,6 @@ class InitiateConsultationPaymentRequest extends FormRequest
     {
         return [
             'architect_id' => ['required', 'string', 'exists:users,_id'],
-            'duration_hours' => ['required', 'integer', 'min:1', 'max:24'],
-            'amount' => ['required', 'integer', 'min:1000'],
         ];
     }
 }

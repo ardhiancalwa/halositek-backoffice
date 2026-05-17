@@ -39,6 +39,7 @@ final class SendMessageAction
             'user_id' => $senderId,
             'body' => $dto->body,
             'attachment' => $dto->attachment,
+            'type' => $dto->attachment ? Message::TYPE_IMAGE : Message::TYPE_TEXT,
             'read_at' => null,
         ]);
 

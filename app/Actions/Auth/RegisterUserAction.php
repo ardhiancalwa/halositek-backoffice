@@ -25,6 +25,7 @@ final class RegisterUserAction
             ArchitectProfile::create([
                 'user_id' => (string) $user->id,
                 'status' => 'approved',
+                'headline' => $dto->headline,
             ]);
         }
 

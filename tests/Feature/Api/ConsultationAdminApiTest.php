@@ -268,3 +268,76 @@ it('applies buyback to user when architect report is declined', function () {
             ->exists()
     )->toBeTrue();
 });
+
+it('allows a user to view their own reports and allows search by opposing party name', function () {
+    $user = User::factory()->create(['name' => 'Budi Sudarsono']);
+    $architect1 = User::factory()->architect()->create(['name' => 'Ardhian Calwa']);
+    $architect2 = User::factory()->architect()->create(['name' => 'John Doe']);
+    $otherUser = User::factory()->create(['name' => 'Susi Susanti']);
+
+    $consultation1 = Consultation::create([
+        'user_id' => (string) $user->getKey(),
+        'architect_id' => (string) $architect1->getKey(),
+        'consultation_date' => now(),
+        'duration_hours' => 2,
+    ]);
+
+    $consultation2 = Consultation::create([
+        'user_id' => (string) $user->getKey(),
+        'architect_id' => (string) $architect2->getKey(),
+        'consultation_date' => now(),
+        'duration_hours' => 2,
+    ]);
+
+    // Report 1: Budi Sudarsono reporting Ardhian Calwa
+    $report1 = ConsultationReport::create([
+        'consultation_id' => (string) $consultation1->getKey(),
+        'requester_id' => (string) $user->getKey(),
+        'opposing_party_id' => (string) $architect1->getKey(),
+        'requester_role' => 'user',
+        'reason' => 'First report reason',
+        'action_status' => 'new',
+    ]);
+
+    // Report 2: John Doe reporting Budi Sudarsono
+    $report2 = ConsultationReport::create([
+        'consultation_id' => (string) $consultation2->getKey(),
+        'requester_id' => (string) $architect2->getKey(),
+        'opposing_party_id' => (string) $user->getKey(),
+        'requester_role' => 'architect',
+        'reason' => 'Second report reason',
+        'action_status' => 'new',
+    ]);
+
+    // 1. Get all reports for Budi Sudarsono
+    actingAs($user, 'sanctum')
+        ->getJson('/api/v1/consultations/reports/users/' . $user->getKey())
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    // 2. Search reports of Budi Sudarsono by opposing party name "Ardhian"
+    actingAs($user, 'sanctum')
+        ->getJson('/api/v1/consultations/reports/users/' . $user->getKey() . '?search=Ardhian')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', (string) $report1->getKey());
+
+    // 3. Search reports of Budi Sudarsono by requester name "John"
+    actingAs($user, 'sanctum')
+        ->getJson('/api/v1/consultations/reports/users/' . $user->getKey() . '?search=John')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', (string) $report2->getKey());
+
+    // 4. Standard user cannot retrieve reports of another user
+    actingAs($otherUser, 'sanctum')
+        ->getJson('/api/v1/consultations/reports/users/' . $user->getKey())
+        ->assertForbidden();
+
+    // 5. Admin can retrieve reports of any user
+    $admin = User::factory()->admin()->create();
+    actingAs($admin, 'sanctum')
+        ->getJson('/api/v1/consultations/reports/users/' . $user->getKey())
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+});

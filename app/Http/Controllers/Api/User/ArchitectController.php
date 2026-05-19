@@ -44,9 +44,6 @@ class ArchitectController extends Controller
 
         $architects = User::query()
             ->where('role', UserRole::Architect->value)
-            ->whereHas('architectProfile', function ($query): void {
-                $query->where('status', 'approved');
-            })
             ->with(['architectProfile', 'projects', 'awards'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
@@ -169,9 +166,6 @@ class ArchitectController extends Controller
         $architect = User::query()
             ->where('id', $id)
             ->where('role', UserRole::Architect->value)
-            ->whereHas('architectProfile', function ($query): void {
-                $query->where('status', 'approved');
-            })
             ->with(['architectProfile', 'projects', 'awards'])
             ->first();
 

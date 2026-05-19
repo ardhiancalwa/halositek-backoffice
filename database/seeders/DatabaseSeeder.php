@@ -48,8 +48,8 @@ class DatabaseSeeder extends Seeder
         ArchitectProfile::query()->updateOrCreate(
             ['user_id' => (string) $architect->getKey()],
             [
-                'consultation_fee' => (int) env('SEED_ARCHITECT_FEE', 250000),
-                'consultation_duration' => (int) env('SEED_ARCHITECT_HOURS', 1),
+                'consultation_fee' => (int) ($_ENV['SEED_ARCHITECT_FEE'] ?? 250000),
+                'consultation_duration' => (int) ($_ENV['SEED_ARCHITECT_HOURS'] ?? 1),
             ]
         );
 

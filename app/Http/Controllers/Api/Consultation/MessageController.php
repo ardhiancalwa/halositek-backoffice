@@ -13,7 +13,6 @@ use App\Http\Requests\Api\Consultation\SendMessageRequest;
 use App\Http\Resources\Consultation\ConversationResource;
 use App\Http\Resources\Consultation\MessageResource;
 use App\Http\Responses\ApiResponse;
-use App\Jobs\GenerateAssistantReplyJob;
 use App\Models\Consultation;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -23,7 +22,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use OpenApi\Annotations as OA;
 use Throwable;
 
@@ -114,7 +112,7 @@ class MessageController extends Controller
      *   tags={"Chat"},
      *   security={{"BearerAuth":{}}},
      *   summary="Send message",
-     *   description="Mengirim pesan teks ke conversation. Untuk role user, sistem memproses AI reply (sync untuk teks, async/queue untuk request gambar).",
+     *   description="Mengirim pesan teks/file ke conversation antar user-arsitek (tanpa proses AI).",
      *
      *   @OA\RequestBody(
      *     required=true,
@@ -135,7 +133,7 @@ class MessageController extends Controller
      *
      *   @OA\Response(
      *     response=201,
-     *     description="Pesan berhasil diproses dan AI reply sinkron dikembalikan",
+     *     description="Pesan berhasil dikirim",
      *
      *     @OA\JsonContent(
      *       example={
@@ -146,10 +144,10 @@ class MessageController extends Controller
      *           "id": "01J2MESSAGE001",
      *           "conversation_id": "01J2CHATCONVERSATION001",
      *           "user_id": "01J2USERA",
-     *           "role": "assistant",
+     *           "role": "user",
      *           "type": "text",
-     *           "content": "Ini jawaban AI konsultasi.",
-     *           "body": "Ini jawaban AI konsultasi.",
+     *           "content": "Halo, kabar kamu gimana?",
+     *           "body": "Halo, kabar kamu gimana?",
      *           "attachment": null,
      *           "read_at": null,
      *           "is_mine": false,
@@ -165,33 +163,14 @@ class MessageController extends Controller
      *     )
      *   ),
      *
-     *   @OA\Response(
-     *     response=202,
-     *     description="Permintaan AI sedang diproses melalui queue",
-     *
-     *     @OA\JsonContent(
-     *       example={
-     *         "success": true,
-     *         "status_code": 202,
-     *         "message": "Permintaan AI sedang diproses.",
-     *         "data": {
-     *           "status": "processing",
-     *           "conversation_id": "01J2CHATCONVERSATION001",
-     *           "user_message_id": "01J2MESSAGE001"
-     *         }
-     *       }
-     *     )
-     *   ),
-     *
      *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
      *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
      *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
      *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
-     *   @OA\Response(response=503, ref="#/components/responses/ServiceUnavailableError"),
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
-    public function store(SendMessageRequest $request, SendMessageAction $action, HaloSitekAIService $ai): JsonResponse
+    public function store(SendMessageRequest $request, SendMessageAction $action): JsonResponse
     {
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
@@ -203,144 +182,10 @@ class MessageController extends Controller
             $request->user(),
         );
 
-        /** @var User $user */
-        $user = $request->user();
-        if (! $user->isUser()) {
-            return ApiResponse::created(
-                (new MessageResource($message->loadMissing('sender')))->resolve($request),
-                'Pesan berhasil dikirim.',
-            );
-        }
-
-        $userId = (string) ($user->getAttribute('_id') ?? $user->getKey());
-        $message->role = Message::ROLE_USER;
-        $message->type = $message->attachment ? Message::TYPE_IMAGE : Message::TYPE_TEXT;
-        $message->content = is_string($message->body) ? $message->body : '';
-        $message->save();
-
-        $history = Message::query()
-            ->where('conversation_id', (string) $message->conversation_id)
-            ->whereIn('role', [Message::ROLE_USER, Message::ROLE_ASSISTANT])
-            ->latest('created_at')
-            ->limit(10)
-            ->get()
-            ->reverse()
-            ->map(function (Message $historyMessage): array {
-                $content = $historyMessage->content;
-                if (! is_string($content) || $content === '') {
-                    $content = is_string($historyMessage->body) ? $historyMessage->body : '';
-                }
-
-                return [
-                    'role' => (string) $historyMessage->role,
-                    'content' => $content,
-                ];
-            })
-            ->filter(fn (array $historyItem): bool => in_array($historyItem['role'], [Message::ROLE_USER, Message::ROLE_ASSISTANT], true) && $historyItem['content'] !== '')
-            ->values()
-            ->all();
-
-        if ($this->shouldQueueAiRequest((string) ($message->body ?? ''))) {
-            try {
-                GenerateAssistantReplyJob::dispatch(
-                    $userId,
-                    (string) $message->conversation_id,
-                    (string) ($message->body ?? ''),
-                    $history,
-                );
-            } catch (Throwable $exception) {
-                Log::error('Failed to dispatch queued AI chat job.', [
-                    'user_id' => $userId,
-                    'conversation_id' => (string) $message->conversation_id,
-                    'error' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString(),
-                ]);
-
-                return ApiResponse::error(
-                    'Terjadi kesalahan internal saat memproses permintaan AI.',
-                    ApiStatus::SERVER_ERROR
-                );
-            }
-
-            return ApiResponse::success(
-                [
-                    'status' => 'processing',
-                    'conversation_id' => (string) $message->conversation_id,
-                    'user_message_id' => (string) $message->getKey(),
-                ],
-                'Permintaan AI sedang diproses.',
-                ApiStatus::ACCEPTED
-            );
-        }
-
-        try {
-            $result = $ai->generate(
-                userId: $userId,
-                message: (string) ($message->body ?? ''),
-                history: $history,
-            );
-
-            $assistantType = is_string($result['type']) && $result['type'] !== ''
-                ? (string) $result['type']
-                : Message::TYPE_TEXT;
-            $assistantContent = $result['content'];
-            $assistantContent = is_string($assistantContent)
-                ? $assistantContent
-                : (is_scalar($assistantContent) ? (string) $assistantContent : '');
-
-            $assistantMessage = Message::create([
-                'conversation_id' => (string) $message->conversation_id,
-                'user_id' => $userId,
-                'role' => Message::ROLE_ASSISTANT,
-                'type' => $assistantType,
-                'content' => $assistantContent,
-                'body' => $assistantContent,
-                'attachment' => null,
-                'read_at' => null,
-            ]);
-
-            return ApiResponse::created(
-                (new MessageResource($assistantMessage->loadMissing('sender')))->resolve($request),
-                'Pesan berhasil dikirim.',
-            );
-        } catch (HaloSitekAIException $exception) {
-            Log::error('HaloSitek AI chat request failed.', [
-                'user_id' => $userId,
-                'status' => $exception->statusCode(),
-                'error' => $exception->getMessage(),
-                'context' => $exception->context(),
-            ]);
-
-            if ($exception->statusCode() === 503) {
-                return ApiResponse::error(
-                    'AI service/Ollama sedang tidak tersedia. Silakan coba lagi beberapa saat.',
-                    ApiStatus::SERVICE_UNAVAILABLE
-                );
-            }
-
-            if ($exception->statusCode() === 422) {
-                return ApiResponse::error(
-                    'Permintaan tidak dapat diproses oleh AI service. Mohon periksa pesan Anda.',
-                    ApiStatus::UNPROCESSABLE_ENTITY
-                );
-            }
-
-            return ApiResponse::error(
-                'Terjadi kesalahan internal saat memproses permintaan AI.',
-                ApiStatus::SERVER_ERROR
-            );
-        } catch (Throwable $exception) {
-            Log::error('Unexpected AI chat integration error.', [
-                'user_id' => $userId,
-                'error' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString(),
-            ]);
-
-            return ApiResponse::error(
-                'Terjadi kesalahan internal saat memproses permintaan AI.',
-                ApiStatus::SERVER_ERROR
-            );
-        }
+        return ApiResponse::created(
+            (new MessageResource($message->loadMissing('sender')))->resolve($request),
+            'Pesan berhasil dikirim.',
+        );
     }
 
     /**
@@ -487,28 +332,6 @@ class MessageController extends Controller
                 ApiStatus::SERVER_ERROR
             );
         }
-    }
-
-    private function shouldQueueAiRequest(string $message): bool
-    {
-        $normalized = mb_strtolower($message);
-        $imageKeywords = [
-            'gambar',
-            'gambarkan',
-            'visualisasi',
-            'denah',
-            'desain',
-            'render',
-            'sketsa',
-            'layout',
-            'floor plan',
-            'fasad',
-            '3d',
-            'interior',
-            'eksterior',
-        ];
-
-        return Str::contains($normalized, $imageKeywords);
     }
 
     /**

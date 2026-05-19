@@ -19,7 +19,7 @@ afterEach(function () {
     DB::connection('mongodb')->table('personal_access_tokens')->delete();
 });
 
-it('returns only approved architects on public architect index', function () {
+it('returns architects on public architect index regardless of profile status', function () {
     $approvedArchitect = User::factory()->architect()->create();
     $pendingArchitect = User::factory()->architect()->create();
 
@@ -59,13 +59,10 @@ it('returns only approved architects on public architect index', function () {
 
     $response->assertOk()
         ->assertJsonPath('success', true)
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.id', $approvedArchitect->id)
-        ->assertJsonPath('data.0.status', 'approved')
-        ->assertJsonPath('data.0.total_projects', 1)
-        ->assertJsonPath('data.0.total_awards', 1)
-        ->assertJsonMissingPath('data.0.catalogs_file_url')
-        ->assertJsonMissingPath('data.0.awards_file_url');
+        ->assertJsonCount(2, 'data');
+
+    $ids = collect($response->json('data'))->pluck('id')->all();
+    expect($ids)->toContain($approvedArchitect->id, $pendingArchitect->id);
 });
 
 it('can save and unsave architect wishlist for authenticated user', function () {

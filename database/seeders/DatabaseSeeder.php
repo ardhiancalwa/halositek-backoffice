@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\UserRole;
+use App\Models\ArchitectProfile;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -35,12 +36,20 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        User::query()->firstOrCreate(
+        $architect = User::query()->updateOrCreate(
             ['email' => env('SEED_ARCHITECT_EMAIL', 'architect@halositek.com')],
             [
                 'name' => env('SEED_ARCHITECT_NAME', 'Architect User'),
                 'password' => Hash::make(env('SEED_ARCHITECT_PASSWORD', 'Password123!')),
                 'role' => UserRole::Architect->value,
+            ]
+        );
+
+        ArchitectProfile::query()->updateOrCreate(
+            ['user_id' => (string) $architect->getKey()],
+            [
+                'consultation_fee' => (int) ($_ENV['SEED_ARCHITECT_FEE'] ?? 250000),
+                'consultation_duration' => (int) ($_ENV['SEED_ARCHITECT_HOURS'] ?? 1),
             ]
         );
 

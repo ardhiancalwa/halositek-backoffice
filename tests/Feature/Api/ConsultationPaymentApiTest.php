@@ -158,13 +158,14 @@ it('handles midtrans webhook and creates consultation session with conversation'
 
     $consultationId = (string) $webhookResponse->json('data.consultation_id');
     $conversationId = (string) $webhookResponse->json('data.conversation_id');
+    $transactionId = 'trx-001';
 
     expect(Payment::find($paymentId)?->status)->toBe('completed');
     expect(Consultation::find($consultationId))->not->toBeNull();
     expect(Conversation::find($conversationId))->not->toBeNull();
 
     actingAs($user, 'sanctum')
-        ->getJson("/api/v1/consultations/payments/{$paymentId}/status")
+        ->getJson("/api/v1/consultations/payments/{$transactionId}/status")
         ->assertOk()
         ->assertJsonPath('data.status', 'completed')
         ->assertJsonPath('data.can_enter_consultation', true)

@@ -210,13 +210,13 @@ class PaymentController extends Controller
 
     /**
      * @OA\Get(
-     *   path="/consultations/payments/{paymentId}/status",
+     *   path="/consultations/payments/{transactionId}/status",
      *   tags={"Consultation Payment"},
      *   security={{"BearerAuth":{}}},
-     *   summary="Get payment status",
-     *   description="Mengambil status pembayaran dan sinkronisasi status ke Midtrans jika masih pending.",
+     *   summary="Get payment status (fallback polling)",
+     *   description="Endpoint fallback polling untuk Web/Flutter. Status utama pembayaran diperbarui otomatis melalui webhook Midtrans. Endpoint ini akan mencoba sinkronisasi ke Midtrans bila status di database masih pending.",
      *
-     *   @OA\Parameter(name="paymentId", in="path", required=true, @OA\Schema(type="string")),
+     *   @OA\Parameter(name="transactionId", in="path", required=true, @OA\Schema(type="string")),
      *
      *   @OA\Response(
      *     response=200,
@@ -248,14 +248,14 @@ class PaymentController extends Controller
      */
     public function status(
         Request $request,
-        string $paymentId,
+        string $transactionId,
         MidtransService $midtrans,
         FinalizeConsultationPaymentAction $finalizePayment,
         RecordPaymentHistoryAction $recordHistory
     ): JsonResponse {
         /** @var User $user */
         $user = $request->user();
-        $payment = Payment::query()->findOrFail($paymentId);
+        $payment = Payment::query()->where('transaction_id', $transactionId)->firstOrFail();
 
         $isOwner = (string) $payment->user_id === (string) $user->getKey();
         $isArchitect = (string) $payment->architect_id === (string) $user->getKey();

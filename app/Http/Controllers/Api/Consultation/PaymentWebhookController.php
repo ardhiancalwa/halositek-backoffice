@@ -20,8 +20,8 @@ class PaymentWebhookController extends Controller
      * @OA\Post(
      *   path="/webhooks/midtrans",
      *   tags={"Consultation Payment"},
-     *   summary="Handle Midtrans webhook",
-     *   description="Menerima notifikasi pembayaran dari Midtrans dan memperbarui status payment. Pada environment local/testing, signature_key otomatis digenerate bila kosong atau bernilai 'string' untuk kebutuhan test manual.",
+     *   summary="Handle Midtrans webhook (primary status updater)",
+     *   description="Endpoint utama (source of truth) untuk update status pembayaran dari notifikasi Midtrans. Konfigurasi webhook Midtrans diarahkan ke /api/v1/webhooks/midtrans. Pada environment local/testing, signature_key otomatis digenerate bila kosong atau bernilai 'string' untuk kebutuhan test manual.",
      *
      *   @OA\RequestBody(
      *     required=true,

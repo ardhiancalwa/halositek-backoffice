@@ -50,7 +50,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('/consultations/payments')->group(function () {
             Route::post('/initiate', [PaymentController::class, 'initiate']);
             Route::get('/history', [PaymentController::class, 'history']);
-            Route::get('/{paymentId}/status', [PaymentController::class, 'status']);
+            Route::get('/{transactionId}/status', [PaymentController::class, 'status']);
         });
 
         Route::get('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'index']);
@@ -150,3 +150,6 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/webhooks/midtrans', [PaymentWebhookController::class, 'handleMidtrans']);
 });
+
+// Backward-compatible webhook path without API version.
+Route::post('/webhooks/midtrans', [PaymentWebhookController::class, 'handleMidtrans']);

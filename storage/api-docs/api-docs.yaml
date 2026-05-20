@@ -1402,7 +1402,7 @@ paths:
       tags:
         - 'Consultation Report'
       summary: 'List reports by user or architect ID'
-      description: 'Mengambil semua laporan (report) yang melibatkan user ID tertentu (sebagai pelapor atau terlapor).'
+      description: 'Mengambil semua laporan yang melibatkan user ID tertentu.'
       operationId: 22fe901fa507e53c9ffe47bb43ab578e
       parameters:
         -
@@ -1719,7 +1719,7 @@ paths:
       tags:
         - Chat
       summary: 'Send message'
-      description: 'Mengirim pesan teks ke conversation. Untuk role user, sistem memproses AI reply (sync untuk teks, async/queue untuk request gambar).'
+      description: 'Mengirim pesan teks/file ke conversation antar user-arsitek (tanpa proses AI).'
       operationId: 5544065cc5106aa1f9a34cfc8762cfe4
       requestBody:
         required: true
@@ -1743,7 +1743,7 @@ paths:
               type: object
       responses:
         201:
-          description: 'Pesan berhasil diproses dan AI reply sinkron dikembalikan'
+          description: 'Pesan berhasil dikirim'
           content:
             application/json:
               schema: []
@@ -1755,10 +1755,10 @@ paths:
                   id: 01J2MESSAGE001
                   conversation_id: 01J2CHATCONVERSATION001
                   user_id: 01J2USERA
-                  role: assistant
+                  role: user
                   type: text
-                  content: 'Ini jawaban AI konsultasi.'
-                  body: 'Ini jawaban AI konsultasi.'
+                  content: 'Halo, kabar kamu gimana?'
+                  body: 'Halo, kabar kamu gimana?'
                   attachment: null
                   read_at: null
                   is_mine: false
@@ -1768,19 +1768,6 @@ paths:
                     email: budi@example.com
                   created_at: '2026-04-19T10:00:00+00:00'
                   updated_at: '2026-04-19T10:00:00+00:00'
-        202:
-          description: 'Permintaan AI sedang diproses melalui queue'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 202
-                message: 'Permintaan AI sedang diproses.'
-                data:
-                  status: processing
-                  conversation_id: 01J2CHATCONVERSATION001
-                  user_message_id: 01J2MESSAGE001
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
@@ -1789,8 +1776,6 @@ paths:
           $ref: '#/components/responses/NotFoundError'
         422:
           $ref: '#/components/responses/ValidationError'
-        503:
-          $ref: '#/components/responses/ServiceUnavailableError'
         500:
           $ref: '#/components/responses/ServerError'
       security:
@@ -1979,16 +1964,16 @@ paths:
       security:
         -
           BearerAuth: []
-  '/consultations/payments/{paymentId}/status':
+  '/consultations/payments/{transactionId}/status':
     get:
       tags:
         - 'Consultation Payment'
-      summary: 'Get payment status'
-      description: 'Mengambil status pembayaran dan sinkronisasi status ke Midtrans jika masih pending.'
-      operationId: d2788f38f560af4a3c5837bd40a9fb5f
+      summary: 'Get payment status (fallback polling)'
+      description: 'Endpoint fallback polling untuk Web/Flutter. Status utama pembayaran diperbarui otomatis melalui webhook Midtrans. Endpoint ini akan mencoba sinkronisasi ke Midtrans bila status di database masih pending.'
+      operationId: 7be295c948077e88d9c2721d767438a6
       parameters:
         -
-          name: paymentId
+          name: transactionId
           in: path
           required: true
           schema:
@@ -2077,8 +2062,8 @@ paths:
     post:
       tags:
         - 'Consultation Payment'
-      summary: 'Handle Midtrans webhook'
-      description: "Menerima notifikasi pembayaran dari Midtrans dan memperbarui status payment. Pada environment local/testing, signature_key otomatis digenerate bila kosong atau bernilai 'string' untuk kebutuhan test manual."
+      summary: 'Handle Midtrans webhook (primary status updater)'
+      description: "Endpoint utama (source of truth) untuk update status pembayaran dari notifikasi Midtrans. Konfigurasi webhook Midtrans diarahkan ke /api/v1/webhooks/midtrans. Pada environment local/testing, signature_key otomatis digenerate bila kosong atau bernilai 'string' untuk kebutuhan test manual."
       operationId: 17b961709c1c47d6f4a4b3c007410cf6
       requestBody:
         required: true

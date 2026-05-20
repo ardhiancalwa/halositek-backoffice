@@ -15,6 +15,8 @@ class MidtransService
 
     private string $apiBaseUrl;
 
+    private ?string $notificationUrl;
+
     public function __construct()
     {
         $this->serverKey = (string) config('services.midtrans.server_key', '');
@@ -25,6 +27,8 @@ class MidtransService
         $this->apiBaseUrl = $isProduction
             ? 'https://api.midtrans.com'
             : 'https://api.sandbox.midtrans.com';
+        $notificationUrl = (string) config('services.midtrans.notification_url', '');
+        $this->notificationUrl = $notificationUrl !== '' ? $notificationUrl : null;
     }
 
     /**
@@ -63,9 +67,17 @@ class MidtransService
                 : null,
         ];
 
-        $response = Http::withBasicAuth($this->serverKey, '')
+        $request = Http::withBasicAuth($this->serverKey, '')
             ->acceptJson()
-            ->asJson()
+            ->asJson();
+
+        if ($this->notificationUrl !== null) {
+            $request = $request->withHeaders([
+                'X-Override-Notification' => $this->notificationUrl,
+            ]);
+        }
+
+        $response = $request
             ->post("{$this->snapBaseUrl}/snap/v1/transactions", $requestPayload)
             ->throw();
 

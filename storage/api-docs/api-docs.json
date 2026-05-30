@@ -4885,6 +4885,110 @@
                 ]
             }
         },
+        "/architects/profile": {
+            "post": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "Update authenticated architect profile",
+                "description": "Updates profile information for the authenticated architect.",
+                "operationId": "1e20b4f68b72a822736fd8aafa8826db",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Arsitek A"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "arsitek.a@example.com"
+                                    },
+                                    "headline": {
+                                        "type": "string",
+                                        "example": "Modern Tropical Specialist",
+                                        "nullable": true
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "example": "Berpengalaman dalam proyek residensial dan komersial.",
+                                        "nullable": true
+                                    },
+                                    "year_of_experience": {
+                                        "type": "integer",
+                                        "example": 8,
+                                        "nullable": true,
+                                        "maximum": 100,
+                                        "minimum": 0
+                                    },
+                                    "consultation_fee": {
+                                        "type": "integer",
+                                        "example": 250000,
+                                        "nullable": true,
+                                        "minimum": 0
+                                    },
+                                    "consultation_hours": {
+                                        "type": "integer",
+                                        "example": 2,
+                                        "nullable": true,
+                                        "maximum": 24,
+                                        "minimum": 1
+                                    },
+                                    "photo_profile": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Architect profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Profil arsitek berhasil diperbarui.",
+                                    "data": {
+                                        "id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                        "name": "Arsitek A",
+                                        "email": "arsitek.a@example.com",
+                                        "headline": "Modern Tropical Specialist",
+                                        "bio": "Berpengalaman dalam proyek residensial dan komersial.",
+                                        "year_of_experience": 8,
+                                        "consultation_fee": 250000,
+                                        "consultation_hours": 2
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/users": {
             "get": {
                 "tags": [

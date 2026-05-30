@@ -79,6 +79,8 @@ Route::prefix('v1')->group(function () {
         Route::delete('/awards/{id}', [AwardController::class, 'destroy']);
 
         Route::get('/architects/earnings', [ArchitectController::class, 'earnings']);
+        Route::put('/architects/profile', [ArchitectController::class, 'updateProfile'])->middleware('role:architect');
+        Route::post('/architects/profile', [ArchitectController::class, 'updateProfile'])->middleware('role:architect');
 
         // Architect wishlist
         Route::get('/architects/wishlist', [ArchitectController::class, 'wishlist']);

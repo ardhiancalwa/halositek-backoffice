@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\User;
 use App\Enums\ApiStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\User\UpdateArchitectProfileRequest;
 use App\Http\Resources\User\ArchitectProfileResource;
 use App\Http\Responses\ApiResponse;
 use App\Models\ArchitectProfile;
@@ -17,6 +18,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use OpenApi\Annotations as OA;
 
 class ArchitectController extends Controller
@@ -403,5 +405,115 @@ class ArchitectController extends Controller
                 'total' => $paginated->total(),
             ],
         ], 'Data earnings berhasil diambil.');
+    }
+
+    /**
+     * @OA\Post(
+     *   path="/architects/profile",
+     *   tags={"Architects"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Update authenticated architect profile",
+     *   description="Updates profile information for the authenticated architect.",
+     *
+     *   @OA\RequestBody(
+     *     required=true,
+     *
+     *     @OA\MediaType(
+     *       mediaType="multipart/form-data",
+     *
+     *       @OA\Schema(
+     *         type="object",
+     *
+     *         @OA\Property(property="name", type="string", example="Arsitek A"),
+     *         @OA\Property(property="email", type="string", format="email", example="arsitek.a@example.com"),
+     *         @OA\Property(property="headline", type="string", nullable=true, example="Modern Tropical Specialist"),
+     *         @OA\Property(property="bio", type="string", nullable=true, example="Berpengalaman dalam proyek residensial dan komersial."),
+     *         @OA\Property(property="year_of_experience", type="integer", nullable=true, minimum=0, maximum=100, example=8),
+     *         @OA\Property(property="consultation_fee", type="integer", nullable=true, minimum=0, example=250000),
+     *         @OA\Property(property="consultation_hours", type="integer", nullable=true, minimum=1, maximum=24, example=2),
+     *         @OA\Property(property="photo_profile", type="string", format="binary")
+     *       )
+     *     )
+     *   ),
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="Architect profile updated successfully",
+     *
+     *     @OA\JsonContent(
+     *       example={"success": true, "status_code": 200, "message": "Profil arsitek berhasil diperbarui.", "data": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "name": "Arsitek A", "email": "arsitek.a@example.com", "headline": "Modern Tropical Specialist", "bio": "Berpengalaman dalam proyek residensial dan komersial.", "year_of_experience": 8, "consultation_fee": 250000, "consultation_hours": 2}}
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError")
+     * )
+     */
+    public function updateProfile(UpdateArchitectProfileRequest $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return ApiResponse::unauthorized();
+        }
+
+        if (! $user->isArchitect()) {
+            return ApiResponse::forbidden('Hanya arsitek yang dapat memperbarui profil arsitek.');
+        }
+
+        $data = $request->validated();
+        if ($data === [] && ! $request->hasFile('photo_profile')) {
+            return ApiResponse::validationError([
+                'request' => ['Tidak ada data yang dikirim untuk diperbarui.'],
+            ], 'Validation failed.');
+        }
+
+        $userFields = array_filter([
+            'name' => $data['name'] ?? null,
+            'email' => $data['email'] ?? null,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        if ($request->hasFile('photo_profile')) {
+            if ($user->photo_profile) {
+                Storage::disk('public')->delete($user->photo_profile);
+            }
+            $userFields['photo_profile'] = $request->file('photo_profile')->store('users/profiles', 'public');
+        }
+
+        if ($userFields !== []) {
+            $user->fill($userFields);
+            $user->save();
+        }
+
+        $profileFields = array_filter([
+            'headline' => $data['headline'] ?? null,
+            'bio' => $data['bio'] ?? null,
+            'year_of_experience' => $data['year_of_experience'] ?? null,
+            'consultation_fee' => $data['consultation_fee'] ?? null,
+            'consultation_duration' => $data['consultation_hours'] ?? null,
+        ], static fn (mixed $value): bool => $value !== null);
+
+        if ($profileFields !== []) {
+            $user->architectProfile()->updateOrCreate(
+                ['user_id' => (string) $user->id],
+                $profileFields
+            );
+        }
+
+        $user->load('architectProfile');
+        $profile = $user->architectProfile;
+
+        return ApiResponse::success([
+            'name' => $user->name,
+            'email' => $user->email,
+            'headline' => $profile?->headline,
+            'bio' => $profile?->bio,
+            'year_of_experience' => (int) ($profile->year_of_experience ?? 0),
+            'consultation_fee' => (int) ($profile->consultation_fee ?? 0),
+            'consultation_hours' => (int) ($profile->consultation_duration ?? 1),
+            'photo_profile' => $user->photo_profile,
+            'photo_profile_url' => $user->photo_profile_url,
+        ], 'Profil arsitek berhasil diperbarui.');
     }
 }

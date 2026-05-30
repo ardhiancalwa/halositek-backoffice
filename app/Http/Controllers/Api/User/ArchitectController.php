@@ -509,9 +509,9 @@ class ArchitectController extends Controller
             'email' => $user->email,
             'headline' => $profile?->headline,
             'bio' => $profile?->bio,
-            'year_of_experience' => (int) ($profile?->year_of_experience ?? 0),
-            'consultation_fee' => (int) ($profile?->consultation_fee ?? 0),
-            'consultation_hours' => (int) ($profile?->consultation_duration ?? 1),
+            'year_of_experience' => (int) ($profile->year_of_experience ?? 0),
+            'consultation_fee' => (int) ($profile->consultation_fee ?? 0),
+            'consultation_hours' => (int) ($profile->consultation_duration ?? 1),
             'photo_profile' => $user->photo_profile,
             'photo_profile_url' => $user->photo_profile_url,
         ], 'Profil arsitek berhasil diperbarui.');

@@ -33,7 +33,7 @@ class ArchitectProfileResource extends JsonResource
             'id' => $user?->getKey(),
             'name' => $user?->getAttribute('name'),
             'email' => $user?->getAttribute('email'),
-            'profile_picture' => $user?->getAttribute('profile_picture'),
+            'profile_picture' => $user?->getAttribute('photo_profile'),
             'email_verified_at' => $emailVerifiedAt instanceof CarbonInterface ? $emailVerifiedAt->toIso8601String() : null,
             'role' => $role,
             'created_at' => $createdAt instanceof CarbonInterface ? $createdAt->toIso8601String() : null,

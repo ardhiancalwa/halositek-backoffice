@@ -31,7 +31,11 @@ class ArchitectController extends Controller
      *   tags={"Architects"},
      *   security={},
      *   summary="List architects",
-     *   description="Returns a list of architects for public browsing.",
+     *   description="Returns a list of architects for public browsing with optional search.",
+     *
+     *   @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
+     *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
      *
      *   @OA\Response(response=200, description="Architect list retrieved successfully",
      *
@@ -44,13 +48,28 @@ class ArchitectController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $perPage = min(50, (int) $request->input('per_page', 12));
-
-        $architects = User::query()
+        $query = User::query()
             ->where('role', UserRole::Architect->value)
             ->with(['architectProfile', 'projects', 'awards'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('search')) {
+            $search = trim($request->string('search')->toString());
+
+            $query->where(function ($builder) use ($search): void {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('architectProfile', function ($profileQuery) use ($search): void {
+                        $profileQuery->where('headline', 'like', "%{$search}%")
+                            ->orWhere('bio', 'like', "%{$search}%")
+                            ->orWhere('location', 'like', "%{$search}%")
+                            ->orWhere('specialization', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $perPage = min(50, max(1, (int) $request->input('per_page', 12)));
+        $architects = $query->paginate($perPage);
 
         $this->attachPortfolioTotals($architects->getCollection());
 

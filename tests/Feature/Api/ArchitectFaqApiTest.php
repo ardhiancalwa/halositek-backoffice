@@ -65,6 +65,74 @@ it('returns architects on public architect index regardless of profile status', 
     expect($ids)->toContain($approvedArchitect->id, $pendingArchitect->id);
 });
 
+it('filters public architect index by search keyword', function () {
+    $matchedByName = User::factory()->architect()->create([
+        'name' => 'Nadia Tropical',
+        'email' => 'nadia@example.com',
+    ]);
+    $matchedByProfile = User::factory()->architect()->create([
+        'name' => 'Raka Studio',
+        'email' => 'raka@example.com',
+    ]);
+    $unmatched = User::factory()->architect()->create([
+        'name' => 'Bima Classic',
+        'email' => 'bima@example.com',
+    ]);
+
+    ArchitectProfile::create([
+        'user_id' => $matchedByName->id,
+        'headline' => 'Residential architect',
+        'specialization' => 'Minimalist house',
+    ]);
+
+    ArchitectProfile::create([
+        'user_id' => $matchedByProfile->id,
+        'headline' => 'Tropical resort specialist',
+        'specialization' => 'Hospitality',
+    ]);
+
+    ArchitectProfile::create([
+        'user_id' => $unmatched->id,
+        'headline' => 'Classic interiors',
+        'specialization' => 'Renovation',
+    ]);
+
+    $response = $this->getJson('/api/v1/architects?search=tropical');
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('meta.total', 2);
+
+    $ids = collect($response->json('data'))->pluck('id')->all();
+    expect($ids)->toContain($matchedByName->id, $matchedByProfile->id)
+        ->not->toContain($unmatched->id);
+});
+
+it('supports page per page and optional search query on public architect index', function () {
+    $first = User::factory()->architect()->create([
+        'name' => 'Tropical Alpha',
+        'created_at' => now()->subMinute(),
+    ]);
+    User::factory()->architect()->create([
+        'name' => 'Tropical Beta',
+        'created_at' => now(),
+    ]);
+    User::factory()->architect()->create([
+        'name' => 'Classic Gamma',
+        'created_at' => now()->addMinute(),
+    ]);
+
+    $response = $this->getJson('/api/v1/architects?page=2&per_page=1&search=tropical');
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('meta.current_page', 2)
+        ->assertJsonPath('meta.per_page', 1)
+        ->assertJsonPath('meta.total', 2)
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $first->id);
+});
+
 it('can save and unsave architect wishlist for authenticated user', function () {
     $user = User::factory()->create();
     $architect = User::factory()->architect()->create();

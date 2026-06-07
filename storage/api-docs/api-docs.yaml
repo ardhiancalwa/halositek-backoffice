@@ -3226,8 +3226,24 @@ paths:
       tags:
         - Architects
       summary: 'List architects'
-      description: 'Returns a list of architects for public browsing.'
+      description: 'Returns a list of architects for public browsing with optional search.'
       operationId: 1959934f63e0c7d99ea9d206a9ec85f0
+      parameters:
+        -
+          name: page
+          in: query
+          schema:
+            type: integer
+        -
+          name: search
+          in: query
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          schema:
+            type: integer
       responses:
         200:
           description: 'Architect list retrieved successfully'

@@ -12,8 +12,10 @@ use App\Models\ArchitectProfile;
 use App\Models\ArchitectWishlist;
 use App\Models\Award;
 use App\Models\Consultation;
+use App\Models\PersonalAccessToken;
 use App\Models\Project;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -29,7 +31,11 @@ class ArchitectController extends Controller
      *   tags={"Architects"},
      *   security={},
      *   summary="List architects",
-     *   description="Returns a list of architects for public browsing.",
+     *   description="Returns a list of architects for public browsing with optional search.",
+     *
+     *   @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
+     *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
      *
      *   @OA\Response(response=200, description="Architect list retrieved successfully",
      *
@@ -42,13 +48,28 @@ class ArchitectController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $perPage = min(50, (int) $request->input('per_page', 12));
-
-        $architects = User::query()
+        $query = User::query()
             ->where('role', UserRole::Architect->value)
             ->with(['architectProfile', 'projects', 'awards'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('search')) {
+            $search = trim($request->string('search')->toString());
+
+            $query->where(function ($builder) use ($search): void {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhereHas('architectProfile', function ($profileQuery) use ($search): void {
+                        $profileQuery->where('headline', 'like', "%{$search}%")
+                            ->orWhere('bio', 'like', "%{$search}%")
+                            ->orWhere('location', 'like', "%{$search}%")
+                            ->orWhere('specialization', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $perPage = min(50, max(1, (int) $request->input('per_page', 12)));
+        $architects = $query->paginate($perPage);
 
         $this->attachPortfolioTotals($architects->getCollection());
 
@@ -148,7 +169,7 @@ class ArchitectController extends Controller
      * @OA\Get(
      *   path="/architects/{id}",
      *   tags={"Architects"},
-     *   security={},
+     *   security={{"BearerAuth":{}}},
      *   summary="Get architect details",
      *   description="Returns detailed information about a specific architect.",
      *
@@ -163,7 +184,7 @@ class ArchitectController extends Controller
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
         $architect = User::query()
             ->where('id', $id)
@@ -177,10 +198,42 @@ class ArchitectController extends Controller
 
         $this->attachPortfolioTotals(collect([$architect]));
 
+        $user = $this->userFromBearerToken($request);
+        if ($user instanceof User) {
+            $architect->setAttribute('is_wishlisted', ArchitectWishlist::query()
+                ->where('user_id', (string) $user->id)
+                ->where('architect_id', (string) $architect->id)
+                ->exists());
+        }
+
         return ApiResponse::success(
-            (new ArchitectProfileResource($architect))->resolve(),
+            (new ArchitectProfileResource($architect))->resolve($request),
             'Data arsitek berhasil diambil.'
         );
+    }
+
+    private function userFromBearerToken(Request $request): ?User
+    {
+        $plainTextToken = $request->bearerToken();
+
+        if (! $plainTextToken) {
+            return null;
+        }
+
+        $accessToken = PersonalAccessToken::findToken($plainTextToken);
+
+        if (! $accessToken) {
+            return null;
+        }
+
+        $expiresAt = $accessToken->getAttribute('expires_at');
+        if ($expiresAt instanceof CarbonInterface && $expiresAt->isPast()) {
+            return null;
+        }
+
+        $tokenable = $accessToken->tokenable;
+
+        return $tokenable instanceof User ? $tokenable : null;
     }
 
     /**

@@ -44,6 +44,10 @@ class ArchitectProfileResource extends JsonResource
             'status' => $profile?->getAttribute('status'),
             'total_projects' => (int) ($user?->getAttribute('total_projects') ?? 0),
             'total_awards' => (int) ($user?->getAttribute('total_awards') ?? 0),
+            'is_wishlisted' => $this->when(
+                $user?->offsetExists('is_wishlisted') === true,
+                (bool) $user?->getAttribute('is_wishlisted')
+            ),
             'specialization' => $profile?->getAttribute('specialization'),
             'rating' => (float) ($profile?->getAttribute('rating') ?? 0),
             'year_of_experience' => (int) ($profile?->getAttribute('year_of_experience') ?? 0),

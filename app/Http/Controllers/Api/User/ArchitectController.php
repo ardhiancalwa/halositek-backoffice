@@ -12,8 +12,10 @@ use App\Models\ArchitectProfile;
 use App\Models\ArchitectWishlist;
 use App\Models\Award;
 use App\Models\Consultation;
+use App\Models\PersonalAccessToken;
 use App\Models\Project;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -148,7 +150,7 @@ class ArchitectController extends Controller
      * @OA\Get(
      *   path="/architects/{id}",
      *   tags={"Architects"},
-     *   security={},
+     *   security={{"BearerAuth":{}}},
      *   summary="Get architect details",
      *   description="Returns detailed information about a specific architect.",
      *
@@ -163,7 +165,7 @@ class ArchitectController extends Controller
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
         $architect = User::query()
             ->where('id', $id)
@@ -177,10 +179,42 @@ class ArchitectController extends Controller
 
         $this->attachPortfolioTotals(collect([$architect]));
 
+        $user = $this->userFromBearerToken($request);
+        if ($user instanceof User) {
+            $architect->setAttribute('is_wishlisted', ArchitectWishlist::query()
+                ->where('user_id', (string) $user->id)
+                ->where('architect_id', (string) $architect->id)
+                ->exists());
+        }
+
         return ApiResponse::success(
-            (new ArchitectProfileResource($architect))->resolve(),
+            (new ArchitectProfileResource($architect))->resolve($request),
             'Data arsitek berhasil diambil.'
         );
+    }
+
+    private function userFromBearerToken(Request $request): ?User
+    {
+        $plainTextToken = $request->bearerToken();
+
+        if (! $plainTextToken) {
+            return null;
+        }
+
+        $accessToken = PersonalAccessToken::findToken($plainTextToken);
+
+        if (! $accessToken) {
+            return null;
+        }
+
+        $expiresAt = $accessToken->getAttribute('expires_at');
+        if ($expiresAt instanceof CarbonInterface && $expiresAt->isPast()) {
+            return null;
+        }
+
+        $tokenable = $accessToken->tokenable;
+
+        return $tokenable instanceof User ? $tokenable : null;
     }
 
     /**

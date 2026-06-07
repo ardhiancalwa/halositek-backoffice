@@ -4715,7 +4715,11 @@
                         "$ref": "#/components/responses/ServerError"
                     }
                 },
-                "security": []
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
             }
         },
         "/architects/{userId}/save": {

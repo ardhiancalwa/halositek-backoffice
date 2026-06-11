@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\HaloSitekAIException;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -13,15 +14,18 @@ class HaloSitekAIService
 {
     private string $baseUrl;
 
+    private bool $verifySsl;
+
     public function __construct()
     {
         $this->baseUrl = rtrim(config('services.halositek_ai.url'), '/');
+        $this->verifySsl = (bool) config('services.halositek_ai.verify_ssl', true);
     }
 
     public function isHealthy(): bool
     {
         try {
-            $response = Http::timeout(5)->get("{$this->baseUrl}/health");
+            $response = $this->http(5)->get("{$this->baseUrl}/health");
 
             return $response->ok() && $response->json('ollama_connected') === true;
         } catch (Throwable) {
@@ -36,7 +40,7 @@ class HaloSitekAIService
     public function generate(string $userId, string $message, array $history = []): array
     {
         try {
-            $response = Http::timeout(120)->post("{$this->baseUrl}/api/v1/generate", [
+            $response = $this->http(120)->post("{$this->baseUrl}/api/v1/generate", [
                 'user_id' => $userId,
                 'message' => $message,
                 'history' => $history,
@@ -152,5 +156,12 @@ class HaloSitekAIService
         $data['content'] = $content;
 
         return $data;
+    }
+
+    private function http(int $timeout): PendingRequest
+    {
+        return Http::timeout($timeout)->withOptions([
+            'verify' => $this->verifySsl,
+        ]);
     }
 }

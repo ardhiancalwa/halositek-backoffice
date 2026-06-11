@@ -21,7 +21,10 @@ use App\Services\HaloSitekAIService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use OpenApi\Annotations as OA;
 use Throwable;
 
@@ -186,6 +189,111 @@ class MessageController extends Controller
             (new MessageResource($message->loadMissing('sender')))->resolve($request),
             'Pesan berhasil dikirim.',
         );
+    }
+
+    /**
+     * @OA\Get(
+     *   path="/chat/ai/messages",
+     *   tags={"Chat"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="List AI chat history",
+     *   description="Mengambil history chat AI milik user login dengan cursor-based pagination. Data terbaru ditampilkan lebih dulu; gunakan next_cursor untuk load history yang lebih lama.",
+     *
+     *   @OA\Parameter(name="per_page", in="query", required=false, @OA\Schema(type="integer", minimum=1, maximum=100, example=20)),
+     *   @OA\Parameter(name="cursor", in="query", required=false, @OA\Schema(type="string", example="eyJjcmVhdGVkX2F0IjoiMjAyNi0wNC0xOVQxMDowMDowMCswMDowMCIsImlkIjoiMDFKMk1FU1NBR0UwMDEifQ==")),
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="History chat AI berhasil diambil",
+     *
+     *     @OA\JsonContent(
+     *       example={
+     *         "success": true,
+     *         "status_code": 200,
+     *         "message": "History chat AI berhasil diambil.",
+     *         "data": {
+     *           {
+     *             "id": "01J2MESSAGE002",
+     *             "conversation_id": "",
+     *             "user_id": "01J2USERA",
+     *             "role": "assistant",
+     *             "type": "text",
+     *             "content": "Ini adalah jawaban AI.",
+     *             "body": "Ini adalah jawaban AI.",
+     *             "attachment": null,
+     *             "attachment_url": null,
+     *             "read_at": null,
+     *             "is_mine": false,
+     *             "created_at": "2026-04-19T10:00:03+00:00",
+     *             "updated_at": "2026-04-19T10:00:03+00:00"
+     *           }
+     *         },
+     *         "meta": {
+     *           "per_page": 20,
+     *           "next_cursor": null,
+     *           "has_more": false
+     *         }
+     *       }
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function aiHistory(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'cursor' => ['sometimes', 'string'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+        $userId = (string) ($user->getAttribute('_id') ?? $user->getKey());
+        $perPage = (int) ($validated['per_page'] ?? 20);
+        $cursor = $this->decodeAiHistoryCursor($validated['cursor'] ?? null);
+
+        $query = Message::query()
+            ->where('user_id', $userId)
+            ->whereIn('role', [Message::ROLE_USER, Message::ROLE_ASSISTANT])
+            ->orderBy('created_at', 'desc')
+            ->orderBy('id', 'desc');
+
+        if ($cursor !== null) {
+            $query->where(function ($query) use ($cursor): void {
+                $query
+                    ->where('created_at', '<', $cursor['created_at'])
+                    ->orWhere(function ($query) use ($cursor): void {
+                        $query
+                            ->where('created_at', '=', $cursor['created_at'])
+                            ->where('id', '<', $cursor['id']);
+                    });
+            });
+        }
+
+        /** @var Collection<int, Message> $messages */
+        $messages = $query->limit($perPage + 1)->get();
+        $hasMore = $messages->count() > $perPage;
+        $items = $messages->take($perPage)->values();
+        $lastItem = $items->last();
+
+        $nextCursor = $hasMore && $lastItem instanceof Message
+            ? $this->encodeAiHistoryCursor($lastItem)
+            : null;
+
+        return response()->json([
+            'success' => true,
+            'status_code' => ApiStatus::SUCCESS->value,
+            'message' => ApiStatus::SUCCESS->message('History chat AI berhasil diambil.'),
+            'data' => MessageResource::collection($items)->resolve($request),
+            'meta' => [
+                'per_page' => $perPage,
+                'next_cursor' => $nextCursor,
+                'has_more' => $hasMore,
+            ],
+        ]);
     }
 
     /**
@@ -444,5 +552,49 @@ class MessageController extends Controller
         broadcast(new TypingIndicator((string) $conversation->getKey(), $userId, $isTyping))->toOthers();
 
         return ApiResponse::success(message: 'Status mengetik berhasil dikirim.');
+    }
+
+    /**
+     * @return array{created_at: Carbon, id: string}|null
+     */
+    private function decodeAiHistoryCursor(?string $cursor): ?array
+    {
+        if ($cursor === null || $cursor === '') {
+            return null;
+        }
+
+        $decoded = base64_decode($cursor, true);
+        $payload = $decoded !== false ? json_decode($decoded, true) : null;
+
+        if (! is_array($payload) || ! is_string($payload['created_at'] ?? null) || ! is_string($payload['id'] ?? null)) {
+            throw ValidationException::withMessages([
+                'cursor' => ['Cursor tidak valid.'],
+            ]);
+        }
+
+        try {
+            $createdAt = Carbon::parse($payload['created_at']);
+        } catch (Throwable) {
+            throw ValidationException::withMessages([
+                'cursor' => ['Cursor tidak valid.'],
+            ]);
+        }
+
+        return [
+            'created_at' => $createdAt,
+            'id' => $payload['id'],
+        ];
+    }
+
+    private function encodeAiHistoryCursor(Message $message): ?string
+    {
+        if ($message->created_at === null) {
+            return null;
+        }
+
+        return base64_encode((string) json_encode([
+            'created_at' => $message->created_at->toIso8601String(),
+            'id' => (string) $message->getKey(),
+        ]));
     }
 }

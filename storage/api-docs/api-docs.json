@@ -2511,6 +2511,87 @@
             }
         },
         "/chat/ai/messages": {
+            "get": {
+                "tags": [
+                    "Chat"
+                ],
+                "summary": "List AI chat history",
+                "description": "Mengambil history chat AI milik user login dengan cursor-based pagination. Data terbaru ditampilkan lebih dulu; gunakan next_cursor untuk load history yang lebih lama.",
+                "operationId": "8170b79fc7de45beb46571744da92841",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 20,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "cursor",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "eyJjcmVhdGVkX2F0IjoiMjAyNi0wNC0xOVQxMDowMDowMCswMDowMCIsImlkIjoiMDFKMk1FU1NBR0UwMDEifQ=="
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "History chat AI berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "History chat AI berhasil diambil.",
+                                    "data": [
+                                        {
+                                            "id": "01J2MESSAGE002",
+                                            "conversation_id": "",
+                                            "user_id": "01J2USERA",
+                                            "role": "assistant",
+                                            "type": "text",
+                                            "content": "Ini adalah jawaban AI.",
+                                            "body": "Ini adalah jawaban AI.",
+                                            "attachment": null,
+                                            "attachment_url": null,
+                                            "read_at": null,
+                                            "is_mine": false,
+                                            "created_at": "2026-04-19T10:00:03+00:00",
+                                            "updated_at": "2026-04-19T10:00:03+00:00"
+                                        }
+                                    ],
+                                    "meta": {
+                                        "per_page": 20,
+                                        "next_cursor": null,
+                                        "has_more": false
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Chat"

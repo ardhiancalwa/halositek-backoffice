@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Support\Carbon;
 use MongoDB\Laravel\Eloquent\Model;
 
+/**
+ * @property string $email
+ * @property string $otp
+ * @property Carbon|null $expires_at
+ * @property Carbon|null $verified_at
+ * @property Carbon|null $used_at
+ */
 class MobilePasswordResetOtp extends Model
 {
     use HasUuids;

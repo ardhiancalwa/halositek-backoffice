@@ -10,6 +10,7 @@ use App\Http\Requests\Api\Consultation\ConsultationReportFilterRequest;
 use App\Http\Requests\Api\Consultation\PayrollReleaseRequest;
 use App\Http\Responses\ApiResponse;
 use App\Jobs\ProcessConsultationRefundJob;
+use App\Mail\ConsultationReportRefundApprovedMail;
 use App\Models\Consultation;
 use App\Models\ConsultationReport;
 use App\Models\Payment;
@@ -19,6 +20,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use OpenApi\Annotations as OA;
 
 class ConsultationManagementController extends Controller
@@ -281,6 +283,21 @@ class ConsultationManagementController extends Controller
                 ],
                 'Admin menyetujui refund buyback. Memulai proses refund async.'
             );
+
+            if ($requesterRole === 'user' && $action === 'approved') {
+                $report->loadMissing('requester');
+                $requester = $report->requester;
+
+                if ($requester && $requester->email) {
+                    Mail::to($requester->email)->send(new ConsultationReportRefundApprovedMail(
+                        userName: (string) $requester->name,
+                        reportId: (string) $report->getKey(),
+                        orderId: (string) $payment->order_id,
+                        amount: (int) $payment->amount,
+                        reason: (string) $report->reason,
+                    ));
+                }
+            }
 
             ProcessConsultationRefundJob::dispatch(
                 (string) $payment->getKey(),

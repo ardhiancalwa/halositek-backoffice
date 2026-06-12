@@ -260,6 +260,60 @@ class AuthController extends Controller
     }
 
     /**
+     * Change current authenticated user's password.
+     *
+     * @OA\Post(
+     *   path="/auth/change-password",
+     *   tags={"Auth"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Change password",
+     *   description="Changes the current authenticated user's password after validating the current password.",
+     *
+     *   @OA\RequestBody(
+     *     required=true,
+     *
+     *     @OA\JsonContent(
+     *       required={"current_password","new_password","new_password_confirmation"},
+     *
+     *       @OA\Property(property="current_password", type="string", format="password", example="oldpassword123"),
+     *       @OA\Property(property="new_password", type="string", format="password", example="newpassword123"),
+     *       @OA\Property(property="new_password_confirmation", type="string", format="password", example="newpassword123")
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=200, description="Password changed successfully",
+     *
+     *     @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Password berhasil diubah."})
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=422, ref="#/components/responses/ValidationError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function changePassword(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        /** @var User $user */
+        $user = $request->user();
+
+        if (! Hash::check((string) $validated['current_password'], $user->password)) {
+            return ApiResponse::validationError([
+                'current_password' => ['Password saat ini tidak sesuai.'],
+            ], 'Password saat ini tidak sesuai.');
+        }
+
+        $user->password = (string) $validated['new_password'];
+        $user->save();
+
+        return ApiResponse::success(message: 'Password berhasil diubah.');
+    }
+
+    /**
      * Get current authenticated user's profile.
      *
      * @OA\Get(

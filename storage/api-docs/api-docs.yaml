@@ -494,6 +494,55 @@ paths:
       security:
         -
           BearerAuth: []
+  /auth/change-password:
+    post:
+      tags:
+        - Auth
+      summary: 'Change password'
+      description: "Changes the current authenticated user's password after validating the current password."
+      operationId: 000615dea47b4e76d90368283f7d5ca5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - current_password
+                - new_password
+                - new_password_confirmation
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                  example: oldpassword123
+                new_password:
+                  type: string
+                  format: password
+                  example: newpassword123
+                new_password_confirmation:
+                  type: string
+                  format: password
+                  example: newpassword123
+              type: object
+      responses:
+        200:
+          description: 'Password changed successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Password berhasil diubah.'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   /me:
     get:
       tags:
@@ -583,6 +632,134 @@ paths:
       security:
         -
           BearerAuth: []
+  /auth/mobile/password/request-otp:
+    post:
+      tags:
+        - Auth
+      summary: 'Request mobile reset password OTP'
+      description: "Generates a 4-digit OTP for mobile password reset and sends it to the user's email."
+      operationId: 45cb9a2470ccab4dec13d420d9813c58
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@halositek.com
+              type: object
+      responses:
+        200:
+          description: 'OTP sent successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Kode OTP reset password telah dikirim ke email.'
+                data:
+                  expires_in_minutes: 10
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /auth/mobile/password/verify-otp:
+    post:
+      tags:
+        - Auth
+      summary: 'Verify mobile reset password OTP'
+      description: 'Validates a 4-digit mobile reset password OTP before the password is updated.'
+      operationId: 7b546ee97169dba9919e21b5ffc37f1e
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+                - otp
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@halositek.com
+                otp:
+                  type: string
+                  example: '1234'
+              type: object
+      responses:
+        200:
+          description: 'OTP valid'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Kode OTP valid.'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /auth/mobile/password/reset:
+    post:
+      tags:
+        - Auth
+      summary: 'Reset mobile password using OTP'
+      description: "Updates the user's password after validating a 4-digit OTP. The OTP is marked as used after a successful reset."
+      operationId: 15ba6745eaa9f083365d72832b92c8d7
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+                - otp
+                - password
+                - password_confirmation
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@halositek.com
+                otp:
+                  type: string
+                  example: '1234'
+                password:
+                  type: string
+                  format: password
+                  example: newpassword123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: newpassword123
+              type: object
+      responses:
+        200:
+          description: 'Password reset successful'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Password berhasil direset.'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
   /awards:
     get:
       tags:
@@ -1878,6 +2055,32 @@ paths:
           $ref: '#/components/responses/ValidationError'
         503:
           $ref: '#/components/responses/ServiceUnavailableError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /chat/ai/stop:
+    post:
+      tags:
+        - Chat
+      summary: 'Stop active AI generation'
+      description: 'Menghentikan generate AI aktif milik user login. Backend menandai request sebagai cancelled dan mencoba meneruskan stop signal ke AI service.'
+      operationId: 8351331cc10791a234d2b3cd98ef04a9
+      responses:
+        200:
+          description: 'Stop signal processed'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Generate AI berhasil dihentikan.'
+                data:
+                  stopped: true
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
         500:
           $ref: '#/components/responses/ServerError'
       security:

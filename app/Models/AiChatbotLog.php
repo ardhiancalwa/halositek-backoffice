@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use MongoDB\Laravel\Eloquent\Model;
 
@@ -17,6 +19,7 @@ class AiChatbotLog extends Model
     use HasFactory;
 
     use HasUuids;
+    use Prunable;
 
     protected $connection = 'mongodb';
 
@@ -44,6 +47,14 @@ class AiChatbotLog extends Model
         return [
             'generate_time_ms' => 'integer',
         ];
+    }
+
+    /**
+     * @return Builder<self>
+     */
+    public function prunable(): Builder
+    {
+        return static::query()->where('created_at', '<', now()->subDays(7));
     }
 
     /**

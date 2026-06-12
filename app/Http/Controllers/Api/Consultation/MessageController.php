@@ -13,6 +13,7 @@ use App\Http\Requests\Api\Consultation\SendMessageRequest;
 use App\Http\Resources\Consultation\ConversationResource;
 use App\Http\Resources\Consultation\MessageResource;
 use App\Http\Responses\ApiResponse;
+use App\Models\AiChatbotLog;
 use App\Models\Consultation;
 use App\Models\Conversation;
 use App\Models\Message;
@@ -23,7 +24,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use OpenApi\Annotations as OA;
 use Throwable;
@@ -342,6 +345,12 @@ class MessageController extends Controller
         /** @var User $user */
         $user = $request->user();
         $userId = (string) ($user->getAttribute('_id') ?? $user->getKey());
+        $messageText = (string) $validated['message'];
+        $generationId = (string) Str::uuid();
+        $startedAt = microtime(true);
+
+        Cache::put($this->aiActiveGenerationCacheKey($userId), $generationId, now()->addMinutes(10));
+        Cache::forget($this->aiCancelledGenerationCacheKey($userId, $generationId));
 
         $history = Message::query()
             ->where('user_id', $userId)
@@ -369,16 +378,29 @@ class MessageController extends Controller
         try {
             $result = $ai->generate(
                 userId: $userId,
-                message: $validated['message'],
+                message: $messageText,
                 history: $history,
+                generationId: $generationId,
             );
+
+            if ($this->isAiGenerationStopped($userId, $generationId)) {
+                $this->recordAiChatbotLog(
+                    userId: $userId,
+                    requestMessage: $messageText,
+                    status: 'failed',
+                    startedAt: $startedAt,
+                    errorLog: 'Generate AI dihentikan oleh user.'
+                );
+
+                return ApiResponse::error('Generate AI dihentikan.', ApiStatus::CONFLICT);
+            }
 
             Message::create([
                 'user_id' => $userId,
                 'role' => 'user',
                 'type' => 'text',
-                'content' => $validated['message'],
-                'body' => $validated['message'],
+                'content' => $messageText,
+                'body' => $messageText,
                 'attachment' => null,
                 'read_at' => null,
             ]);
@@ -401,6 +423,14 @@ class MessageController extends Controller
                 'read_at' => null,
             ]);
 
+            $this->recordAiChatbotLog(
+                userId: $userId,
+                requestMessage: $messageText,
+                status: 'success',
+                startedAt: $startedAt,
+                result: $result
+            );
+
             return response()->json($result);
         } catch (HaloSitekAIException $exception) {
             Log::error('HaloSitek AI chat request failed.', [
@@ -409,6 +439,22 @@ class MessageController extends Controller
                 'error' => $exception->getMessage(),
                 'context' => $exception->context(),
             ]);
+
+            $errorMessage = $this->isAiGenerationStopped($userId, $generationId)
+                ? 'Generate AI dihentikan oleh user.'
+                : $exception->getMessage();
+
+            $this->recordAiChatbotLog(
+                userId: $userId,
+                requestMessage: $messageText,
+                status: 'failed',
+                startedAt: $startedAt,
+                errorLog: $errorMessage
+            );
+
+            if ($this->isAiGenerationStopped($userId, $generationId)) {
+                return ApiResponse::error('Generate AI dihentikan.', ApiStatus::CONFLICT);
+            }
 
             if ($exception->statusCode() === 503) {
                 return ApiResponse::error(
@@ -435,11 +481,75 @@ class MessageController extends Controller
                 'trace' => $exception->getTraceAsString(),
             ]);
 
+            $this->recordAiChatbotLog(
+                userId: $userId,
+                requestMessage: $messageText,
+                status: 'failed',
+                startedAt: $startedAt,
+                errorLog: $this->isAiGenerationStopped($userId, $generationId)
+                    ? 'Generate AI dihentikan oleh user.'
+                    : $exception->getMessage()
+            );
+
+            if ($this->isAiGenerationStopped($userId, $generationId)) {
+                return ApiResponse::error('Generate AI dihentikan.', ApiStatus::CONFLICT);
+            }
+
             return ApiResponse::error(
                 'Terjadi kesalahan internal saat memproses permintaan AI.',
                 ApiStatus::SERVER_ERROR
             );
+        } finally {
+            $this->clearAiGenerationState($userId, $generationId);
         }
+    }
+
+    /**
+     * @OA\Post(
+     *   path="/chat/ai/stop",
+     *   tags={"Chat"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Stop active AI generation",
+     *   description="Menghentikan generate AI aktif milik user login. Backend menandai request sebagai cancelled dan mencoba meneruskan stop signal ke AI service.",
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="Stop signal processed",
+     *
+     *     @OA\JsonContent(
+     *       example={
+     *         "success": true,
+     *         "status_code": 200,
+     *         "message": "Generate AI berhasil dihentikan.",
+     *         "data": {"stopped": true}
+     *       }
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function stopAi(Request $request, HaloSitekAIService $ai): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $userId = (string) ($user->getAttribute('_id') ?? $user->getKey());
+        $activeGenerationId = Cache::get($this->aiActiveGenerationCacheKey($userId));
+
+        if (! is_string($activeGenerationId) || $activeGenerationId === '') {
+            return ApiResponse::success([
+                'stopped' => false,
+            ], 'Tidak ada generate AI yang sedang berjalan.');
+        }
+
+        Cache::put($this->aiCancelledGenerationCacheKey($userId, $activeGenerationId), true, now()->addMinutes(10));
+
+        $ai->stopGeneration($userId, $activeGenerationId);
+
+        return ApiResponse::success([
+            'stopped' => true,
+        ], 'Generate AI berhasil dihentikan.');
     }
 
     /**
@@ -596,5 +706,62 @@ class MessageController extends Controller
             'created_at' => $message->created_at->toIso8601String(),
             'id' => (string) $message->getKey(),
         ]));
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $result
+     */
+    private function recordAiChatbotLog(
+        string $userId,
+        string $requestMessage,
+        string $status,
+        float $startedAt,
+        ?array $result = null,
+        ?string $errorLog = null
+    ): void {
+        $generateTimeMs = max(0, (int) round((microtime(true) - $startedAt) * 1000));
+        $resultType = is_string($result['type'] ?? null) && $result['type'] !== ''
+            ? (string) $result['type']
+            : null;
+        $content = $result['content'] ?? null;
+        $content = is_string($content)
+            ? $content
+            : (is_scalar($content) ? (string) $content : null);
+
+        AiChatbotLog::create([
+            'user_id' => $userId,
+            'prompt_preview' => Str::limit($requestMessage, 120, ''),
+            'request_payload' => $requestMessage,
+            'status' => $status,
+            'generate_time_ms' => $generateTimeMs,
+            'result_type' => $resultType,
+            'generated_text' => $resultType === Message::TYPE_TEXT ? $content : null,
+            'generated_image_url' => $resultType === Message::TYPE_IMAGE ? $content : null,
+            'error_log' => $errorLog,
+        ]);
+    }
+
+    private function isAiGenerationStopped(string $userId, string $generationId): bool
+    {
+        return Cache::has($this->aiCancelledGenerationCacheKey($userId, $generationId));
+    }
+
+    private function clearAiGenerationState(string $userId, string $generationId): void
+    {
+        if (Cache::get($this->aiActiveGenerationCacheKey($userId)) === $generationId) {
+            Cache::forget($this->aiActiveGenerationCacheKey($userId));
+        }
+
+        Cache::forget($this->aiCancelledGenerationCacheKey($userId, $generationId));
+    }
+
+    private function aiActiveGenerationCacheKey(string $userId): string
+    {
+        return "ai-generation-active:{$userId}";
+    }
+
+    private function aiCancelledGenerationCacheKey(string $userId, string $generationId): string
+    {
+        return "ai-generation-cancelled:{$userId}:{$generationId}";
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AiChatbot\AiChatbotManagementController;
 use App\Http\Controllers\Api\Analystics\AnalyticsController;
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\MobilePasswordResetController;
 use App\Http\Controllers\Api\Award\AwardController;
 use App\Http\Controllers\Api\Consultation\ConsultationManagementController;
 use App\Http\Controllers\Api\Consultation\ConsultationReportController;
@@ -28,10 +29,14 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/refresh-token', [AuthController::class, 'refresh']);
+    Route::post('/auth/mobile/password/request-otp', [MobilePasswordResetController::class, 'requestOtp']);
+    Route::post('/auth/mobile/password/verify-otp', [MobilePasswordResetController::class, 'verifyOtp']);
+    Route::post('/auth/mobile/password/reset', [MobilePasswordResetController::class, 'resetPassword']);
 
     // Protected routes (any authenticated user)
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/me', [UserController::class, 'updateProfile']);
 
@@ -44,6 +49,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/messages', [MessageController::class, 'store']);
             Route::get('/ai/messages', [MessageController::class, 'aiHistory']);
             Route::post('/ai/messages', [MessageController::class, 'storeAi']);
+            Route::post('/ai/stop', [MessageController::class, 'stopAi']);
             Route::post('/conversations/{conversationId}/read', [MessageController::class, 'markAsRead']);
             Route::post('/conversations/{conversationId}/typing', [MessageController::class, 'typing']);
         });

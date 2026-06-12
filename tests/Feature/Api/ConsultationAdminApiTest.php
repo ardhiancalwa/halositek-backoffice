@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\ConsultationReportRefundApprovedMail;
 use App\Models\Consultation;
 use App\Models\ConsultationReport;
 use App\Models\Payment;
@@ -8,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 use function Pest\Laravel\actingAs;
 
@@ -132,6 +134,7 @@ it('updates report action and releases pending payroll', function () {
 });
 
 it('applies buyback to user when user report is approved', function () {
+    Mail::fake();
     config()->set('services.midtrans.server_key', 'midtrans-server-test');
     config()->set('services.midtrans.is_production', false);
     Http::preventStrayRequests();
@@ -198,9 +201,18 @@ it('applies buyback to user when user report is approved', function () {
             ->where('event', 'buyback_refund_applied')
             ->exists()
     )->toBeTrue();
+
+    Mail::assertSent(ConsultationReportRefundApprovedMail::class, function (ConsultationReportRefundApprovedMail $mail) use ($user, $report, $payment): bool {
+        return $mail->hasTo($user->email)
+            && $mail->userName === $user->name
+            && $mail->reportId === (string) $report->getKey()
+            && $mail->orderId === (string) $payment->order_id
+            && $mail->amount === 150000;
+    });
 });
 
 it('applies buyback to user when architect report is declined', function () {
+    Mail::fake();
     config()->set('services.midtrans.server_key', 'midtrans-server-test');
     config()->set('services.midtrans.is_production', false);
     Http::preventStrayRequests();
@@ -267,6 +279,8 @@ it('applies buyback to user when architect report is declined', function () {
             ->where('event', 'buyback_refund_applied')
             ->exists()
     )->toBeTrue();
+
+    Mail::assertNotSent(ConsultationReportRefundApprovedMail::class);
 });
 
 it('allows a user to view their own reports and allows search by opposing party name', function () {

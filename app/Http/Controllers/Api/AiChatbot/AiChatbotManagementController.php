@@ -110,11 +110,13 @@ class AiChatbotManagementController extends Controller
         $logs = $query->paginate($filter->perPage);
         $items = $logs->getCollection()
             ->map(function (AiChatbotLog $log): array {
+                $user = $log->user;
+
                 return [
                     'id' => (string) $log->getKey(),
                     'user' => [
-                        'id' => (string) $log->user->getKey(),
-                        'name' => (string) $log->user->name,
+                        'id' => $user ? (string) $user->getKey() : (string) $log->user_id,
+                        'name' => $user ? (string) $user->name : 'Unknown User',
                     ],
                     'date' => $log->created_at?->toIso8601String(),
                     'prompt_preview' => (string) $log->prompt_preview,
@@ -173,12 +175,14 @@ class AiChatbotManagementController extends Controller
             ->whereNotNull('user_id')
             ->findOrFail($logId);
 
+        $user = $log->user;
+
         $detail = [
             'id' => (string) $log->getKey(),
             'status' => (string) $log->status,
             'user' => [
-                'id' => (string) $log->user->getKey(),
-                'name' => (string) $log->user->name,
+                'id' => $user ? (string) $user->getKey() : (string) $log->user_id,
+                'name' => $user ? (string) $user->name : 'Unknown User',
             ],
             'date' => $log->created_at?->toIso8601String(),
             'prompt_preview' => (string) $log->prompt_preview,

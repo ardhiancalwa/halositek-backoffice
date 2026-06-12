@@ -1,13 +1,18 @@
 <?php
 
+use App\Mail\MobileResetPasswordOtpMail;
 use App\Models\ArchitectProfile;
+use App\Models\MobilePasswordResetOtp;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 afterEach(function () {
     DB::connection('mongodb')->table('users')->delete();
     DB::connection('mongodb')->table('architect_profiles')->delete();
     DB::connection('mongodb')->table('personal_access_tokens')->delete();
+    DB::connection('mongodb')->table('mobile_password_reset_otps')->delete();
 });
 
 /*
@@ -170,6 +175,184 @@ it('cannot login with invalid credentials', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Mobile Password Reset Tests
+|--------------------------------------------------------------------------
+*/
+
+it('can request mobile password reset otp', function () {
+    Mail::fake();
+
+    User::factory()->create([
+        'name' => 'Mobile User',
+        'email' => 'mobile@example.com',
+    ]);
+
+    $response = $this->postJson('/api/v1/auth/mobile/password/request-otp', [
+        'email' => 'mobile@example.com',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', 'Kode OTP reset password telah dikirim ke email.')
+        ->assertJsonPath('data.expires_in_minutes', 10);
+
+    $record = MobilePasswordResetOtp::query()->where('email', 'mobile@example.com')->first();
+    expect($record)->not->toBeNull();
+    expect($record->otp)->not->toBeNull();
+    expect($record->expires_at)->not->toBeNull();
+
+    Mail::assertSent(MobileResetPasswordOtpMail::class, function (MobileResetPasswordOtpMail $mail): bool {
+        return $mail->hasTo('mobile@example.com')
+            && strlen($mail->otp) === 4
+            && $mail->expiresInMinutes === 10;
+    });
+});
+
+it('returns not found when requesting mobile reset otp for unknown email', function () {
+    $response = $this->postJson('/api/v1/auth/mobile/password/request-otp', [
+        'email' => 'missing@example.com',
+    ]);
+
+    $response->assertNotFound()
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('message', 'Email tidak ditemukan.');
+});
+
+it('can verify mobile reset otp', function () {
+    $otp = '1234';
+
+    User::factory()->create(['email' => 'mobile@example.com']);
+    MobilePasswordResetOtp::create([
+        'email' => 'mobile@example.com',
+        'otp' => Hash::make($otp),
+        'expires_at' => now()->addMinutes(10),
+    ]);
+
+    $response = $this->postJson('/api/v1/auth/mobile/password/verify-otp', [
+        'email' => 'mobile@example.com',
+        'otp' => $otp,
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', 'Kode OTP valid.');
+
+    expect(MobilePasswordResetOtp::query()->where('email', 'mobile@example.com')->first()->verified_at)
+        ->not->toBeNull();
+});
+
+it('rejects wrong mobile reset otp', function () {
+    User::factory()->create(['email' => 'mobile@example.com']);
+    MobilePasswordResetOtp::create([
+        'email' => 'mobile@example.com',
+        'otp' => Hash::make('1234'),
+        'expires_at' => now()->addMinutes(10),
+    ]);
+
+    $response = $this->postJson('/api/v1/auth/mobile/password/verify-otp', [
+        'email' => 'mobile@example.com',
+        'otp' => '4321',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('message', 'Kode OTP salah.')
+        ->assertJsonPath('errors.otp.0', 'Kode OTP salah.');
+});
+
+it('rejects expired mobile reset otp', function () {
+    $otp = '1234';
+
+    User::factory()->create(['email' => 'mobile@example.com']);
+    MobilePasswordResetOtp::create([
+        'email' => 'mobile@example.com',
+        'otp' => Hash::make($otp),
+        'expires_at' => now()->subMinute(),
+    ]);
+
+    $response = $this->postJson('/api/v1/auth/mobile/password/verify-otp', [
+        'email' => 'mobile@example.com',
+        'otp' => $otp,
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('message', 'Kode OTP sudah expired.')
+        ->assertJsonPath('errors.otp.0', 'Kode OTP sudah expired.');
+});
+
+it('can reset password with valid mobile otp and marks otp as used', function () {
+    $otp = '1234';
+    $user = User::factory()->create([
+        'email' => 'mobile@example.com',
+        'password' => bcrypt('old-password'),
+    ]);
+
+    MobilePasswordResetOtp::create([
+        'email' => 'mobile@example.com',
+        'otp' => Hash::make($otp),
+        'expires_at' => now()->addMinutes(10),
+        'verified_at' => now(),
+    ]);
+
+    $response = $this->postJson('/api/v1/auth/mobile/password/reset', [
+        'email' => 'mobile@example.com',
+        'otp' => $otp,
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', 'Password berhasil direset.');
+
+    $user->refresh();
+    expect(Hash::check('new-password', $user->password))->toBeTrue();
+    expect(MobilePasswordResetOtp::query()->where('email', 'mobile@example.com')->first()->used_at)
+        ->not->toBeNull();
+});
+
+it('rejects used mobile reset otp', function () {
+    $otp = '1234';
+
+    User::factory()->create(['email' => 'mobile@example.com']);
+    MobilePasswordResetOtp::create([
+        'email' => 'mobile@example.com',
+        'otp' => Hash::make($otp),
+        'expires_at' => now()->addMinutes(10),
+        'used_at' => now(),
+    ]);
+
+    $response = $this->postJson('/api/v1/auth/mobile/password/reset', [
+        'email' => 'mobile@example.com',
+        'otp' => $otp,
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('message', 'Kode OTP sudah digunakan.')
+        ->assertJsonPath('errors.otp.0', 'Kode OTP sudah digunakan.');
+});
+
+it('rejects mobile password reset when password confirmation does not match', function () {
+    User::factory()->create(['email' => 'mobile@example.com']);
+
+    $response = $this->postJson('/api/v1/auth/mobile/password/reset', [
+        'email' => 'mobile@example.com',
+        'otp' => '1234',
+        'password' => 'new-password',
+        'password_confirmation' => 'different-password',
+    ]);
+
+    $response->assertStatus(422)
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('errors.password.0', 'The password field confirmation does not match.');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Refresh Token Tests
 |--------------------------------------------------------------------------
 */
@@ -289,6 +472,75 @@ it('can logout', function () {
 
     // Verify all tokens are revoked
     expect($user->tokens()->count())->toBe(0);
+});
+
+it('can change password with current password', function () {
+    $user = User::factory()->create([
+        'password' => bcrypt('old-password'),
+    ]);
+
+    $response = $this->actingAs($user, 'sanctum')
+        ->postJson('/api/v1/auth/change-password', [
+            'current_password' => 'old-password',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+    $response->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('message', 'Password berhasil diubah.');
+
+    $user->refresh();
+    expect(Hash::check('new-password', $user->password))->toBeTrue();
+});
+
+it('rejects change password when current password is wrong', function () {
+    $user = User::factory()->create([
+        'password' => bcrypt('old-password'),
+    ]);
+
+    $response = $this->actingAs($user, 'sanctum')
+        ->postJson('/api/v1/auth/change-password', [
+            'current_password' => 'wrong-password',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+    $response->assertStatus(422)
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('message', 'Password saat ini tidak sesuai.')
+        ->assertJsonPath('errors.current_password.0', 'Password saat ini tidak sesuai.');
+
+    $user->refresh();
+    expect(Hash::check('old-password', $user->password))->toBeTrue();
+});
+
+it('rejects change password when confirmation does not match', function () {
+    $user = User::factory()->create([
+        'password' => bcrypt('old-password'),
+    ]);
+
+    $response = $this->actingAs($user, 'sanctum')
+        ->postJson('/api/v1/auth/change-password', [
+            'current_password' => 'old-password',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'different-password',
+        ]);
+
+    $response->assertStatus(422)
+        ->assertJsonPath('success', false)
+        ->assertJsonPath('errors.new_password.0', 'The new password field confirmation does not match.');
+});
+
+it('requires authentication to change password', function () {
+    $response = $this->postJson('/api/v1/auth/change-password', [
+        'current_password' => 'old-password',
+        'new_password' => 'new-password',
+        'new_password_confirmation' => 'new-password',
+    ]);
+
+    $response->assertUnauthorized()
+        ->assertJsonPath('success', false);
 });
 
 it('returns 401 for unauthenticated requests', function () {

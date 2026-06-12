@@ -87,3 +87,29 @@ it('returns detail payload for success and failed log', function () {
         ->assertJsonPath('data.original_request', 'original request failed')
         ->assertJsonPath('data.system_error_log', 'Internal AI failure.');
 });
+
+it('returns logs even when related user no longer exists', function () {
+    $admin = User::factory()->admin()->create();
+
+    $log = AiChatbotLog::create([
+        'user_id' => 'missing-user-id',
+        'prompt_preview' => 'Prompt orphan.',
+        'request_payload' => 'original orphan request',
+        'status' => 'success',
+        'generate_time_ms' => 100,
+        'result_type' => 'text',
+        'generated_text' => 'Orphan result.',
+    ]);
+
+    actingAs($admin, 'sanctum')
+        ->getJson('/api/v1/ai-chatbot/logs')
+        ->assertOk()
+        ->assertJsonPath('data.0.user.id', 'missing-user-id')
+        ->assertJsonPath('data.0.user.name', 'Unknown User');
+
+    actingAs($admin, 'sanctum')
+        ->getJson('/api/v1/ai-chatbot/logs/' . $log->getKey())
+        ->assertOk()
+        ->assertJsonPath('data.user.id', 'missing-user-id')
+        ->assertJsonPath('data.user.name', 'Unknown User');
+});

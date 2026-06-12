@@ -37,14 +37,20 @@ class HaloSitekAIService
      * @param  array<int, array{role: string, content: string}>  $history
      * @return array<string, mixed>
      */
-    public function generate(string $userId, string $message, array $history = []): array
+    public function generate(string $userId, string $message, array $history = [], ?string $generationId = null): array
     {
+        $payload = [
+            'user_id' => $userId,
+            'message' => $message,
+            'history' => $history,
+        ];
+
+        if ($generationId !== null && $generationId !== '') {
+            $payload['generation_id'] = $generationId;
+        }
+
         try {
-            $response = $this->http(120)->post("{$this->baseUrl}/api/v1/generate", [
-                'user_id' => $userId,
-                'message' => $message,
-                'history' => $history,
-            ]);
+            $response = $this->http(120)->post("{$this->baseUrl}/api/v1/generate", $payload);
         } catch (ConnectionException $exception) {
             Log::error('HaloSitek AI service is unavailable.', [
                 'user_id' => $userId,
@@ -83,7 +89,7 @@ class HaloSitekAIService
                 'body' => $body,
             ]);
 
-            if ($status === 503) {
+            if (in_array($status, [404, 502, 503, 504], true)) {
                 throw new HaloSitekAIException(
                     'HaloSitek AI service/Ollama sedang tidak tersedia. Coba lagi beberapa saat.',
                     503,
@@ -156,6 +162,30 @@ class HaloSitekAIService
         $data['content'] = $content;
 
         return $data;
+    }
+
+    public function stopGeneration(string $userId, ?string $generationId = null): bool
+    {
+        $payload = ['user_id' => $userId];
+
+        if ($generationId !== null && $generationId !== '') {
+            $payload['generation_id'] = $generationId;
+        }
+
+        try {
+            $response = $this->http(10)->post("{$this->baseUrl}/api/v1/generate/stop", $payload);
+
+            return $response->successful();
+        } catch (Throwable $exception) {
+            Log::warning('Unable to send stop signal to HaloSitek AI service.', [
+                'user_id' => $userId,
+                'generation_id' => $generationId,
+                'base_url' => $this->baseUrl,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 
     private function http(int $timeout): PendingRequest

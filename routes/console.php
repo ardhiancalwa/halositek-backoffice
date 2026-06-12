@@ -1,8 +1,10 @@
 <?php
 
+use App\Models\AiChatbotLog;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -70,3 +72,16 @@ Artisan::command('chat:normalize-conversations {--dry-run : Preview changes with
     $this->line('Skipped         : ' . $skipped);
     $this->line('Invalid         : ' . $invalid);
 })->purpose('Normalize legacy JSON-string chat fields into proper MongoDB arrays/objects');
+
+Artisan::command('ai-chatbot:prune-logs', function () {
+    $deleted = AiChatbotLog::query()
+        ->where('created_at', '<', now()->subDays(7))
+        ->delete();
+
+    $this->info("Deleted {$deleted} old AI chatbot log(s).");
+})->purpose('Delete AI chatbot logs older than 7 days');
+
+Schedule::command('ai-chatbot:prune-logs')->daily();
+Schedule::command('model:prune', [
+    '--model' => [AiChatbotLog::class],
+])->dailyAt('00:30');

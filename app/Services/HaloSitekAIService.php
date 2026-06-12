@@ -16,10 +16,13 @@ class HaloSitekAIService
 
     private bool $verifySsl;
 
+    private int $timeout;
+
     public function __construct()
     {
         $this->baseUrl = rtrim(config('services.halositek_ai.url'), '/');
         $this->verifySsl = (bool) config('services.halositek_ai.verify_ssl', true);
+        $this->timeout = (int) config('services.halositek_ai.timeout', 200);
     }
 
     public function isHealthy(): bool
@@ -50,7 +53,9 @@ class HaloSitekAIService
         }
 
         try {
-            $response = $this->http(120)->post("{$this->baseUrl}/api/v1/generate", $payload);
+            $this->extendExecutionTime($this->timeout);
+
+            $response = $this->http($this->timeout)->post("{$this->baseUrl}/api/v1/generate", $payload);
         } catch (ConnectionException $exception) {
             Log::error('HaloSitek AI service is unavailable.', [
                 'user_id' => $userId,
@@ -193,5 +198,12 @@ class HaloSitekAIService
         return Http::timeout($timeout)->withOptions([
             'verify' => $this->verifySsl,
         ]);
+    }
+
+    private function extendExecutionTime(int $seconds): void
+    {
+        if (function_exists('set_time_limit')) {
+            @set_time_limit($seconds);
+        }
     }
 }

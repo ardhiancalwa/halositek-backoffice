@@ -37,7 +37,8 @@ return [
 
     'halositek_ai' => [
         'url' => env('HALOSITEK_AI_URL', 'http://127.0.0.1:8001'),
-        'verify_ssl' => env('HALOSITEK_AI_ENV', 'production') === 'production',
+        'verify_ssl' => env('HALOSITEK_AI_IS_PRODUCTION', 'production') === 'production',
+        'timeout' => (int) env('HALOSITEK_AI_TIMEOUT', 200),
     ],
 
     'midtrans' => [

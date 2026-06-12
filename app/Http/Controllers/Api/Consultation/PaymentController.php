@@ -164,6 +164,15 @@ class PaymentController extends Controller
                 ],
             ]);
         } catch (RequestException | ConnectionException $exception) {
+            $errorBody = $exception instanceof RequestException ? $exception->response->json() : null;
+
+            Log::channel('single')->error('Midtrans Snap Initiation Failed', [
+                'order_id' => $orderId,
+                'user_id' => (string) $user->getKey(),
+                'error_message' => $exception->getMessage(),
+                'response_body' => $errorBody,
+            ]);
+
             $payment->status = 'failed';
             $payment->midtrans_response = [
                 'error' => $exception->getMessage(),

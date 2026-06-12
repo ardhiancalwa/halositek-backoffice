@@ -56,6 +56,14 @@ class ProjectResource extends JsonResource
             'highlight_features' => $project->highlight_features,
             'area' => $project->area,
             'likes_count' => (int) ($project->likes_count ?? 0),
+            'is_saved' => $this->when(
+                $project->offsetExists('is_saved') === true,
+                (bool) $project->getAttribute('is_saved')
+            ),
+            'is_liked' => $this->when(
+                $project->offsetExists('is_liked') === true,
+                (bool) $project->getAttribute('is_liked')
+            ),
             'liked' => $request->user()
                 ? $project->likes()->where('user_id', $request->user()->id)->exists()
                 : false,

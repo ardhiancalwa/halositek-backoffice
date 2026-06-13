@@ -8,14 +8,18 @@ use App\DTOs\Project\CreateProjectDTO;
 use App\DTOs\Project\UpdateProjectDTO;
 use App\Enums\ApiStatus;
 use App\Enums\ProjectStyle;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Project\StoreProjectRequest;
 use App\Http\Requests\Api\Project\UpdateProjectRequest;
 use App\Http\Resources\Project\ProjectResource;
 use App\Http\Responses\ApiResponse;
+use App\Models\PersonalAccessToken;
 use App\Models\Project;
+use App\Models\ProjectLike;
 use App\Models\SavedProject;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -175,13 +179,50 @@ class ProjectController extends Controller
      *   @OA\Response(response=500, ref="#/components/responses/ServerError")
      * )
      */
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
         $project = Project::with('architect')->findOrFail($id);
+
+        $user = $this->userFromBearerToken($request);
+        if ($user instanceof User && $user->role === UserRole::User) {
+            $project->setAttribute('is_saved', SavedProject::query()
+                ->where('user_id', (string) $user->id)
+                ->where('project_id', (string) $project->id)
+                ->exists());
+
+            $project->setAttribute('is_liked', ProjectLike::query()
+                ->where('user_id', (string) $user->id)
+                ->where('project_id', (string) $project->id)
+                ->exists());
+        }
 
         return ApiResponse::success([
             'project' => new ProjectResource($project),
         ], 'Project retrieved successfully.');
+    }
+
+    private function userFromBearerToken(Request $request): ?User
+    {
+        $plainTextToken = $request->bearerToken();
+
+        if (! $plainTextToken) {
+            return null;
+        }
+
+        $accessToken = PersonalAccessToken::findToken($plainTextToken);
+
+        if (! $accessToken) {
+            return null;
+        }
+
+        $expiresAt = $accessToken->getAttribute('expires_at');
+        if ($expiresAt instanceof CarbonInterface && $expiresAt->isPast()) {
+            return null;
+        }
+
+        $tokenable = $accessToken->tokenable;
+
+        return $tokenable instanceof User ? $tokenable : null;
     }
 
     /**

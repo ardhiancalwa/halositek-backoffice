@@ -76,7 +76,6 @@ it('filters projects by status architect id and search keyword', function () {
     $response->assertOk()
         ->assertJsonPath('success', true)
         ->assertJsonPath('meta.total', 1)
-        ->assertJsonPath('meta.total_projects', 2)
         ->assertJsonPath('data.0.architect_id', $architectA->id)
         ->assertJsonPath('data.0.name', 'Modern Alpha House');
 });

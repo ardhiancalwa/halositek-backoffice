@@ -44,7 +44,7 @@ class ProjectController extends Controller
      *
      *   @OA\Response(response=200, description="Projects retrieved successfully",
      *
-     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Projects retrieved successfully", "data": {{"id": "01HZX9M1F45M2Z6K7T9K7Y8QRP", "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "name": "Modern House", "style": "Modern", "description": "Two-story tropical house with natural lighting.", "images": {"projects/images/project-1.jpg"}, "image_urls": {"http://localhost:8000/storage/projects/images/project-1.jpg"}, "estimated_cost": "Rp 2M - 3M", "layout_images": {"projects/layouts/layout-1.jpg"}, "layout_image_urls": {"http://localhost:8000/storage/projects/layouts/layout-1.jpg"}, "highlight_features": "Void area, skylight, and rooftop garden.", "area": "120 m2", "likes_count": 12, "status": "approved", "architect": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "name": "Architect User", "email": "architect@halositek.com"}, "created_at": "2026-04-13T10:00:00Z", "updated_at": "2026-04-13T10:00:00Z"}}, "meta": {"current_page": 1, "last_page": 1, "per_page": 12, "total": 1, "total_projects": 5}, "links": {"first_page_url": "http://localhost:8000/api/v1/projects?page=1", "last_page_url": "http://localhost:8000/api/v1/projects?page=1", "next_page_url": null, "prev_page_url": null}})
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Projects retrieved successfully", "data": {{"id": "01HZX9M1F45M2Z6K7T9K7Y8QRP", "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "name": "Modern House", "style": "Modern", "description": "Two-story tropical house with natural lighting.", "images": {"projects/images/project-1.jpg"}, "image_urls": {"http://localhost:8000/storage/projects/images/project-1.jpg"}, "estimated_cost": "Rp 2M - 3M", "layout_images": {"projects/layouts/layout-1.jpg"}, "layout_image_urls": {"http://localhost:8000/storage/projects/layouts/layout-1.jpg"}, "highlight_features": "Void area, skylight, and rooftop garden.", "area": "120 m2", "likes_count": 12, "status": "approved", "architect": {"id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "name": "Architect User", "email": "architect@halositek.com"}, "created_at": "2026-04-13T10:00:00Z", "updated_at": "2026-04-13T10:00:00Z"}}, "meta": {"current_page": 1, "last_page": 1, "per_page": 12, "total": 1}, "links": {"first_page_url": "http://localhost:8000/api/v1/projects?page=1", "last_page_url": "http://localhost:8000/api/v1/projects?page=1", "next_page_url": null, "prev_page_url": null}})
      * ),
      *
      *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
@@ -54,7 +54,6 @@ class ProjectController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Project::with('architect')->latest();
-        $architectId = null;
 
         if ($request->filled('status')) {
             $status = $request->string('status')->toString();
@@ -65,8 +64,7 @@ class ProjectController extends Controller
         }
 
         if ($request->filled('architect_id')) {
-            $architectId = $request->string('architect_id')->toString();
-            $query->where('architect_id', $architectId);
+            $query->where('architect_id', $request->string('architect_id')->toString());
         }
 
         if ($request->filled('style')) {
@@ -91,14 +89,7 @@ class ProjectController extends Controller
         $projects = $query->paginate($perPage);
         $projects->setCollection(ProjectResource::collection($projects->getCollection())->collection);
 
-        $meta = [];
-        if ($architectId !== null) {
-            $meta['total_projects'] = Project::query()
-                ->where('architect_id', $architectId)
-                ->count();
-        }
-
-        return ApiResponse::paginated($projects, 'Projects retrieved successfully.', meta: $meta);
+        return ApiResponse::paginated($projects, 'Projects retrieved successfully.');
     }
 
     /**

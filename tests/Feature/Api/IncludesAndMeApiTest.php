@@ -22,7 +22,7 @@ afterEach(function () {
     DB::connection('mongodb')->table('personal_access_tokens')->delete();
 });
 
-it('includes projects and awards in public architect list and show', function () {
+it('excludes project and award details from architects and keeps them available by architect id', function () {
     $architect = User::factory()->architect()->create([
         'name' => 'John Doe Architect',
     ]);
@@ -33,7 +33,7 @@ it('includes projects and awards in public architect list and show', function ()
         'status' => 'approved',
     ]);
 
-    $project = Project::create([
+    Project::create([
         'architect_id' => $architect->id,
         'name' => 'Glass Mansion',
         'style' => 'modern',
@@ -42,7 +42,7 @@ it('includes projects and awards in public architect list and show', function ()
         'likes_count' => 0,
     ]);
 
-    $award = Award::create([
+    Award::create([
         'architect_id' => $architect->id,
         'name' => 'Best Eco Design 2026',
         'project_name' => 'Eco House',
@@ -51,20 +51,32 @@ it('includes projects and awards in public architect list and show', function ()
         'status' => 'approved',
     ]);
 
-    // 1. Check GET /architects
     $responseList = $this->getJson('/api/v1/architects');
     $responseList->assertOk()
         ->assertJsonPath('success', true)
         ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.projects.0.name', 'Glass Mansion')
-        ->assertJsonPath('data.0.awards.0.name', 'Best Eco Design 2026');
+        ->assertJsonPath('data.0.total_projects', 1)
+        ->assertJsonPath('data.0.total_awards', 1)
+        ->assertJsonMissingPath('data.0.projects')
+        ->assertJsonMissingPath('data.0.awards');
 
-    // 2. Check GET /architects/{id}
     $responseShow = $this->getJson("/api/v1/architects/{$architect->id}");
     $responseShow->assertOk()
         ->assertJsonPath('success', true)
-        ->assertJsonPath('data.projects.0.name', 'Glass Mansion')
-        ->assertJsonPath('data.awards.0.name', 'Best Eco Design 2026');
+        ->assertJsonPath('data.total_projects', 1)
+        ->assertJsonPath('data.total_awards', 1)
+        ->assertJsonMissingPath('data.projects')
+        ->assertJsonMissingPath('data.awards');
+
+    $this->getJson("/api/v1/projects?architect_id={$architect->id}")
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Glass Mansion');
+
+    $this->getJson("/api/v1/awards?architect_id={$architect->id}")
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.name', 'Best Eco Design 2026');
 });
 
 it('includes saved projects, saved architects, and payment history in GET /me', function () {

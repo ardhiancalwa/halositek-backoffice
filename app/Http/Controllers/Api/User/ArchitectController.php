@@ -14,6 +14,7 @@ use App\Models\Award;
 use App\Models\Consultation;
 use App\Models\PersonalAccessToken;
 use App\Models\Project;
+use App\Models\SavedProject;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Http\JsonResponse;
@@ -50,7 +51,7 @@ class ArchitectController extends Controller
     {
         $query = User::query()
             ->where('role', UserRole::Architect->value)
-            ->with(['architectProfile', 'projects', 'awards'])
+            ->with('architectProfile')
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('search')) {
@@ -114,7 +115,7 @@ class ArchitectController extends Controller
         $architectsById = User::query()
             ->where('role', UserRole::Architect->value)
             ->whereIn('id', $architectIds)
-            ->with(['architectProfile', 'projects', 'awards'])
+            ->with('architectProfile')
             ->get()
             ->keyBy('id');
 
@@ -189,7 +190,7 @@ class ArchitectController extends Controller
         $architect = User::query()
             ->where('id', $id)
             ->where('role', UserRole::Architect->value)
-            ->with(['architectProfile', 'projects', 'awards'])
+            ->with('architectProfile')
             ->first();
 
         if (! $architect) {
@@ -210,6 +211,63 @@ class ArchitectController extends Controller
             (new ArchitectProfileResource($architect))->resolve($request),
             'Data arsitek berhasil diambil.'
         );
+    }
+
+    /**
+     * @OA\Get(
+     *   path="/architects/{id}/performance",
+     *   tags={"Architects"},
+     *   security={},
+     *   summary="Get architect performance",
+     *   description="Returns aggregate performance metrics for a specific architect.",
+     *
+     *   @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(response=200, description="Architect performance retrieved successfully",
+     *
+     *   @OA\JsonContent(example={"success": true, "status_code": 200, "message": "Data performa arsitek berhasil diambil.", "data": {"architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA", "total_likes": 120, "total_saves": 32, "total_consultations": 8}})
+     * ),
+     *
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function performance(string $id): JsonResponse
+    {
+        $architectExists = User::query()
+            ->where('id', $id)
+            ->where('role', UserRole::Architect->value)
+            ->exists();
+
+        if (! $architectExists) {
+            return ApiResponse::notFound('Arsitek tidak ditemukan.');
+        }
+
+        $projects = Project::query()
+            ->where('architect_id', $id)
+            ->get(['id', 'likes_count']);
+
+        $projectIds = $projects
+            ->pluck('id')
+            ->filter()
+            ->map(static fn (mixed $projectId): string => (string) $projectId)
+            ->values()
+            ->all();
+
+        $totalLikes = (int) $projects->sum(static fn (Project $project): int => (int) ($project->likes_count ?? 0));
+        $totalSaves = $projectIds === []
+            ? 0
+            : SavedProject::query()->whereIn('project_id', $projectIds)->count();
+        $totalConsultations = Consultation::query()
+            ->where('architect_id', $id)
+            ->count();
+
+        return ApiResponse::success([
+            'architect_id' => $id,
+            'total_likes' => $totalLikes,
+            'total_saves' => (int) $totalSaves,
+            'total_consultations' => (int) $totalConsultations,
+        ], 'Data performa arsitek berhasil diambil.');
     }
 
     private function userFromBearerToken(Request $request): ?User

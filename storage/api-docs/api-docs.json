@@ -5123,6 +5123,54 @@
                 ]
             }
         },
+        "/architects/{id}/performance": {
+            "get": {
+                "tags": [
+                    "Architects"
+                ],
+                "summary": "Get architect performance",
+                "description": "Returns aggregate performance metrics for a specific architect.",
+                "operationId": "20cc550cf3b61eaa4b231e2f80fea94f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Architect performance retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Data performa arsitek berhasil diambil.",
+                                    "data": {
+                                        "architect_id": "01HZX9M1F45M2Z6K7T9K7Y8QRA",
+                                        "total_likes": 120,
+                                        "total_saves": 32,
+                                        "total_consultations": 8
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/ServerError"
+                    }
+                },
+                "security": []
+            }
+        },
         "/architects/{userId}/save": {
             "post": {
                 "tags": [

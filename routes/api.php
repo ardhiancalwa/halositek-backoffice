@@ -146,6 +146,7 @@ Route::prefix('v1')->group(function () {
     });
     // Actually wishlist is above, so we are safe.
     Route::get('/architects', [ArchitectController::class, 'index']);
+    Route::get('/architects/{id}/performance', [ArchitectController::class, 'performance']);
     Route::get('/architects/{id}', [ArchitectController::class, 'show']);
 
     Route::get('/projects', [ProjectController::class, 'index']);

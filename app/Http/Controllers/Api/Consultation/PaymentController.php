@@ -57,6 +57,7 @@ class PaymentController extends Controller
      *           "order_id": "CONS-20260515231400-ABCD1234",
      *           "status": "pending",
      *           "snap_token": "snap-token-123",
+     *           "transaction_id": "transaction-id-123",
      *           "redirect_url": "https://app.sandbox.midtrans.com/snap/v2/vtweb/snap-token-123",
      *           "consultation_details": {
      *             "architect_id": "01J3ARCHITECT001",
@@ -204,6 +205,7 @@ class PaymentController extends Controller
             'order_id' => $payment->order_id,
             'status' => $payment->status,
             'snap_token' => $payment->snap_token,
+            'transaction_id' => $payment->transaction_id,
             'redirect_url' => $payment->snap_redirect_url,
             'consultation_details' => [
                 'architect_id' => (string) $architect->getKey(),
@@ -451,6 +453,7 @@ class PaymentController extends Controller
             'status' => 'pending_payment',
             'payment_id' => (string) $payment->getKey(),
             'order_id' => (string) $payment->order_id,
+            'transaction_id' => (string) $payment->transaction_id,
             'snap_token' => $payment->snap_token,
             'redirect_url' => $payment->snap_redirect_url,
             'amount' => (int) $payment->total_paid_amount,

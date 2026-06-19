@@ -49,6 +49,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/messages', [MessageController::class, 'store']);
             Route::get('/ai/messages', [MessageController::class, 'aiHistory']);
             Route::post('/ai/messages', [MessageController::class, 'storeAi']);
+            Route::delete('/ai/messages', [MessageController::class, 'clearAiHistory'])->middleware('role:user,architect');
             Route::post('/ai/stop', [MessageController::class, 'stopAi']);
             Route::post('/conversations/{conversationId}/read', [MessageController::class, 'markAsRead']);
             Route::post('/conversations/{conversationId}/typing', [MessageController::class, 'typing']);

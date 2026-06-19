@@ -2060,6 +2060,34 @@ paths:
       security:
         -
           BearerAuth: []
+    delete:
+      tags:
+        - Chat
+      summary: 'Clear AI chat history'
+      description: 'Menghapus history chat AI dan log AI milik user login. Endpoint ini ditujukan untuk aplikasi mobile.'
+      operationId: 49bae231cef538a2352925216f2d56e5
+      responses:
+        200:
+          description: 'AI chat history cleared'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'History chat AI berhasil dihapus.'
+                data:
+                  deleted_messages: 4
+                  deleted_logs: 2
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   /chat/ai/stop:
     post:
       tags:
@@ -2597,7 +2625,7 @@ paths:
       tags:
         - Projects
       summary: 'List projects'
-      description: 'Returns a paginated project list with optional status filtering.'
+      description: 'Returns a paginated project list with optional status, area, and price range filtering.'
       operationId: ea98f3f8d94c0a97667c3cba2c478508
       parameters:
         -
@@ -2630,6 +2658,34 @@ paths:
           in: query
           schema:
             type: string
+        -
+          name: area_min
+          in: query
+          schema:
+            description: 'Minimum area in m2'
+            type: number
+            format: float
+        -
+          name: area_max
+          in: query
+          schema:
+            description: 'Maximum area in m2'
+            type: number
+            format: float
+        -
+          name: price_min
+          in: query
+          schema:
+            description: 'Minimum estimated cost in rupiah'
+            type: number
+            format: float
+        -
+          name: price_max
+          in: query
+          schema:
+            description: 'Maximum estimated cost in rupiah'
+            type: number
+            format: float
         -
           name: per_page
           in: query

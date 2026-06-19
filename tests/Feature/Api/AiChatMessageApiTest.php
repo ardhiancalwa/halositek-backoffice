@@ -19,6 +19,7 @@ afterEach(function () {
 });
 
 it('validates required message on ai chat endpoint', function () {
+    /** @var User $user */
     $user = User::factory()->create();
 
     actingAs($user, 'sanctum')
@@ -28,6 +29,7 @@ it('validates required message on ai chat endpoint', function () {
 });
 
 it('sends last 10 history messages to ai service and stores user plus assistant response', function () {
+    /** @var User $user */
     $user = User::factory()->create();
     $userId = (string) $user->getKey();
 
@@ -98,7 +100,78 @@ it('sends last 10 history messages to ai service and stores user plus assistant 
     expect($log->generated_text)->toBe('Ini adalah jawaban AI.');
 });
 
+it('clears ai chat history and related chatbot logs for mobile users only', function () {
+    /** @var User $user */
+    $user = User::factory()->create();
+    $userId = (string) $user->getKey();
+
+    Message::create([
+        'user_id' => $userId,
+        'role' => 'user',
+        'type' => 'text',
+        'content' => 'AI prompt 1',
+        'body' => 'AI prompt 1',
+        'attachment' => null,
+        'read_at' => null,
+    ]);
+
+    Message::create([
+        'user_id' => $userId,
+        'role' => 'assistant',
+        'type' => 'text',
+        'content' => 'AI reply 1',
+        'body' => 'AI reply 1',
+        'attachment' => null,
+        'read_at' => null,
+    ]);
+
+    Message::create([
+        'user_id' => $userId,
+        'conversation_id' => 'conversation-1',
+        'role' => 'user',
+        'type' => 'text',
+        'content' => 'Regular chat stays',
+        'body' => 'Regular chat stays',
+        'attachment' => null,
+        'read_at' => null,
+    ]);
+
+    AiChatbotLog::create([
+        'user_id' => $userId,
+        'prompt_preview' => 'AI prompt 1',
+        'request_payload' => 'AI prompt 1',
+        'status' => 'success',
+        'generate_time_ms' => 100,
+        'result_type' => 'text',
+        'generated_text' => 'AI reply 1',
+    ]);
+
+    Cache::put('ai-generation-active:' . $userId, 'generation-1', now()->addMinutes(10));
+
+    actingAs($user, 'sanctum')
+        ->deleteJson('/api/v1/chat/ai/messages')
+        ->assertOk()
+        ->assertJsonPath('data.deleted_messages', 2)
+        ->assertJsonPath('data.deleted_logs', 1);
+
+    expect(Message::query()->where('user_id', $userId)->whereNull('conversation_id')->count())->toBe(0);
+    expect(Message::query()->where('user_id', $userId)->where('conversation_id', 'conversation-1')->exists())->toBeTrue();
+    expect(AiChatbotLog::query()->where('user_id', $userId)->exists())->toBeFalse();
+    expect(Cache::has('ai-generation-active:' . $userId))->toBeFalse();
+    expect(Cache::has('ai-generation-cancelled:' . $userId . ':generation-1'))->toBeTrue();
+});
+
+it('forbids admin users from clearing ai chat history', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
+
+    actingAs($admin, 'sanctum')
+        ->deleteJson('/api/v1/chat/ai/messages')
+        ->assertForbidden();
+});
+
 it('returns 503 when ai service is unavailable', function () {
+    /** @var User $user */
     $user = User::factory()->create();
 
     Http::fake(fn () => Http::response([
@@ -119,6 +192,7 @@ it('returns 503 when ai service is unavailable', function () {
 });
 
 it('returns 503 when ai service tunnel is offline', function () {
+    /** @var User $user */
     $user = User::factory()->create();
 
     Http::fake(fn () => Http::response('ERR_NGROK_3200 endpoint is offline', 404));
@@ -134,6 +208,7 @@ it('returns 503 when ai service tunnel is offline', function () {
 });
 
 it('returns 422 when ai service rejects invalid request', function () {
+    /** @var User $user */
     $user = User::factory()->create();
 
     Http::fake(fn () => Http::response([
@@ -156,6 +231,7 @@ it('returns 422 when ai service rejects invalid request', function () {
 });
 
 it('returns 500 for unexpected ai service errors without exposing stack trace', function () {
+    /** @var User $user */
     $user = User::factory()->create();
 
     Http::fake(fn () => Http::response([
@@ -178,6 +254,7 @@ it('returns 500 for unexpected ai service errors without exposing stack trace', 
 });
 
 it('stops an active ai generation and suppresses returned result', function () {
+    /** @var User $user */
     $user = User::factory()->create();
     $userId = (string) $user->getKey();
 
@@ -217,6 +294,7 @@ it('stops an active ai generation and suppresses returned result', function () {
 });
 
 it('can request active ai generation stop', function () {
+    /** @var User $user */
     $user = User::factory()->create();
     $userId = (string) $user->getKey();
 

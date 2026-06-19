@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\Project\ProjectController;
 use App\Http\Controllers\Api\User\AdminController;
 use App\Http\Controllers\Api\User\ArchitectController;
 use App\Http\Controllers\Api\User\UserController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +44,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
         Route::post('/me', [UserController::class, 'updateProfile']);
 
+        // Private/presence channel authentication for Reverb/Pusher-protocol websocket clients.
+        Route::post('/broadcasting/auth', fn (Request $request) => Broadcast::auth($request));
+
         Route::prefix('/chat')->group(function () {
             Route::get('/conversations', [ConversationController::class, 'index']);
             Route::post('/conversations', [ConversationController::class, 'store']);
@@ -62,6 +67,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/history', [PaymentController::class, 'history']);
             Route::get('/{transactionId}/status', [PaymentController::class, 'status']);
         });
+
+        Route::get('/consultations/{architectId}/check-status', [PaymentController::class, 'checkConsultationStatus']);
 
         Route::get('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'index']);
         Route::post('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'store']);

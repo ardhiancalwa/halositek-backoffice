@@ -3263,7 +3263,7 @@
                     "Consultation Payment"
                 ],
                 "summary": "Check consultation session status with an architect",
-                "description": "Mengecek status sesi konsultasi user dengan arsitek tertentu berdasarkan transaksi terakhir. Status yang mungkin: no_session, pending_payment, session_active, session_expired.",
+                "description": "Mengecek status sesi konsultasi user dengan arsitek tertentu berdasarkan transaksi terakhir. Status yang mungkin: no_session, pending_payment, session_active.",
                 "operationId": "98799945dff4606e1d3ee08dff4039b8",
                 "parameters": [
                     {

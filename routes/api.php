@@ -35,6 +35,8 @@ Route::prefix('v1')->group(function () {
 
     // Protected routes (any authenticated user)
     Route::middleware('auth:sanctum')->group(function () {
+        Broadcast::routes();
+
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
         Route::get('/me', [AuthController::class, 'me']);

@@ -18,6 +18,7 @@ use App\Models\SavedProject;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -30,12 +31,16 @@ class ProjectController extends Controller
      *   path="/projects",
      *   tags={"Projects"},
      *   summary="List projects",
-     *   description="Returns a paginated project list with optional status filtering.",
+     *   description="Returns a paginated project list with optional status, area, and price range filtering.",
      *
      *   @OA\Parameter(name="status", in="query", @OA\Schema(type="string", enum={"pending","approved","declined"})),
      *   @OA\Parameter(name="architect_id", in="query", @OA\Schema(type="string")),
      *   @OA\Parameter(name="style", in="query", @OA\Schema(type="string", enum={"modern","traditional","minimalist","futuristik","industrial"})),
      *   @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
+     *   @OA\Parameter(name="area_min", in="query", @OA\Schema(type="number", format="float", description="Minimum area in m2")),
+     *   @OA\Parameter(name="area_max", in="query", @OA\Schema(type="number", format="float", description="Maximum area in m2")),
+     *   @OA\Parameter(name="price_min", in="query", @OA\Schema(type="number", format="float", description="Minimum estimated cost in rupiah")),
+     *   @OA\Parameter(name="price_max", in="query", @OA\Schema(type="number", format="float", description="Maximum estimated cost in rupiah")),
      *   @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
      *
      *   @OA\Response(response=200, description="Projects retrieved successfully",
@@ -81,11 +86,159 @@ class ProjectController extends Controller
             });
         }
 
+        $areaMin = $this->normalizedFloat($request->input('area_min'));
+        $areaMax = $this->normalizedFloat($request->input('area_max'));
+        $priceMin = $this->normalizedFloat($request->input('price_min'));
+        $priceMax = $this->normalizedFloat($request->input('price_max'));
+
+        $projects = $query->get()->filter(function (Project $project) use ($areaMin, $areaMax, $priceMin, $priceMax): bool {
+            if (! $this->matchesAreaRange($project->area, $areaMin, $areaMax)) {
+                return false;
+            }
+
+            return $this->matchesPriceRange($project->estimated_cost, $priceMin, $priceMax);
+        })->values();
+
         $perPage = min(50, max(1, (int) $request->input('per_page', 12)));
-        $projects = $query->paginate($perPage);
+        $currentPage = max(1, (int) $request->input('page', 1));
+        $items = $projects->forPage($currentPage, $perPage)->values();
+
+        $projects = new LengthAwarePaginator(
+            $items,
+            $projects->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
         $projects->setCollection(ProjectResource::collection($projects->getCollection())->collection);
 
         return ApiResponse::paginated($projects, 'Projects retrieved successfully.');
+    }
+
+    private function normalizedFloat(mixed $value): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_int($value) || is_float($value)) {
+            return (float) $value;
+        }
+
+        if (! is_string($value)) {
+            return null;
+        }
+
+        $normalized = str_replace(',', '.', trim($value));
+
+        return is_numeric($normalized) ? (float) $normalized : null;
+    }
+
+    private function matchesAreaRange(mixed $areaValue, ?float $min, ?float $max): bool
+    {
+        if ($min === null && $max === null) {
+            return true;
+        }
+
+        $area = $this->extractFirstNumber($areaValue);
+
+        if ($area === null) {
+            return false;
+        }
+
+        if ($min !== null && $area < $min) {
+            return false;
+        }
+
+        if ($max !== null && $area > $max) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function matchesPriceRange(mixed $estimatedCost, ?float $min, ?float $max): bool
+    {
+        if ($min === null && $max === null) {
+            return true;
+        }
+
+        [$projectMin, $projectMax] = $this->extractPriceRange($estimatedCost);
+
+        if ($projectMin === null || $projectMax === null) {
+            return false;
+        }
+
+        if ($min !== null && $projectMax < $min) {
+            return false;
+        }
+
+        if ($max !== null && $projectMin > $max) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function extractFirstNumber(mixed $value): ?float
+    {
+        if (! is_string($value)) {
+            return null;
+        }
+
+        if (! preg_match('/(\d+(?:[.,]\d+)?)/', $value, $matches)) {
+            return null;
+        }
+
+        return (float) str_replace(',', '.', $matches[1]);
+    }
+
+    /**
+     * @return array{0: float|null, 1: float|null}
+     */
+    private function extractPriceRange(mixed $value): array
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return [null, null];
+        }
+
+        $normalized = strtolower(str_replace(['rp', ' '], '', $value));
+        $parts = preg_split('/\s*-\s*/', $normalized) ?: [$normalized];
+
+        $parsedParts = array_values(array_filter(array_map(
+            fn (string $part): ?float => $this->parsePriceFragment($part),
+            $parts
+        ), static fn (?float $parsed): bool => $parsed !== null));
+
+        if ($parsedParts === []) {
+            return [null, null];
+        }
+
+        $min = min($parsedParts);
+        $max = max($parsedParts);
+
+        return [$min, $max];
+    }
+
+    private function parsePriceFragment(string $value): ?float
+    {
+        if (! preg_match('/^(\d+(?:[.,]\d+)?)([a-z]*)$/', $value, $matches)) {
+            return null;
+        }
+
+        $amount = (float) str_replace(',', '.', $matches[1]);
+        $unit = $matches[2];
+
+        return match (true) {
+            in_array($unit, ['m', 'miliar'], true) => $amount * 1000000000,
+            in_array($unit, ['jt', 'juta'], true) => $amount * 1000000,
+            in_array($unit, ['rb', 'ribu'], true) => $amount * 1000,
+            default => $amount,
+        };
     }
 
     /**

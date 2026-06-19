@@ -20,6 +20,7 @@ use App\Models\Message;
 use App\Models\User;
 use App\Services\HaloSitekAIService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -258,9 +259,7 @@ class MessageController extends Controller
         $perPage = (int) ($validated['per_page'] ?? 20);
         $cursor = $this->decodeAiHistoryCursor($validated['cursor'] ?? null);
 
-        $query = Message::query()
-            ->where('user_id', $userId)
-            ->whereIn('role', [Message::ROLE_USER, Message::ROLE_ASSISTANT])
+        $query = $this->aiMessageQuery($userId)
             ->orderBy('created_at', 'desc')
             ->orderBy('id', 'desc');
 
@@ -297,6 +296,57 @@ class MessageController extends Controller
                 'has_more' => $hasMore,
             ],
         ]);
+    }
+
+    /**
+     * @OA\Delete(
+     *   path="/chat/ai/messages",
+     *   tags={"Chat"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Clear AI chat history",
+     *   description="Menghapus history chat AI dan log AI milik user login. Endpoint ini ditujukan untuk aplikasi mobile.",
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="AI chat history cleared",
+     *
+     *     @OA\JsonContent(
+     *       example={
+     *         "success": true,
+     *         "status_code": 200,
+     *         "message": "History chat AI berhasil dihapus.",
+     *         "data": {"deleted_messages": 4, "deleted_logs": 2}
+     *       }
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=500, ref="#/components/responses/ServerError")
+     * )
+     */
+    public function clearAiHistory(Request $request): JsonResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+        $userId = (string) ($user->getAttribute('_id') ?? $user->getKey());
+
+        $activeGenerationId = Cache::get($this->aiActiveGenerationCacheKey($userId));
+        if (is_string($activeGenerationId) && $activeGenerationId !== '') {
+            Cache::put($this->aiCancelledGenerationCacheKey($userId, $activeGenerationId), true, now()->addMinutes(10));
+        }
+
+        Cache::forget($this->aiActiveGenerationCacheKey($userId));
+
+        $deletedMessages = $this->aiMessageQuery($userId)->delete();
+        $deletedLogs = AiChatbotLog::query()
+            ->where('user_id', $userId)
+            ->delete();
+
+        return ApiResponse::success([
+            'deleted_messages' => (int) $deletedMessages,
+            'deleted_logs' => (int) $deletedLogs,
+        ], 'History chat AI berhasil dihapus.');
     }
 
     /**
@@ -706,6 +756,20 @@ class MessageController extends Controller
             'created_at' => $message->created_at->toIso8601String(),
             'id' => (string) $message->getKey(),
         ]));
+    }
+
+    /**
+     * @return Builder<Message>
+     */
+    private function aiMessageQuery(string $userId): Builder
+    {
+        return Message::query()
+            ->where('user_id', $userId)
+            ->whereIn('role', [Message::ROLE_USER, Message::ROLE_ASSISTANT])
+            ->where(function (Builder $query): void {
+                $query->whereNull('conversation_id')
+                    ->orWhere('conversation_id', '');
+            });
     }
 
     /**

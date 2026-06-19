@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use MongoDB\Laravel\Eloquent\Model;
@@ -15,9 +17,12 @@ use MongoDB\Laravel\Eloquent\Model;
  * @property bool $is_group
  * @property list<string> $participant_ids
  * @property array<string, string> $last_read_at
+ * @property string|null $consultation_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Message|null $lastMessage
+ * @property-read Consultation|null $consultation
+ * @property-read Collection<int, User>|null $participants
  */
 class Conversation extends Model
 {
@@ -37,19 +42,17 @@ class Conversation extends Model
         'is_group',
         'participant_ids',
         'last_read_at',
+        'consultation_id',
     ];
 
     /**
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'is_group' => 'boolean',
-            'participant_ids' => 'array',
-            'last_read_at' => 'array',
-        ];
-    }
+    protected $casts = [
+        'is_group' => 'boolean',
+        'participant_ids' => 'array',
+        'last_read_at' => 'array',
+    ];
 
     /**
      * @return HasMany<Message, self>
@@ -57,5 +60,13 @@ class Conversation extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class, 'conversation_id');
+    }
+
+    /**
+     * @return BelongsTo<Consultation, self>
+     */
+    public function consultation(): BelongsTo
+    {
+        return $this->belongsTo(Consultation::class, 'consultation_id');
     }
 }

@@ -314,6 +314,156 @@ class PaymentController extends Controller
 
     /**
      * @OA\Get(
+     *   path="/consultations/{architectId}/check-status",
+     *   tags={"Consultation Payment"},
+     *   security={{"BearerAuth":{}}},
+     *   summary="Check consultation session status with an architect",
+     *   description="Mengecek status sesi konsultasi user dengan arsitek tertentu berdasarkan transaksi terakhir. Status yang mungkin: no_session, pending_payment, session_active.",
+     *
+     *   @OA\Parameter(name="architectId", in="path", required=true, @OA\Schema(type="string")),
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="Status konsultasi berhasil diambil",
+     *
+     *     @OA\JsonContent(
+     *       example={
+     *         "success": true,
+     *         "status_code": 200,
+     *         "message": "Status konsultasi berhasil diambil.",
+     *         "data": {
+     *           "status": "session_active",
+     *           "consultation_id": "01J3CONS001",
+     *           "conversation_id": "01J3CONV001",
+     *           "remaining_time": {"days": 0, "hours": 1, "minutes": 30, "seconds": 0}
+     *         }
+     *       }
+     *     )
+     *   ),
+     *
+     *   @OA\Response(response=401, ref="#/components/responses/UnauthorizedError"),
+     *   @OA\Response(response=403, ref="#/components/responses/ForbiddenError"),
+     *   @OA\Response(response=404, ref="#/components/responses/NotFoundError")
+     * )
+     */
+    public function checkConsultationStatus(
+        Request $request,
+        string $architectId,
+        FinalizeConsultationPaymentAction $finalizePayment
+    ): JsonResponse {
+        /** @var User $user */
+        $user = $request->user();
+        if (! $user->isUser()) {
+            return ApiResponse::forbidden('Hanya user yang dapat mengecek status konsultasi.');
+        }
+
+        $architect = User::query()->find($architectId);
+        if (! $architect instanceof User || ! $architect->isArchitect()) {
+            return ApiResponse::notFound('Arsitek tidak ditemukan.');
+        }
+
+        $payment = Payment::query()
+            ->where('user_id', (string) $user->getKey())
+            ->where('architect_id', $architectId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (! $payment instanceof Payment) {
+            return ApiResponse::success(
+                $this->buildNoSessionData($architect),
+                'Status konsultasi berhasil diambil.'
+            );
+        }
+
+        if ($payment->status === 'pending') {
+            return ApiResponse::success(
+                $this->buildPendingPaymentData($payment),
+                'Status konsultasi berhasil diambil.'
+            );
+        }
+
+        if ($payment->status === 'completed' && $payment->consultation_id === null) {
+            $payment = $finalizePayment->execute($payment);
+        }
+
+        $consultation = $payment->consultation_id !== null
+            ? Consultation::query()->find($payment->consultation_id)
+            : null;
+
+        if (! $consultation instanceof Consultation) {
+            return ApiResponse::success(
+                $this->buildNoSessionData($architect),
+                'Status konsultasi berhasil diambil.'
+            );
+        }
+
+        if ($consultation->isSessionActive()) {
+            return ApiResponse::success(
+                $this->buildSessionActiveData($consultation),
+                'Status konsultasi berhasil diambil.'
+            );
+        }
+
+        return ApiResponse::success(
+            $this->buildNoSessionData($architect),
+            'Status konsultasi berhasil diambil.'
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildNoSessionData(User $architect): array
+    {
+        $architectProfile = $architect->architectProfile;
+
+        return [
+            'status' => 'no_session',
+            'architect' => [
+                'id' => (string) $architect->getKey(),
+                'name' => (string) $architect->name,
+                'photo_profile_url' => $architect->photo_profile_url,
+            ],
+            'consultation_fee' => $architectProfile instanceof ArchitectProfile
+                ? (int) ($architectProfile->consultation_fee ?? 0)
+                : 0,
+            'duration_hours' => $architectProfile instanceof ArchitectProfile
+                ? (int) ($architectProfile->consultation_duration ?? 0)
+                : 0,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildPendingPaymentData(Payment $payment): array
+    {
+        return [
+            'status' => 'pending_payment',
+            'payment_id' => (string) $payment->getKey(),
+            'order_id' => (string) $payment->order_id,
+            'snap_token' => $payment->snap_token,
+            'redirect_url' => $payment->snap_redirect_url,
+            'amount' => (int) $payment->total_paid_amount,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildSessionActiveData(Consultation $consultation): array
+    {
+        return [
+            'status' => 'session_active',
+            'consultation_id' => (string) $consultation->getKey(),
+            'conversation_id' => $consultation->conversation_id,
+            'consultation_date' => $consultation->consultation_date?->toIso8601String(),
+            'remaining_time' => $consultation->remainingDuration(),
+        ];
+    }
+
+    /**
+     * @OA\Get(
      *   path="/consultations/payments/history",
      *   tags={"Consultation Payment"},
      *   security={{"BearerAuth":{}}},

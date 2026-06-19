@@ -3257,6 +3257,66 @@
                 ]
             }
         },
+        "/consultations/{architectId}/check-status": {
+            "get": {
+                "tags": [
+                    "Consultation Payment"
+                ],
+                "summary": "Check consultation session status with an architect",
+                "description": "Mengecek status sesi konsultasi user dengan arsitek tertentu berdasarkan transaksi terakhir. Status yang mungkin: no_session, pending_payment, session_active, session_expired.",
+                "operationId": "98799945dff4606e1d3ee08dff4039b8",
+                "parameters": [
+                    {
+                        "name": "architectId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status konsultasi berhasil diambil",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "example": {
+                                    "success": true,
+                                    "status_code": 200,
+                                    "message": "Status konsultasi berhasil diambil.",
+                                    "data": {
+                                        "status": "session_active",
+                                        "consultation_id": "01J3CONS001",
+                                        "conversation_id": "01J3CONV001",
+                                        "remaining_time": {
+                                            "days": 0,
+                                            "hours": 1,
+                                            "minutes": 30,
+                                            "seconds": 0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ]
+            }
+        },
         "/consultations/payments/history": {
             "get": {
                 "tags": [

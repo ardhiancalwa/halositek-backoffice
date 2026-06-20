@@ -243,10 +243,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 </button>
             </td>
             <td class="py-5 px-6 text-center whitespace-nowrap">
-                <div class="flex items-center justify-center gap-2">
-                    <button type="button" class="bg-[#10B981] hover:bg-[#059669] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer" onclick="openPaymentModal('approve', '${item.id}')">Approve</button>
-                    <button type="button" class="bg-[#F43F5E] hover:bg-[#E11D48] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer" onclick="openPaymentModal('decline', '${item.id}')">Decline</button>
-                </div>
+                ${(item.action_status === 'approved')
+                    ? `<span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            APPROVED
+                        </span>`
+                    : (item.action_status === 'declined')
+                    ? `<span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider bg-rose-50 text-rose-600 border border-rose-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            DECLINED
+                        </span>`
+                    : `<div class="flex items-center justify-center gap-2">
+                            <button type="button" class="bg-[#10B981] hover:bg-[#059669] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer" onclick="openPaymentModal('approve', '${item.id}')">Approve</button>
+                            <button type="button" class="bg-[#F43F5E] hover:bg-[#E11D48] text-white px-5 py-2.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer" onclick="openPaymentModal('decline', '${item.id}')">Decline</button>
+                        </div>`
+                }
             </td>
         </tr>`;
     }
@@ -613,8 +624,8 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = `<tr><td colspan="4" class="py-10 text-center text-slate-400">Loading...</td></tr>`;
         showModal('releaseModal');
 
-        const url = architectConsultationsUrl.replace(':id', architectId) + '?status=pending';
-        const res = await fetchData(url, {});
+        const url = architectConsultationsUrl.replace(':id', architectId);
+        const res = await fetchData(url, { status: 'pending' });
 
         if (res && res.data) {
             const data = res.data;
@@ -650,8 +661,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dateEl) dateEl.textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
         showModal('selesaiModal');
 
-        const url = architectConsultationsUrl.replace(':id', architectId) + '?status=released';
-        const res = await fetchData(url, {});
+        const url = architectConsultationsUrl.replace(':id', architectId);
+        const res = await fetchData(url, { status: 'released' });
 
         if (res && res.data) {
             const data = res.data;

@@ -56,6 +56,37 @@ final class ApiResponse
     }
 
     /**
+     * Return a paginated success response with pre-transformed items.
+     *
+     * @param  list<mixed>  $items
+     * @param  LengthAwarePaginator<int, mixed>  $paginator
+     * @param  array<string, int|string|float|bool|null>  $meta
+     */
+    public static function paginatedItems(array $items, LengthAwarePaginator $paginator, ?string $message = null, ApiStatus $status = ApiStatus::SUCCESS, array $meta = []): JsonResponse
+    {
+        $response = [
+            'success' => true,
+            'status_code' => $status->value,
+            'message' => $status->message($message),
+            'data' => $items,
+            'meta' => array_merge([
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+            ], $meta),
+            'links' => [
+                'first_page_url' => $paginator->url(1),
+                'last_page_url' => $paginator->url($paginator->lastPage()),
+                'next_page_url' => $paginator->nextPageUrl(),
+                'prev_page_url' => $paginator->previousPageUrl(),
+            ],
+        ];
+
+        return response()->json($response, $status->value);
+    }
+
+    /**
      * Return a created response (201).
      */
     public static function created(mixed $data = null, ?string $message = null): JsonResponse

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AccountStatus;
 use App\Enums\UserRole;
+use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,9 +12,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\HasApiTokens;
 use MongoDB\Laravel\Auth\User as Authenticatable;
 
+/**
+ * @property string $id
+ * @property string $name
+ * @property string $email
+ * @property UserRole $role
+ * @property string|null $photo_profile
+ * @property-read string $photo_profile_url
+ * @property AccountStatus|null $account_status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class User extends Authenticatable implements FilamentUser
 {
     /** @use HasFactory<UserFactory> */
@@ -21,6 +34,11 @@ class User extends Authenticatable implements FilamentUser
 
     use HasFactory;
     use Notifiable;
+
+    public function getPhotoProfileUrlAttribute(): string
+    {
+        return $this->photo_profile ?? 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? 'U') . '&background=ececec&color=333333&rounded=true&bold=true';
+    }
 
     protected $connection = 'mongodb';
 
@@ -35,6 +53,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'account_status',
+        'photo_profile',
     ];
 
     /**
@@ -62,6 +81,11 @@ class User extends Authenticatable implements FilamentUser
         ];
     }
 
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === UserRole::SuperAdmin;
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;
@@ -82,9 +106,14 @@ class User extends Authenticatable implements FilamentUser
         return $this->role === $role;
     }
 
+    public function isAdminOrSuperAdmin(): bool
+    {
+        return $this->role === UserRole::Admin || $this->role === UserRole::SuperAdmin;
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->isAdmin();
+        return $this->isAdminOrSuperAdmin();
     }
 
     /**
@@ -125,5 +154,53 @@ class User extends Authenticatable implements FilamentUser
     public function messages(): HasMany
     {
         return $this->hasMany(Message::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<Consultation, self>
+     */
+    public function consultationsAsUser(): HasMany
+    {
+        return $this->hasMany(Consultation::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<Consultation, self>
+     */
+    public function consultationsAsArchitect(): HasMany
+    {
+        return $this->hasMany(Consultation::class, 'architect_id');
+    }
+
+    /**
+     * @return HasMany<Payment, self>
+     */
+    public function paymentsAsUser(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'user_id');
+    }
+
+    /**
+     * @return HasMany<Payment, self>
+     */
+    public function paymentsAsArchitect(): HasMany
+    {
+        return $this->hasMany(Payment::class, 'architect_id');
+    }
+
+    /**
+     * @return HasMany<ConsultationReport, self>
+     */
+    public function consultationReports(): HasMany
+    {
+        return $this->hasMany(ConsultationReport::class, 'requester_id');
+    }
+
+    /**
+     * @return HasMany<AiChatbotLog, self>
+     */
+    public function aiChatbotLogs(): HasMany
+    {
+        return $this->hasMany(AiChatbotLog::class, 'user_id');
     }
 }

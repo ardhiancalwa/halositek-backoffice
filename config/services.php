@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'halositek_ai' => [
+        'url' => env('HALOSITEK_AI_URL', 'http://127.0.0.1:8001'),
+        'verify_ssl' => env('HALOSITEK_AI_IS_PRODUCTION', 'production') === 'production',
+        'timeout' => (int) env('HALOSITEK_AI_TIMEOUT', 200),
+    ],
+
+    'midtrans' => [
+        'server_key' => env('MIDTRANS_SERVER_KEY'),
+        'client_key' => env('MIDTRANS_CLIENT_KEY'),
+        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+        'notification_url' => env('MIDTRANS_NOTIFICATION_URL'),
+    ],
+
 ];

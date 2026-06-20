@@ -1,13 +1,24 @@
 <?php
 
-use App\Http\Controllers\Api\Chat\ConversationController;
-use App\Http\Controllers\Api\Chat\MessageController;
-use App\Http\Controllers\Api\V1\ArchitectController;
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\AwardController;
-use App\Http\Controllers\Api\V1\FaqController;
-use App\Http\Controllers\Api\V1\ProjectController;
-use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Api\AiChatbot\AiChatbotManagementController;
+use App\Http\Controllers\Api\Analystics\AnalyticsController;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\MobilePasswordResetController;
+use App\Http\Controllers\Api\Award\AwardController;
+use App\Http\Controllers\Api\Consultation\ConsultationManagementController;
+use App\Http\Controllers\Api\Consultation\ConsultationReportController;
+use App\Http\Controllers\Api\Consultation\ConversationController;
+use App\Http\Controllers\Api\Consultation\MessageController;
+use App\Http\Controllers\Api\Consultation\PaymentController;
+use App\Http\Controllers\Api\Consultation\PaymentWebhookController;
+use App\Http\Controllers\Api\Dashboard\DashboardController;
+use App\Http\Controllers\Api\Faq\FaqController;
+use App\Http\Controllers\Api\Project\ProjectController;
+use App\Http\Controllers\Api\User\AdminController;
+use App\Http\Controllers\Api\User\ArchitectController;
+use App\Http\Controllers\Api\User\UserController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,12 +32,21 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/refresh-token', [AuthController::class, 'refresh']);
+    Route::post('/auth/mobile/password/request-otp', [MobilePasswordResetController::class, 'requestOtp']);
+    Route::post('/auth/mobile/password/verify-otp', [MobilePasswordResetController::class, 'verifyOtp']);
+    Route::post('/auth/mobile/password/reset', [MobilePasswordResetController::class, 'resetPassword']);
 
     // Protected routes (any authenticated user)
     Route::middleware('auth:sanctum')->group(function () {
+        Broadcast::routes();
+
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
         Route::get('/me', [AuthController::class, 'me']);
-        Route::put('/me', [UserController::class, 'updateProfile']);
+        Route::post('/me', [UserController::class, 'updateProfile']);
+
+        // Private/presence channel authentication for Reverb/Pusher-protocol websocket clients.
+        Route::post('/broadcasting/auth', fn (Request $request) => Broadcast::auth($request));
 
         Route::prefix('/chat')->group(function () {
             Route::get('/conversations', [ConversationController::class, 'index']);
@@ -35,19 +55,57 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/conversations/{conversationId}/messages', [MessageController::class, 'index']);
             Route::post('/messages', [MessageController::class, 'store']);
+            Route::get('/ai/messages', [MessageController::class, 'aiHistory']);
+            Route::post('/ai/messages', [MessageController::class, 'storeAi']);
+            Route::delete('/ai/messages', [MessageController::class, 'clearAiHistory'])->middleware('role:user,architect');
+            Route::post('/ai/stop', [MessageController::class, 'stopAi']);
             Route::post('/conversations/{conversationId}/read', [MessageController::class, 'markAsRead']);
             Route::post('/conversations/{conversationId}/typing', [MessageController::class, 'typing']);
         });
+
+        Route::prefix('/consultations/payments')->group(function () {
+            Route::post('/initiate', [PaymentController::class, 'initiate']);
+            Route::get('/history', [PaymentController::class, 'history']);
+            Route::get('/{transactionId}/status', [PaymentController::class, 'status']);
+        });
+
+        Route::get('/consultations/{architectId}/check-status', [PaymentController::class, 'checkConsultationStatus']);
+
+        Route::get('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'index']);
+        Route::post('/consultations/{consultationId}/reports', [ConsultationReportController::class, 'store']);
+        Route::get('/consultations/reports/stats', [ConsultationManagementController::class, 'reportStats'])->middleware('role:admin');
+        Route::get('/consultations/reports/users/{userId}', [ConsultationReportController::class, 'reportsByUser']);
+        Route::get('/consultations/reports/{reportId}', [ConsultationReportController::class, 'show']);
 
         // Project CRUD (Architect/Admin)
         Route::post('/projects', [ProjectController::class, 'store']);
         Route::put('/projects/{id}', [ProjectController::class, 'update']);
         Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
 
+        // Project interactions
+        Route::post('/projects/{id}/like', [ProjectController::class, 'like']);
+        Route::delete('/projects/{id}/like', [ProjectController::class, 'unlike']);
+
+        // Project wishlist/saved
+        Route::get('/projects/saved', [ProjectController::class, 'savedList']);
+        Route::post('/projects/{id}/save', [ProjectController::class, 'save']);
+        Route::delete('/projects/{id}/save', [ProjectController::class, 'unsave']);
+
         // Award CRUD (Architect/Admin)
         Route::post('/awards', [AwardController::class, 'store']);
         Route::put('/awards/{id}', [AwardController::class, 'update']);
         Route::delete('/awards/{id}', [AwardController::class, 'destroy']);
+
+        Route::get('/architects/earnings', [ArchitectController::class, 'earnings']);
+        Route::put('/architects/profile', [ArchitectController::class, 'updateProfile'])->middleware('role:architect');
+        Route::post('/architects/profile', [ArchitectController::class, 'updateProfile'])->middleware('role:architect');
+
+        // Dashboard
+        Route::prefix('/dashboard')->group(function () {
+            Route::get('/summary', [DashboardController::class, 'summary'])->middleware('role:user');
+            Route::get('/design/featured', [DashboardController::class, 'featuredDesign'])->middleware('role:user,architect');
+            Route::get('/design/recommend', [DashboardController::class, 'recommendDesign'])->middleware('role:user');
+        });
 
         // Architect wishlist
         Route::get('/architects/wishlist', [ArchitectController::class, 'wishlist']);
@@ -57,6 +115,10 @@ Route::prefix('v1')->group(function () {
 
     // Admin only routes
     Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::get('/analytics/overview', [AnalyticsController::class, 'overview']);
+        Route::get('/analytics/user-growth', [AnalyticsController::class, 'userGrowth']);
+        Route::get('/analytics/architect-growth', [AnalyticsController::class, 'architectGrowth']);
+
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
         Route::get('/users/{id}', [UserController::class, 'show']);
@@ -75,11 +137,35 @@ Route::prefix('v1')->group(function () {
         Route::post('/faqs', [FaqController::class, 'store']);
         Route::put('/faqs/{id}', [FaqController::class, 'update']);
         Route::delete('/faqs/{id}', [FaqController::class, 'destroy']);
+
+        // Consultation management
+        Route::get('/consultations/reports', [ConsultationManagementController::class, 'reportList']);
+        Route::put('/consultations/reports/{reportId}/action', [ConsultationManagementController::class, 'updateReportAction']);
+
+        Route::get('/consultations/payroll/summary', [ConsultationManagementController::class, 'payrollSummary']);
+        Route::get('/consultations/payroll/queue', [ConsultationManagementController::class, 'payrollQueue']);
+        Route::get('/consultations/payroll/queue/{architectId}', [ConsultationManagementController::class, 'payrollReleaseDetail']);
+        Route::post('/consultations/payroll/queue/{architectId}/release', [ConsultationManagementController::class, 'releasePayroll']);
+
+        // AI chatbot management
+        Route::get('/ai-chatbot/performance', [AiChatbotManagementController::class, 'performance']);
+        Route::get('/ai-chatbot/logs', [AiChatbotManagementController::class, 'activityLogs']);
+        Route::get('/ai-chatbot/logs/{logId}', [AiChatbotManagementController::class, 'showActivityLog']);
     });
 
-    // Public routes (down here to avoid intercepting wishlist if grouped)
+    // Super Admin only routes
+    Route::middleware(['auth:sanctum', 'role:super_admin'])->group(function () {
+        // Admin management
+        Route::get('/admins', [AdminController::class, 'index']);
+        Route::post('/admins', [AdminController::class, 'store']);
+        Route::get('/admins/{id}', [AdminController::class, 'show']);
+        Route::put('/admins/{id}', [AdminController::class, 'update']);
+        Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
+    });
     // Actually wishlist is above, so we are safe.
     Route::get('/architects', [ArchitectController::class, 'index']);
+    Route::get('/architects/{id}/performance', [ArchitectController::class, 'performance']);
+    Route::get('/architects/{id}', [ArchitectController::class, 'show']);
 
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::get('/projects/{id}', [ProjectController::class, 'show']);
@@ -89,4 +175,9 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/faqs', [FaqController::class, 'index']);
     Route::get('/faqs/{id}', [FaqController::class, 'show']);
+
+    Route::post('/webhooks/midtrans', [PaymentWebhookController::class, 'handleMidtrans']);
 });
+
+// Backward-compatible webhook path without API version.
+Route::post('/webhooks/midtrans', [PaymentWebhookController::class, 'handleMidtrans']);

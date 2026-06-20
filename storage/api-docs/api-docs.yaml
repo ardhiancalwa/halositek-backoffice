@@ -8,13 +8,1651 @@ servers:
     url: 'http://localhost:8000/api/v1'
     description: 'Local Development Server'
 paths:
+  /ai-chatbot/performance:
+    get:
+      tags:
+        - 'AI Chatbot Management'
+      summary: 'Get AI chatbot real-time performance'
+      operationId: 2d1b658e8a9a45df85f30bb9d663f14a
+      responses:
+        200:
+          description: 'Performance metrics retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Operation successful.'
+                data:
+                  total_generate: 320
+                  total_success: 300
+                  total_failed: 20
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /ai-chatbot/logs:
+    get:
+      tags:
+        - 'AI Chatbot Management'
+      summary: 'Get AI chatbot activity logs'
+      operationId: c79e11067c9d259f5c8e2bcf77b67b7b
+      parameters:
+        -
+          name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - success
+              - failed
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+            minimum: 1
+      responses:
+        200:
+          description: 'Activity logs retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Log aktivitas AI chatbot berhasil diambil.'
+                data:
+                  -
+                    id: 01J3AILOG0001
+                    user:
+                      id: 01J3USER001
+                      name: 'Budi Santoso'
+                    date: '2026-04-27T08:10:00+00:00'
+                    prompt_preview: 'Generate konsep fasad rumah modern tropis.'
+                    status: success
+                    generate_time_ms: 1810
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/ai-chatbot/logs?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/ai-chatbot/logs?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/ai-chatbot/logs/{logId}':
+    get:
+      tags:
+        - 'AI Chatbot Management'
+      summary: 'Get AI chatbot activity log detail'
+      operationId: fb76358cd9e60afc92b88f0fa3e1917b
+      parameters:
+        -
+          name: logId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Activity log detail retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Detail log aktivitas AI chatbot berhasil diambil.'
+                data:
+                  id: 01J3AILOG0002
+                  status: failed
+                  user:
+                    id: 01J3USER001
+                    name: 'Budi Santoso'
+                  date: '2026-04-27T09:10:00+00:00'
+                  prompt_preview: 'Generate image masterplan urban mixed-use.'
+                  generate_time_ms: 620
+                  original_request: 'Generate image masterplan urban mixed-use detail...'
+                  system_error_log: 'Inference timeout on provider A.'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /analytics/overview:
+    get:
+      tags:
+        - Analytics
+      summary: 'Get analytics overview'
+      description: 'Returns overview metrics for registered users, approved architects, and active projects.'
+      operationId: e461123aa143116cbcad1a8b7d26ae5e
+      responses:
+        200:
+          description: 'Analytics overview retrieved successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Analytics overview retrieved successfully.'
+                data:
+                  registered_user: 120
+                  registered_architect: 42
+                  active_projects: 88
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /analytics/user-growth:
+    get:
+      tags:
+        - Analytics
+      summary: 'Get user growth'
+      description: 'Returns user growth series based on selected range.'
+      operationId: d4cc1ef6237502a876b2edd641bd08d7
+      parameters:
+        -
+          name: range
+          in: query
+          required: false
+          schema:
+            type: string
+            default: last_7_days
+            enum:
+              - today
+              - last_7_days
+              - last_month
+      responses:
+        200:
+          description: 'User growth retrieved successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'User growth retrieved successfully.'
+                data:
+                  range: last_7_days
+                  labels:
+                    - '2026-04-20'
+                    - '2026-04-21'
+                    - '2026-04-22'
+                    - '2026-04-23'
+                    - '2026-04-24'
+                    - '2026-04-25'
+                    - '2026-04-26'
+                  series:
+                    - 2
+                    - 1
+                    - 0
+                    - 3
+                    - 1
+                    - 2
+                    - 1
+                  cumulative_series:
+                    - 2
+                    - 3
+                    - 3
+                    - 6
+                    - 7
+                    - 9
+                    - 10
+                  total: 10
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /analytics/architect-growth:
+    get:
+      tags:
+        - Analytics
+      summary: 'Get architect growth'
+      description: 'Returns approved architect growth series based on selected range.'
+      operationId: deb4b7f21e038564bdb5d164a6965e91
+      parameters:
+        -
+          name: range
+          in: query
+          required: false
+          schema:
+            type: string
+            default: last_7_days
+            enum:
+              - today
+              - last_7_days
+              - last_month
+      responses:
+        200:
+          description: 'Architect growth retrieved successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Architect growth retrieved successfully.'
+                data:
+                  range: last_month
+                  labels:
+                    - 'Apr 1 - Apr 7'
+                    - 'Apr 8 - Apr 14'
+                    - 'Apr 15 - Apr 21'
+                    - 'Apr 22 - Apr 24'
+                  series:
+                    - 0
+                    - 1
+                    - 0
+                    - 2
+                  cumulative_series:
+                    - 0
+                    - 1
+                    - 1
+                    - 3
+                  total: 3
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: 'Register account'
+      description: 'Registers a new user and returns an access token and refresh token.'
+      operationId: f8f20d8e5fa3ee0d9ab537e9ac6206b5
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+              properties:
+                name:
+                  type: string
+                  example: 'Budi Santoso'
+                email:
+                  type: string
+                  format: email
+                  example: budi_santoso@gmail.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: password123
+                role:
+                  type: string
+                  example: user
+                photo_profile:
+                  type: string
+                  format: binary
+              type: object
+      responses:
+        201:
+          description: 'Registration successful'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Registration successful'
+                data:
+                  id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
+                  name: 'Budi Santoso'
+                  email: budi_santoso@gmail.com
+                  role: user
+                  access_token: 1|plain-access-token
+                  refresh_token: 2|plain-refresh-token
+                  token_type: Bearer
+                  expires_in: 3600
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: 'Login account'
+      description: 'Authenticates user credentials and returns a token pair.'
+      operationId: 3d1aae0ea009e03fadebec819afd774e
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+                - password
+                - role
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@halositek.com
+                password:
+                  type: string
+                  example: securepassword123
+                role:
+                  type: string
+                  example: user
+                  enum:
+                    - user
+                    - architect
+                    - admin
+              type: object
+      responses:
+        200:
+          description: 'Login successful'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Login successful'
+                data:
+                  id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
+                  name: 'Regular User'
+                  email: user@halositek.com
+                  role: user
+                  access_token: 1|plain-access-token
+                  refresh_token: 2|plain-refresh-token
+                  token_type: Bearer
+                  expires_in: 3600
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /auth/refresh-token:
+    post:
+      tags:
+        - Auth
+      summary: 'Refresh access token'
+      description: 'Exchanges a valid refresh token for a new token pair.'
+      operationId: 2827f194f67f6d3538d73ad213edf819
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh_token:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+              type: object
+      responses:
+        200:
+          description: 'Token refreshed successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Token refreshed successfully'
+                data:
+                  access_token: 3|plain-access-token
+                  refresh_token: 4|plain-refresh-token
+                  token_type: Bearer
+                  expires_in: 3600
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /logout:
+    post:
+      tags:
+        - Auth
+      summary: 'Logout current session'
+      description: 'Revokes the current access token and optionally the refresh token provided in the request body.'
+      operationId: 6fa87e6ae9c508a3f355b05d51c4b335
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                refresh_token:
+                  type: string
+              type: object
+      responses:
+        200:
+          description: 'Logout successful'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Logout successful'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /auth/change-password:
+    post:
+      tags:
+        - Auth
+      summary: 'Change password'
+      description: "Changes the current authenticated user's password after validating the current password."
+      operationId: 000615dea47b4e76d90368283f7d5ca5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - current_password
+                - new_password
+                - new_password_confirmation
+              properties:
+                current_password:
+                  type: string
+                  format: password
+                  example: oldpassword123
+                new_password:
+                  type: string
+                  format: password
+                  example: newpassword123
+                new_password_confirmation:
+                  type: string
+                  format: password
+                  example: newpassword123
+              type: object
+      responses:
+        200:
+          description: 'Password changed successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Password berhasil diubah.'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /me:
+    get:
+      tags:
+        - Users
+      summary: 'Get current user profile'
+      description: 'Returns the profile data of the currently authenticated user.'
+      operationId: 4c4c7bf5b7dc5e997d9fb367439317d2
+      responses:
+        200:
+          description: 'Profile retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Profile retrieved successfully'
+                data:
+                  id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
+                  name: 'Regular User'
+                  email: user@halositek.com
+                  role: user
+                  account_status: active
+                  created_at: '2026-04-13T10:00:00Z'
+                  updated_at: '2026-04-13T10:00:00Z'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    post:
+      tags:
+        - Users
+      summary: 'Update current profile'
+      description: 'Updates the profile of the currently authenticated user.'
+      operationId: 5cfb418544966e592aa100b0e929828d
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: 'Budi Santoso'
+                email:
+                  type: string
+                  format: email
+                  example: budi@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                photo_profile:
+                  type: string
+                  format: binary
+              type: object
+      responses:
+        200:
+          description: 'Profile updated successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Profile updated successfully.'
+                data:
+                  user:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Updated User Name'
+                    email: user@halositek.com
+                    role: user
+                    account_status: active
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /auth/mobile/password/request-otp:
+    post:
+      tags:
+        - Auth
+      summary: 'Request mobile reset password OTP'
+      description: "Generates a 4-digit OTP for mobile password reset and sends it to the user's email."
+      operationId: 45cb9a2470ccab4dec13d420d9813c58
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@halositek.com
+              type: object
+      responses:
+        200:
+          description: 'OTP sent successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Kode OTP reset password telah dikirim ke email.'
+                data:
+                  expires_in_minutes: 10
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /auth/mobile/password/verify-otp:
+    post:
+      tags:
+        - Auth
+      summary: 'Verify mobile reset password OTP'
+      description: 'Validates a 4-digit mobile reset password OTP before the password is updated.'
+      operationId: 7b546ee97169dba9919e21b5ffc37f1e
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+                - otp
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@halositek.com
+                otp:
+                  type: string
+                  example: '1234'
+              type: object
+      responses:
+        200:
+          description: 'OTP valid'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Kode OTP valid.'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /auth/mobile/password/reset:
+    post:
+      tags:
+        - Auth
+      summary: 'Reset mobile password using OTP'
+      description: "Updates the user's password after validating a 4-digit OTP. The OTP is marked as used after a successful reset."
+      operationId: 15ba6745eaa9f083365d72832b92c8d7
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+                - otp
+                - password
+                - password_confirmation
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@halositek.com
+                otp:
+                  type: string
+                  example: '1234'
+                password:
+                  type: string
+                  format: password
+                  example: newpassword123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: newpassword123
+              type: object
+      responses:
+        200:
+          description: 'Password reset successful'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Password berhasil direset.'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+  /awards:
+    get:
+      tags:
+        - Awards
+      summary: 'List awards'
+      description: 'Returns a paginated award list with optional status filtering.'
+      operationId: 0a0f62bf7d6ade3dcd31951445956654
+      parameters:
+        -
+          name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - pending
+              - approved
+              - declined
+        -
+          name: architect_id
+          in: query
+          schema:
+            type: string
+        -
+          name: search
+          in: query
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Awards retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Awards retrieved successfully'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    name: 'Best Residential Design'
+                    project_name: 'Modern House'
+                    status: approved
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 12
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/awards?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/awards?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security: []
+    post:
+      tags:
+        - Awards
+      summary: 'Create award'
+      description: 'Creates a new award record by an architect, including verification file upload.'
+      operationId: e71987245dd9f8dc0b3cb74fc09450fe
+      requestBody:
+        required: true
+        content:
+          multipart/form-data: []
+      responses:
+        201:
+          description: 'Award created successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Award created successfully'
+                data:
+                  award:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    name: 'Best Residential Design'
+                    project_name: 'Modern House'
+                    status: pending
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/awards/{id}':
+    get:
+      tags:
+        - Awards
+      summary: 'Get award detail'
+      description: 'Returns award details by id.'
+      operationId: 2cd278c8adbf5af3a94c25f07f8d3a6e
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Award retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Award retrieved successfully'
+                data:
+                  award:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    name: 'Best Residential Design'
+                    project_name: 'Modern House'
+                    status: approved
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security: []
+    put:
+      tags:
+        - Awards
+      summary: 'Update award'
+      description: 'Updates award data; admin users can only update award status.'
+      operationId: 5dc0ab750512ffc1f56ae98585bd0d41
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data: []
+      responses:
+        200:
+          description: 'Award updated successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Award updated successfully'
+                data:
+                  award:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    name: 'Best Residential Design'
+                    project_name: 'Modern House'
+                    status: pending
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - Awards
+      summary: 'Delete award'
+      description: 'Deletes an award record and its verification file by id.'
+      operationId: 3651745e28646785f58c7e61e48d19d9
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Award deleted successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Award deleted successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/awards/{id}/approve':
+    put:
+      tags:
+        - Awards
+      summary: 'Review award approval'
+      description: 'Approves or declines an award by setting status to approved or declined. Admin only endpoint.'
+      operationId: f18b7a905d89a3d047c3807dd38f2846
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  example: approved
+                  enum:
+                    - approved
+                    - declined
+              type: object
+      responses:
+        200:
+          description: 'Award status updated successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Award status updated successfully.'
+                data:
+                  award:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
+                    status: approved
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /consultations/reports/stats:
+    get:
+      tags:
+        - 'Consultation Management'
+      summary: 'Get consultation report statistics'
+      operationId: 100829f69f10c4c96ca02b844f186e6c
+      responses:
+        200:
+          description: 'Report stats retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Operation successful.'
+                data:
+                  total_report: 76
+                  new_report: 12
+                  user_report: 51
+                  architect_report: 25
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
+      security:
+        -
+          BearerAuth: []
+  /consultations/reports:
+    get:
+      tags:
+        - 'Consultation Management'
+      summary: 'Get consultation report list'
+      operationId: 3d38881471dbe8ee4d10833c7bf612ce
+      parameters:
+        -
+          name: role
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - user
+              - architect
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+            minimum: 1
+      responses:
+        200:
+          description: 'Report list retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Daftar report berhasil diambil.'
+                data:
+                  -
+                    id: 01J3REPORT0001
+                    requester:
+                      id: 01J3USER001
+                      name: 'Ayu Pratama'
+                      role: user
+                      photo_profile: users/profiles/ayu.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                    reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                    consultation_date: '2026-04-27T10:30:00+00:00'
+                    opposing_party:
+                      id: 01J3ARCH001
+                      name: 'Dimas Arsitek'
+                      photo_profile: users/profiles/dimas.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                    nominal: 300000
+                    transcript: 'Riwayat chat konsultasi...'
+                    action_report: new
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/consultations/reports?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/consultations/reports?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
+      security:
+        -
+          BearerAuth: []
+  '/consultations/reports/{reportId}/action':
+    put:
+      tags:
+        - 'Consultation Management'
+      summary: 'Approve or decline consultation report'
+      description: 'Menerapkan keputusan report sekaligus rule buyback: report oleh user + approved => refund user; report oleh architect + declined => refund user; selain itu payment tidak berubah.'
+      operationId: 06c3c161f1be71337c86ba7c68f89bb0
+      parameters:
+        -
+          name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - action
+              properties:
+                action:
+                  type: string
+                  enum:
+                    - approved
+                    - declined
+              type: object
+      responses:
+        200:
+          description: 'Report action updated'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Action report berhasil diperbarui.'
+                data:
+                  id: 01J3REPORT0001
+                  action_report: approved
+                  actioned_at: '2026-04-27T12:30:00+00:00'
+                  buyback_applied: true
+                  payment_status: refunded
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /consultations/payroll/summary:
+    get:
+      tags:
+        - 'Consultation Management'
+      summary: 'Get pending payout summary'
+      operationId: 8f0599b5551bbd0241a154e4d749f30a
+      responses:
+        200:
+          description: 'Payroll summary retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Operation successful.'
+                data:
+                  pending_payouts: 8400000
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /consultations/payroll/queue:
+    get:
+      tags:
+        - 'Consultation Management'
+      summary: 'Get payout queue grouped by architect'
+      operationId: 8c9f01e9a48182c562e72007d924a949
+      parameters:
+        -
+          name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - pending
+              - released
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 100
+            minimum: 1
+        -
+          name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        200:
+          description: 'Payout queue retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Payout queue berhasil diambil.'
+                data:
+                  data:
+                    -
+                      architect_id: 01J3ARCH001
+                      architect_name: 'Dimas Arsitek'
+                      total_earnings: 900000
+                      per_session_earning: 300000
+                      total_consultation: 3
+                      queue_status: pending
+                  meta:
+                    current_page: 1
+                    last_page: 1
+                    per_page: 15
+                    total: 1
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/consultations/payroll/queue/{architectId}':
+    get:
+      tags:
+        - 'Consultation Management'
+      summary: 'Get release payment detail for architect'
+      operationId: e47405bcbde3b5c68a28cc7db4a5c09e
+      parameters:
+        -
+          name: architectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Release detail retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Detail release payment berhasil diambil.'
+                data:
+                  architect_id: 01J3ARCH001
+                  release_payment_items:
+                    -
+                      consultation_id: 01J3CONS001
+                      user:
+                        id: 01J3USER001
+                        name: 'Ayu Pratama'
+                      date: '2026-04-26T10:30:00+00:00'
+                      fee_per_session: 300000
+                      verification_status: verified
+                  payment_summary:
+                    consultation_per_session: 300000
+                    total_user_consultation: 1
+                  total_amount: 300000
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/consultations/payroll/queue/{architectId}/release':
+    post:
+      tags:
+        - 'Consultation Management'
+      summary: 'Release architect payroll'
+      operationId: 5a22ab3c8a9959b7fb905aa619b833cf
+      parameters:
+        -
+          name: architectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              properties:
+                consultation_ids:
+                  type: array
+                  items:
+                    type: string
+              type: object
+      responses:
+        200:
+          description: 'Payroll released'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Release payment berhasil diproses.'
+                data:
+                  architect_id: 01J3ARCH001
+                  release_status: selesai
+                  released_consultation_ids:
+                    - 01J3CONS001
+                    - 01J3CONS002
+                  released_count: 2
+                  released_total_amount: 600000
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/consultations/{consultationId}/reports':
+    get:
+      tags:
+        - 'Consultation Report'
+      summary: 'List reports for a consultation'
+      operationId: fa50bf6ff897242d9aea597f863836be
+      parameters:
+        -
+          name: consultationId
+          in: path
+          required: true
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 50
+            minimum: 1
+      responses:
+        200:
+          description: 'Report list retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Daftar report berhasil diambil.'
+                data:
+                  -
+                    id: 01J3REPORT0001
+                    requester:
+                      id: 01J3USER001
+                      name: 'Ayu Pratama'
+                      role: user
+                      photo_profile: users/profiles/ayu.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                    reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                    consultation_date: '2026-04-27T10:30:00+00:00'
+                    opposing_party:
+                      id: 01J3ARCH001
+                      name: 'Dimas Arsitek'
+                      photo_profile: users/profiles/dimas.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                    nominal: 300000
+                    transcript: 'Riwayat chat konsultasi...'
+                    action_report: new
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/consultations/01J3CONS001/reports?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/consultations/01J3CONS001/reports?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        -
+          BearerAuth: []
+    post:
+      tags:
+        - 'Consultation Report'
+      summary: 'Create consultation report'
+      operationId: 87d030d5e2c5cc1f2bd5e4f906a0fea9
+      parameters:
+        -
+          name: consultationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+                  example: 'Arsitek tidak hadir pada jadwal konsultasi.'
+              type: object
+      responses:
+        201:
+          description: 'Report created'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Report berhasil dibuat.'
+                data:
+                  id: 01J3REPORT0001
+                  requester:
+                    id: 01J3USER001
+                    name: 'Ayu Pratama'
+                    role: user
+                    photo_profile: users/profiles/ayu.webp
+                    photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                  reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                  consultation_date: '2026-04-27T10:30:00+00:00'
+                  opposing_party:
+                    id: 01J3ARCH001
+                    name: 'Dimas Arsitek'
+                    photo_profile: users/profiles/dimas.webp
+                    photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                  nominal: 300000
+                  transcript: 'Riwayat chat konsultasi...'
+                  action_report: new
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+      security:
+        -
+          BearerAuth: []
+  '/consultations/reports/{reportId}':
+    get:
+      tags:
+        - 'Consultation Report'
+      summary: 'Get report detail'
+      operationId: 5ac870f6869337747cb53b4496218c8e
+      parameters:
+        -
+          name: reportId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Report retrieved'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Detail report berhasil diambil.'
+                data:
+                  id: 01J3REPORT0001
+                  requester:
+                    id: 01J3USER001
+                    name: 'Ayu Pratama'
+                    role: user
+                    photo_profile: users/profiles/ayu.webp
+                    photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                  reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                  consultation_date: '2026-04-27T10:30:00+00:00'
+                  opposing_party:
+                    id: 01J3ARCH001
+                    name: 'Dimas Arsitek'
+                    photo_profile: users/profiles/dimas.webp
+                    photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                  nominal: 300000
+                  transcript: 'Riwayat chat konsultasi...'
+                  action_report: new
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        -
+          BearerAuth: []
+  '/consultations/reports/users/{userId}':
+    get:
+      tags:
+        - 'Consultation Report'
+      summary: 'List reports by user or architect ID'
+      description: 'Mengambil semua laporan yang melibatkan user ID tertentu.'
+      operationId: 22fe901fa507e53c9ffe47bb43ab578e
+      parameters:
+        -
+          name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        -
+          name: search
+          in: query
+          description: 'Cari berdasarkan nama pelapor atau terlapor'
+          required: false
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 50
+            minimum: 1
+      responses:
+        200:
+          description: 'Daftar report berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Daftar report berhasil diambil.'
+                data:
+                  -
+                    id: 01J3REPORT0001
+                    requester:
+                      id: 01J3USER001
+                      name: 'Ayu Pratama'
+                      role: user
+                      photo_profile: users/profiles/ayu.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/ayu.webp'
+                    reason: 'Arsitek tidak hadir pada jadwal konsultasi.'
+                    consultation_date: '2026-04-27T10:30:00+00:00'
+                    opposing_party:
+                      id: 01J3ARCH001
+                      name: 'Dimas Arsitek'
+                      photo_profile: users/profiles/dimas.webp
+                      photo_profile_url: 'http://localhost:8000/storage/users/profiles/dimas.webp'
+                    nominal: 300000
+                    transcript: 'Riwayat chat konsultasi...'
+                    action_report: new
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 1
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        -
+          BearerAuth: []
   /chat/conversations:
     get:
       tags:
         - Chat
       summary: 'List user conversations'
       description: 'Mengambil daftar percakapan milik user yang sedang login.'
-      operationId: 3667e86421dee90606c6f3421d249484
+      operationId: f43c1c690165415d56f87d12afbaeaf8
       parameters:
         -
           name: per_page
@@ -25,6 +1663,13 @@ paths:
             example: 15
             maximum: 50
             minimum: 1
+        -
+          name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            example: Ardhian
       responses:
         200:
           description: 'Daftar percakapan berhasil diambil'
@@ -78,7 +1723,7 @@ paths:
         - Chat
       summary: 'Create conversation'
       description: 'Membuat percakapan baru (default private chat). Jika private chat sudah ada, data existing dapat dikembalikan.'
-      operationId: 465fda86773b20ab7a5c811b9218e0ca
+      operationId: e0203a145cc5146475105ed5a795ee6c
       requestBody:
         required: true
         content:
@@ -123,6 +1768,8 @@ paths:
                   updated_at: '2026-04-19T10:00:00+00:00'
         401:
           $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
         422:
           $ref: '#/components/responses/ValidationError'
         500:
@@ -136,7 +1783,7 @@ paths:
         - Chat
       summary: 'Get conversation detail'
       description: 'Mengambil detail percakapan berdasarkan ID conversation.'
-      operationId: b7dd22be6c213d44c15ecf7f9e398971
+      operationId: b1f4c4da61c94b1b8d50bdb94779f685
       parameters:
         -
           name: conversationId
@@ -181,7 +1828,7 @@ paths:
         - Chat
       summary: 'List messages'
       description: 'Mengambil daftar pesan pada conversation tertentu.'
-      operationId: cddfff9ec192fd4a494f54ac875cc7d6
+      operationId: 318164aae8b37e8a0c5d03c99a230c5b
       parameters:
         -
           name: conversationId
@@ -249,16 +1896,15 @@ paths:
       tags:
         - Chat
       summary: 'Send message'
-      description: 'Mengirim pesan teks ke conversation dan men-trigger broadcast real-time.'
-      operationId: 9aa4d4704f6729636d7fc9ae96c20e65
+      description: 'Mengirim pesan teks/file ke conversation antar user-arsitek (tanpa proses AI).'
+      operationId: 5544065cc5106aa1f9a34cfc8762cfe4
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               required:
                 - conversation_id
-                - body
               properties:
                 conversation_id:
                   type: string
@@ -266,9 +1912,10 @@ paths:
                 body:
                   type: string
                   example: 'Halo, kabar kamu gimana?'
+                  nullable: true
                 attachment:
                   type: string
-                  example: null
+                  format: binary
                   nullable: true
               type: object
       responses:
@@ -285,10 +1932,13 @@ paths:
                   id: 01J2MESSAGE001
                   conversation_id: 01J2CHATCONVERSATION001
                   user_id: 01J2USERA
+                  role: user
+                  type: text
+                  content: 'Halo, kabar kamu gimana?'
                   body: 'Halo, kabar kamu gimana?'
                   attachment: null
                   read_at: null
-                  is_mine: true
+                  is_mine: false
                   sender:
                     id: 01J2USERA
                     name: Budi
@@ -308,13 +1958,169 @@ paths:
       security:
         -
           BearerAuth: []
+  /chat/ai/messages:
+    get:
+      tags:
+        - Chat
+      summary: 'List AI chat history'
+      description: 'Mengambil history chat AI milik user login dengan cursor-based pagination. Data terbaru ditampilkan lebih dulu; gunakan next_cursor untuk load history yang lebih lama.'
+      operationId: 8170b79fc7de45beb46571744da92841
+      parameters:
+        -
+          name: per_page
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 20
+            maximum: 100
+            minimum: 1
+        -
+          name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+            example: eyJjcmVhdGVkX2F0IjoiMjAyNi0wNC0xOVQxMDowMDowMCswMDowMCIsImlkIjoiMDFKMk1FU1NBR0UwMDEifQ==
+      responses:
+        200:
+          description: 'History chat AI berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'History chat AI berhasil diambil.'
+                data:
+                  -
+                    id: 01J2MESSAGE002
+                    conversation_id: ''
+                    user_id: 01J2USERA
+                    role: assistant
+                    type: text
+                    content: 'Ini adalah jawaban AI.'
+                    body: 'Ini adalah jawaban AI.'
+                    attachment: null
+                    attachment_url: null
+                    read_at: null
+                    is_mine: false
+                    created_at: '2026-04-19T10:00:03+00:00'
+                    updated_at: '2026-04-19T10:00:03+00:00'
+                meta:
+                  per_page: 20
+                  next_cursor: null
+                  has_more: false
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    post:
+      tags:
+        - Chat
+      summary: 'Send AI message (legacy endpoint)'
+      description: 'Mengirim pesan ke AI service dengan history berbasis user (endpoint legacy).'
+      operationId: 709e48a6621b39699d0ac46d458d9504
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  example: 'Buatkan konsep rumah tropis.'
+                  maxLength: 2000
+              type: object
+      responses:
+        200:
+          description: 'AI response berhasil'
+          content:
+            application/json:
+              schema: []
+              example:
+                type: text
+                content: 'Ini adalah jawaban AI.'
+                prompt_used: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - Chat
+      summary: 'Clear AI chat history'
+      description: 'Menghapus history chat AI dan log AI milik user login. Endpoint ini ditujukan untuk aplikasi mobile.'
+      operationId: 49bae231cef538a2352925216f2d56e5
+      responses:
+        200:
+          description: 'AI chat history cleared'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'History chat AI berhasil dihapus.'
+                data:
+                  deleted_messages: 4
+                  deleted_logs: 2
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /chat/ai/stop:
+    post:
+      tags:
+        - Chat
+      summary: 'Stop active AI generation'
+      description: 'Menghentikan generate AI aktif milik user login. Backend menandai request sebagai cancelled dan mencoba meneruskan stop signal ke AI service.'
+      operationId: 8351331cc10791a234d2b3cd98ef04a9
+      responses:
+        200:
+          description: 'Stop signal processed'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Generate AI berhasil dihentikan.'
+                data:
+                  stopped: true
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   '/chat/conversations/{conversationId}/read':
     post:
       tags:
         - Chat
       summary: 'Mark conversation as read'
       description: 'Menandai seluruh pesan lawan bicara pada conversation sebagai sudah dibaca dan update last_read_at user.'
-      operationId: 32675d0d310497ea9602a15c503778de
+      operationId: 52396d03c385f258bf853fe18579ce15
       parameters:
         -
           name: conversationId
@@ -359,7 +2165,7 @@ paths:
         - Chat
       summary: 'Send typing indicator'
       description: 'Mengirim status typing indicator ke private channel conversation.'
-      operationId: aa90bc5975ea4902f58cbdc108897e12
+      operationId: 78c60c3029a1f9dc3152aec335fa4daf
       parameters:
         -
           name: conversationId
@@ -398,598 +2204,325 @@ paths:
       security:
         -
           BearerAuth: []
-  /architects:
-    get:
-      tags:
-        - Architects
-      summary: 'List architects'
-      description: 'Returns a list of architects for public browsing.'
-      operationId: d4ecab5f93bf0a5d922dd4a0070eba63
-      responses:
-        200:
-          description: 'Architect list retrieved successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Architect list retrieved successfully'
-                data:
-                  -
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
-                    name: 'Architect User'
-                    email: architect@halositek.com
-                    headline: 'Residential Specialist'
-                meta:
-                  current_page: 1
-                  last_page: 1
-                  per_page: 12
-                  total: 1
-                links:
-                  first_page_url: 'http://localhost:8000/api/v1/architects?page=1'
-                  last_page_url: 'http://localhost:8000/api/v1/architects?page=1'
-                  next_page_url: null
-                  prev_page_url: null
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security: []
-  /architects/wishlist:
-    get:
-      tags:
-        - Architects
-      summary: 'List wishlist architects'
-      description: "Returns the authenticated user's saved architect wishlist."
-      operationId: 5740e73b9215dc96daaa1798730b86fe
-      responses:
-        200:
-          description: 'Wishlist architects retrieved successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Wishlist architects retrieved successfully'
-                data:
-                  -
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
-                    name: 'Architect User'
-                    email: architect@halositek.com
-                    headline: 'Residential Specialist'
-                meta:
-                  current_page: 1
-                  last_page: 1
-                  per_page: 12
-                  total: 1
-                links:
-                  first_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
-                  last_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
-                  next_page_url: null
-                  prev_page_url: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-  '/architects/{userId}/save':
+  /consultations/payments/initiate:
     post:
       tags:
-        - Architects
-      summary: 'Save architect to wishlist'
-      description: "Saves a specific architect to the authenticated user's wishlist."
-      operationId: 40e0529344634b303b282cd24652def4
-      parameters:
-        -
-          name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'Architect saved to wishlist successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Architect saved to wishlist successfully'
-                data: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        409:
-          $ref: '#/components/responses/ConflictError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-    delete:
-      tags:
-        - Architects
-      summary: 'Remove architect from wishlist'
-      description: "Removes a specific architect from the authenticated user's wishlist."
-      operationId: 9c90fdf8eed43272e99f4fa93636f960
-      parameters:
-        -
-          name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'Architect removed from wishlist successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Architect removed from wishlist successfully'
-                data: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-  /auth/register:
-    post:
-      tags:
-        - Auth
-      summary: 'Register account'
-      description: 'Registers a new user and returns an access token and refresh token.'
-      operationId: 8f20688904ee49d0d8739eeb08faf0b1
+        - 'Consultation Payment'
+      summary: 'Initiate consultation payment'
+      description: 'Membuat transaksi Midtrans Snap untuk pembayaran konsultasi.'
+      operationId: b77e4838d5d26f9d147e85096afb4e9d
       requestBody:
         required: true
         content:
           application/json:
             schema:
               required:
-                - name
-                - email
-                - password
-                - password_confirmation
+                - architect_id
               properties:
-                name:
+                architect_id:
                   type: string
-                  example: 'Budi Santoso'
-                email:
-                  type: string
-                  format: email
-                  example: budi_santoso@gmail.com
-                password:
-                  type: string
-                  format: password
-                  example: password123
-                password_confirmation:
-                  type: string
-                  format: password
-                  example: password123
-                role:
-                  type: string
-                  example: user
+                  example: 01J3ARCHITECT001
               type: object
       responses:
         201:
-          description: 'Registration successful'
+          description: 'Pembayaran berhasil dibuat'
           content:
             application/json:
               schema: []
               example:
                 success: true
                 status_code: 201
-                message: 'Registration successful'
+                message: 'Pembayaran konsultasi berhasil dibuat.'
                 data:
-                  id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
-                  name: 'Budi Santoso'
-                  email: budi_santoso@gmail.com
-                  role: user
-                  access_token: 1|plain-access-token
-                  refresh_token: 2|plain-refresh-token
-                  token_type: Bearer
-                  expires_in: 3600
-        422:
-          $ref: '#/components/responses/ValidationError'
-        500:
-          $ref: '#/components/responses/ServerError'
-  /auth/login:
-    post:
-      tags:
-        - Auth
-      summary: 'Login account'
-      description: 'Authenticates user credentials and returns a token pair.'
-      operationId: 985cd5203e2d0a820e113f2f4fdb2847
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              required:
-                - email
-                - password
-                - role
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: user@halositek.com
-                password:
-                  type: string
-                  example: securepassword123
-                role:
-                  type: string
-                  example: user
-                  enum:
-                    - user
-                    - architect
-                    - admin
-              type: object
-      responses:
-        200:
-          description: 'Login successful'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Login successful'
-                data:
-                  id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
-                  name: 'Regular User'
-                  email: user@halositek.com
-                  role: user
-                  access_token: 1|plain-access-token
-                  refresh_token: 2|plain-refresh-token
-                  token_type: Bearer
-                  expires_in: 3600
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        422:
-          $ref: '#/components/responses/ValidationError'
-        500:
-          $ref: '#/components/responses/ServerError'
-  /auth/refresh-token:
-    post:
-      tags:
-        - Auth
-      summary: 'Refresh access token'
-      description: 'Exchanges a valid refresh token for a new token pair.'
-      operationId: 2fdd67496aeb7fc933c8e1ddb9f7f211
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                refresh_token:
-                  type: string
-                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-              type: object
-      responses:
-        200:
-          description: 'Token refreshed successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Token refreshed successfully'
-                data:
-                  access_token: 3|plain-access-token
-                  refresh_token: 4|plain-refresh-token
-                  token_type: Bearer
-                  expires_in: 3600
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        422:
-          $ref: '#/components/responses/ValidationError'
-        500:
-          $ref: '#/components/responses/ServerError'
-  /logout:
-    post:
-      tags:
-        - Auth
-      summary: 'Logout current session'
-      description: 'Revokes the current access token and optionally the refresh token provided in the request body.'
-      operationId: 5660f1ae61b95f0283dfc205d5ffdad5
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              properties:
-                refresh_token:
-                  type: string
-              type: object
-      responses:
-        200:
-          description: 'Logout successful'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Logout successful'
-                data: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-  /me:
-    get:
-      tags:
-        - Users
-      summary: 'Get current user profile'
-      description: 'Returns the profile data of the currently authenticated user.'
-      operationId: 0fadd24761c66bfa1bfdc46dea94c0dd
-      responses:
-        200:
-          description: 'Profile retrieved successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Profile retrieved successfully'
-                data:
-                  id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
-                  name: 'Regular User'
-                  email: user@halositek.com
-                  role: user
-                  account_status: active
-                  created_at: '2026-04-13T10:00:00Z'
-                  updated_at: '2026-04-13T10:00:00Z'
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-    put:
-      tags:
-        - Users
-      summary: 'Update current profile'
-      description: 'Updates the profile of the currently authenticated user.'
-      operationId: 5705eaa8e3358048290c90ac2f975ae1
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              properties:
-                name:
-                  type: string
-                  example: 'Budi Santoso'
-                email:
-                  type: string
-                  format: email
-                  example: budi@example.com
-                password:
-                  type: string
-                  format: password
-                  example: password123
-              type: object
-      responses:
-        200:
-          description: 'Profile updated successfully.'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Profile updated successfully.'
-                data:
-                  user:
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
-                    name: 'Updated User Name'
-                    email: user@halositek.com
-                    role: user
-                    account_status: active
+                  payment_id: 01J3PAYMENT001
+                  order_id: CONS-20260515231400-ABCD1234
+                  status: pending
+                  snap_token: snap-token-123
+                  transaction_id: transaction-id-123
+                  redirect_url: 'https://app.sandbox.midtrans.com/snap/v2/vtweb/snap-token-123'
+                  consultation_details:
+                    architect_id: 01J3ARCHITECT001
+                    architect_name: 'Arsitek A'
+                    architect_photo: 'https://...'
+                    duration_hours: 2
+                    amount: 150000
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
           $ref: '#/components/responses/ForbiddenError'
         422:
           $ref: '#/components/responses/ValidationError'
-        500:
-          $ref: '#/components/responses/ServerError'
+        503:
+          $ref: '#/components/responses/ServiceUnavailableError'
       security:
         -
           BearerAuth: []
-  /awards:
+  '/consultations/payments/{transactionId}/status':
     get:
       tags:
-        - Awards
-      summary: 'List awards'
-      description: 'Returns a paginated award list with optional status filtering.'
-      operationId: ac6ba36ef2b8191a2fe55c943c7d9d4e
+        - 'Consultation Payment'
+      summary: 'Get payment status (fallback polling)'
+      description: 'Endpoint fallback polling untuk Web/Flutter. Status utama pembayaran diperbarui otomatis melalui webhook Midtrans. Endpoint ini akan mencoba sinkronisasi ke Midtrans bila status di database masih pending.'
+      operationId: 7be295c948077e88d9c2721d767438a6
       parameters:
         -
-          name: status
-          in: query
+          name: transactionId
+          in: path
+          required: true
           schema:
             type: string
-            enum:
-              - pending
-              - approved
-              - declined
+      responses:
+        200:
+          description: 'Status pembayaran berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Status pembayaran berhasil diambil.'
+                data:
+                  payment_id: 01J3PAYMENT001
+                  order_id: CONS-20260515231400-ABCD1234
+                  status: completed
+                  transaction_id: trx-123
+                  consultation_id: 01J3CONS001
+                  conversation_id: 01J3CONV001
+                  can_enter_consultation: true
+                  paid_at: '2026-05-15T23:20:00+07:00'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
         -
-          name: architect_id
-          in: query
-          schema:
-            type: string
+          BearerAuth: []
+  '/consultations/{architectId}/check-status':
+    get:
+      tags:
+        - 'Consultation Payment'
+      summary: 'Check consultation session status with an architect'
+      description: 'Mengecek status sesi konsultasi user dengan arsitek tertentu berdasarkan transaksi terakhir. Status yang mungkin: no_session, pending_payment, session_active.'
+      operationId: 98799945dff4606e1d3ee08dff4039b8
+      parameters:
         -
-          name: search
-          in: query
+          name: architectId
+          in: path
+          required: true
           schema:
             type: string
+      responses:
+        200:
+          description: 'Status konsultasi berhasil diambil'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Status konsultasi berhasil diambil.'
+                data:
+                  status: session_active
+                  consultation_id: 01J3CONS001
+                  conversation_id: 01J3CONV001
+                  remaining_time:
+                    days: 0
+                    hours: 1
+                    minutes: 30
+                    seconds: 0
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+      security:
+        -
+          BearerAuth: []
+  /consultations/payments/history:
+    get:
+      tags:
+        - 'Consultation Payment'
+      summary: 'Get payment history'
+      description: 'Mengambil riwayat pembayaran konsultasi milik user yang login.'
+      operationId: a6e718f7882c5bffc27baffd34269986
+      parameters:
         -
           name: per_page
           in: query
+          required: false
           schema:
             type: integer
+            example: 15
+            maximum: 50
+            minimum: 1
       responses:
         200:
-          description: 'Awards retrieved successfully'
+          description: 'Riwayat pembayaran berhasil diambil'
           content:
             application/json:
               schema: []
               example:
                 success: true
                 status_code: 200
-                message: 'Awards retrieved successfully'
+                message: 'Riwayat pembayaran berhasil diambil.'
                 data:
                   -
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
-                    name: 'Best Residential Design'
-                    project_name: 'Modern House'
-                    status: approved
+                    id: 01J3PAYMENT001
+                    order_id: CONS-20260515231400-ABCD1234
+                    status: completed
+                    amount: 150000
+                    duration_hours: 2
+                    payment_method: bank_transfer
+                    paid_at: '2026-05-15T23:20:00+07:00'
+                    consultation_id: 01J3CONS001
+                    conversation_id: 01J3CONV001
+                    architect:
+                      id: 01J3ARCHITECT001
+                      name: 'Arsitek A'
+                      photo_profile_url: 'https://...'
                 meta:
                   current_page: 1
                   last_page: 1
-                  per_page: 12
+                  per_page: 15
                   total: 1
-                links:
-                  first_page_url: 'http://localhost:8000/api/v1/awards?page=1'
-                  last_page_url: 'http://localhost:8000/api/v1/awards?page=1'
-                  next_page_url: null
-                  prev_page_url: null
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security: []
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+      security:
+        -
+          BearerAuth: []
+  /webhooks/midtrans:
     post:
       tags:
-        - Awards
-      summary: 'Create award'
-      description: 'Creates a new award record by an architect, including verification file upload.'
-      operationId: b0afa1a40ba8f5a9cb004c157bfdc59d
+        - 'Consultation Payment'
+      summary: 'Handle Midtrans webhook (primary status updater)'
+      description: "Endpoint utama (source of truth) untuk update status pembayaran dari notifikasi Midtrans. Konfigurasi webhook Midtrans diarahkan ke /api/v1/webhooks/midtrans. Pada environment local/testing, signature_key otomatis digenerate bila kosong atau bernilai 'string' untuk kebutuhan test manual."
+      operationId: 17b961709c1c47d6f4a4b3c007410cf6
       requestBody:
         required: true
         content:
-          multipart/form-data: []
+          application/json:
+            schema:
+              required:
+                - order_id
+                - status_code
+                - transaction_status
+                - gross_amount
+              properties:
+                order_id:
+                  type: string
+                  example: CONS-20260515231400-ABCD1234
+                status_code:
+                  type: string
+                  example: '200'
+                transaction_status:
+                  type: string
+                  example: settlement
+                transaction_id:
+                  type: string
+                  example: trx-123
+                gross_amount:
+                  type: string
+                  example: '150000.00'
+                payment_type:
+                  type: string
+                  example: bank_transfer
+                signature_key:
+                  description: "Wajib di production. Di local/testing boleh kosong atau 'string' untuk auto-generate."
+                  type: string
+                  nullable: true
+              type: object
       responses:
-        201:
-          description: 'Award created successfully'
+        200:
+          description: 'Webhook pembayaran berhasil diproses'
           content:
             application/json:
               schema: []
               example:
                 success: true
-                status_code: 201
-                message: 'Award created successfully'
+                status_code: 200
+                message: 'Webhook pembayaran berhasil diproses.'
                 data:
-                  award:
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
-                    name: 'Best Residential Design'
-                    project_name: 'Modern House'
-                    status: pending
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
+                  payment_id: 01J3PAYMENT001
+                  order_id: CONS-20260515231400-ABCD1234
+                  status: completed
+                  consultation_id: 01J3CONS001
+                  conversation_id: 01J3CONV001
         403:
           $ref: '#/components/responses/ForbiddenError'
         422:
           $ref: '#/components/responses/ValidationError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-  '/awards/{id}':
+  /dashboard/summary:
     get:
       tags:
-        - Awards
-      summary: 'Get award detail'
-      description: 'Returns award details by id.'
-      operationId: a6725d6997632cafcbde215b860a95ca
-      parameters:
-        -
-          name: id
-          in: path
-          required: true
-          schema:
-            type: string
+        - Dashboard
+      summary: 'Get user dashboard summary'
+      description: 'Returns the total saved designs, saved architects, and total consultations for the authenticated user.'
+      operationId: e4d6bb5ce6fe493645062f01fe557cd8
       responses:
         200:
-          description: 'Award retrieved successfully'
+          description: 'Dashboard summary retrieved successfully'
           content:
             application/json:
               schema: []
               example:
                 success: true
                 status_code: 200
-                message: 'Award retrieved successfully'
+                message: 'Dashboard summary retrieved successfully.'
                 data:
-                  award:
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
-                    name: 'Best Residential Design'
-                    project_name: 'Modern House'
-                    status: approved
-        404:
-          $ref: '#/components/responses/NotFoundError'
+                  total_saved_designs: 5
+                  total_saved_architects: 3
+                  total_consultations: 2
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
         500:
           $ref: '#/components/responses/ServerError'
-      security: []
-    put:
+      security:
+        -
+          BearerAuth: []
+  /dashboard/design/featured:
+    get:
       tags:
-        - Awards
-      summary: 'Update award'
-      description: 'Updates award data; admin users can only update award status.'
-      operationId: bd4372e2d81916a8553f975d67147884
+        - Dashboard
+      summary: 'Get featured design'
+      description: 'Returns the single most popular design from the last 7 days based on likes and saves count, optionally filtered by style.'
+      operationId: 3ecd4ea51021d38e05dbbc22c744e85f
       parameters:
         -
-          name: id
-          in: path
+          name: style
+          in: query
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          multipart/form-data: []
+            enum:
+              - all
+              - modern
+              - traditional
+              - minimalist
+              - futuristik
+              - industrial
       responses:
         200:
-          description: 'Award updated successfully'
+          description: 'Featured design retrieved successfully'
           content:
             application/json:
               schema: []
               example:
                 success: true
                 status_code: 200
-                message: 'Award updated successfully'
+                message: 'Featured design retrieved successfully.'
                 data:
-                  award:
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
-                    name: 'Best Residential Design'
-                    project_name: 'Modern House'
-                    status: pending
+                  design:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Modern House'
+                    style: modern
+                    likes_count: 12
+                    saves_count: 8
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
@@ -1003,69 +2536,35 @@ paths:
       security:
         -
           BearerAuth: []
-    delete:
+  /dashboard/design/recommend:
+    get:
       tags:
-        - Awards
-      summary: 'Delete award'
-      description: 'Deletes an award record and its verification file by id.'
-      operationId: 8617d7b65c7184a1c70fae76032f879e
-      parameters:
-        -
-          name: id
-          in: path
-          required: true
-          schema:
-            type: string
+        - Dashboard
+      summary: 'Get recommended designs for user'
+      description: 'Returns up to 2 recommended designs based on the styles of designs the user has saved, ranked by the highest likes_count. Only approved designs that the user has not yet saved are returned.'
+      operationId: ee082060c4eb2e49cd2e0bcb192bffd2
       responses:
         200:
-          description: 'Award deleted successfully'
+          description: 'Recommended designs retrieved successfully'
           content:
             application/json:
               schema: []
               example:
                 success: true
                 status_code: 200
-                message: 'Award deleted successfully'
-                data: null
-        401:
-          $ref: '#/components/responses/UnauthorizedError'
-        403:
-          $ref: '#/components/responses/ForbiddenError'
-        404:
-          $ref: '#/components/responses/NotFoundError'
-        500:
-          $ref: '#/components/responses/ServerError'
-      security:
-        -
-          BearerAuth: []
-  '/awards/{id}/approve':
-    put:
-      tags:
-        - Awards
-      summary: 'Approve award'
-      description: 'Approves an award by setting status to approved. Admin only endpoint.'
-      operationId: 13c51a583ce6aa1212864ef73f379295
-      parameters:
-        -
-          name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'Award approved successfully'
-          content:
-            application/json:
-              schema: []
-              example:
-                success: true
-                status_code: 200
-                message: 'Award approved successfully'
+                message: 'Recommended designs retrieved successfully.'
                 data:
-                  award:
-                    id: 01HZX9M1F45M2Z6K7T9K7Y8QAW
-                    status: approved
+                  designs:
+                    -
+                      id: uuid-1
+                      name: 'Modern Villa'
+                      style: modern
+                      likes_count: 25
+                    -
+                      id: uuid-2
+                      name: 'Minimalist House'
+                      style: minimalist
+                      likes_count: 18
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
@@ -1083,7 +2582,7 @@ paths:
         - FAQ
       summary: 'List FAQs'
       description: 'Returns FAQ items; public users can only see active entries.'
-      operationId: 2a7f89e5292d6d76c4704457f09b497a
+      operationId: 6349d195bc7a1708dc2ee3e3b72ca3c3
       responses:
         200:
           description: 'FAQ list retrieved successfully'
@@ -1120,7 +2619,7 @@ paths:
         - FAQ
       summary: 'Create FAQ'
       description: 'Creates a new FAQ entry through admin access.'
-      operationId: 51ddc2d8a7d5262f2bb023ae85acb90d
+      operationId: 7bbd0e966b08c1636271fb03d791977a
       requestBody:
         required: true
         content:
@@ -1169,7 +2668,7 @@ paths:
         - FAQ
       summary: 'Get FAQ detail'
       description: 'Returns details for a single FAQ by id.'
-      operationId: 3798b459714d4b10d7ff7ca0f6cbf9d7
+      operationId: c3783b4ea36d8234f5c7bfffae857f39
       parameters:
         -
           name: id
@@ -1202,7 +2701,7 @@ paths:
         - FAQ
       summary: 'Update FAQ'
       description: 'Updates an existing FAQ entry by id.'
-      operationId: 947a871d989acfa4548a8652c4fbbe92
+      operationId: 26f32aa1cf53af2bda80c4d3a0f4f760
       parameters:
         -
           name: id
@@ -1256,7 +2755,7 @@ paths:
         - FAQ
       summary: 'Delete FAQ'
       description: 'Deletes an FAQ entry by id.'
-      operationId: bd2fd27a6275bf2cf12d754d2f0279dd
+      operationId: 030910a5c473d7b6c66516490013e3b9
       parameters:
         -
           name: id
@@ -1291,8 +2790,8 @@ paths:
       tags:
         - Projects
       summary: 'List projects'
-      description: 'Returns a paginated project list with optional status filtering.'
-      operationId: d8bc32b45579a2263ca77907248c9002
+      description: 'Returns a paginated project list with optional status, area, and price range filtering.'
+      operationId: ea98f3f8d94c0a97667c3cba2c478508
       parameters:
         -
           name: status
@@ -1309,10 +2808,49 @@ paths:
           schema:
             type: string
         -
+          name: style
+          in: query
+          schema:
+            type: string
+            enum:
+              - modern
+              - traditional
+              - minimalist
+              - futuristik
+              - industrial
+        -
           name: search
           in: query
           schema:
             type: string
+        -
+          name: area_min
+          in: query
+          schema:
+            description: 'Minimum area in m2'
+            type: number
+            format: float
+        -
+          name: area_max
+          in: query
+          schema:
+            description: 'Maximum area in m2'
+            type: number
+            format: float
+        -
+          name: price_min
+          in: query
+          schema:
+            description: 'Minimum estimated cost in rupiah'
+            type: number
+            format: float
+        -
+          name: price_max
+          in: query
+          schema:
+            description: 'Maximum estimated cost in rupiah'
+            type: number
+            format: float
         -
           name: per_page
           in: query
@@ -1373,7 +2911,7 @@ paths:
         - Projects
       summary: 'Create project'
       description: 'Creates a new project by an architect with image and layout uploads.'
-      operationId: d14ce90da851ad8044ec318a766df32e
+      operationId: 874d153666af5ed0093d339c20df9846
       requestBody:
         required: true
         content:
@@ -1383,18 +2921,26 @@ paths:
                 - name
                 - style
                 - estimated_cost
+                - 'images[]'
+                - 'layout_images[]'
               properties:
                 name:
                   type: string
                   example: 'Modern House'
                 style:
                   type: string
-                  example: Modern
+                  example: modern
+                  enum:
+                    - modern
+                    - traditional
+                    - minimalist
+                    - futuristik
+                    - industrial
                 description:
                   type: string
                   example: 'Two-story tropical house with natural lighting.'
                   nullable: true
-                images:
+                'images[]':
                   type: array
                   items:
                     type: string
@@ -1402,7 +2948,7 @@ paths:
                 estimated_cost:
                   type: string
                   example: 'Rp 2M - 3M'
-                layout_images:
+                'layout_images[]':
                   type: array
                   items:
                     type: string
@@ -1469,7 +3015,7 @@ paths:
         - Projects
       summary: 'Get project detail'
       description: 'Returns project details by id.'
-      operationId: 83c87bebdc302e4ae4afcefcf319d08c
+      operationId: b7e977448e0c3acb27bd6cad48da5aec
       parameters:
         -
           name: id
@@ -1522,7 +3068,7 @@ paths:
         - Projects
       summary: 'Update project'
       description: 'Updates project data; admin users can only update project status.'
-      operationId: 62d247065d872bb3694822fd1a77b76e
+      operationId: 1e733aac12347b10e342be0ca24cd390
       parameters:
         -
           name: id
@@ -1547,7 +3093,13 @@ paths:
                   example: 'Modern House Updated'
                 style:
                   type: string
-                  example: Modern
+                  example: modern
+                  enum:
+                    - modern
+                    - traditional
+                    - minimalist
+                    - futuristik
+                    - industrial
                 description:
                   type: string
                   example: 'Updated description for the project.'
@@ -1628,7 +3180,7 @@ paths:
         - Projects
       summary: 'Delete project'
       description: 'Deletes a project and related stored image files by id.'
-      operationId: 0e1ef9693d0bf640ec8a8027909a5902
+      operationId: 6192a616f2e95d7dba9300315d14aeae
       parameters:
         -
           name: id
@@ -1662,9 +3214,65 @@ paths:
     put:
       tags:
         - Projects
-      summary: 'Approve project'
-      description: 'Approves a project by setting status to approved. Admin only endpoint.'
-      operationId: 81cec884040181f3f7023f791c84924b
+      summary: 'Review project approval'
+      description: 'Approves or declines a project by setting status to approved or declined. Admin only endpoint.'
+      operationId: 8d6ec2d940f149e30cc3d003d0b20fad
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  example: approved
+                  enum:
+                    - approved
+                    - declined
+              type: object
+      responses:
+        200:
+          description: 'Project status updated successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Project status updated successfully.'
+                data:
+                  project:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    status: approved
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/projects/{id}/like':
+    post:
+      tags:
+        - Projects
+      summary: 'Like a project'
+      description: 'Adds a like to the specified project for the authenticated user.'
+      operationId: 9917b6e6dabe734091d3420eb093da3c
       parameters:
         -
           name: id
@@ -1674,18 +3282,322 @@ paths:
             type: string
       responses:
         200:
-          description: 'Project approved successfully'
+          description: 'Project liked successfully'
           content:
             application/json:
               schema: []
               example:
                 success: true
                 status_code: 200
-                message: 'Project approved successfully'
+                message: 'Project liked successfully.'
                 data:
-                  project:
+                  liked: true
+                  like_count: 21
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - Projects
+      summary: 'Unlike a project'
+      description: 'Removes a like from the specified project for the authenticated user.'
+      operationId: 8c59ae4730347ce2d3f6b0f15942a26f
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Project unliked successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Project unliked successfully.'
+                data:
+                  liked: false
+                  like_count: 20
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/projects/{id}/save':
+    post:
+      tags:
+        - Projects
+      summary: 'Save project to wishlist'
+      description: "Saves a specific project to the authenticated user's saved list."
+      operationId: 621b00f34b06749f7acb1577822dd642
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Project saved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Project saved successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          $ref: '#/components/responses/ConflictError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - Projects
+      summary: 'Remove project from saved list'
+      description: "Removes a specific project from the authenticated user's saved list."
+      operationId: 829602c0613b2403f6cf5c98a1f36634
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Project removed from saved list successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Project removed from saved list successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /projects/saved:
+    get:
+      tags:
+        - Projects
+      summary: 'List saved projects'
+      description: "Returns the authenticated user's saved project list."
+      operationId: 49e53bf6fac19e7fcf5acf908180c663
+      responses:
+        200:
+          description: 'Saved projects retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Saved projects retrieved successfully'
+                data:
+                  -
                     id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
-                    status: approved
+                    name: 'Modern House'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 12
+                  total: 1
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /admins:
+    get:
+      tags:
+        - 'Admin Management'
+      summary: 'List all admins'
+      description: 'Returns a paginated list of admin and super admin users (super admin only).'
+      operationId: aeda23328789bb4eec2af32ea983882a
+      parameters:
+        -
+          name: search
+          in: query
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Admins retrieved successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Admins retrieved successfully.'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRS
+                    name: 'Admin User'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: active
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Super Admin'
+                    email: superadmin@halositek.com
+                    role: super_admin
+                    account_status: active
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 15
+                  total: 2
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/admins?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/admins?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    post:
+      tags:
+        - 'Admin Management'
+      summary: 'Create admin'
+      description: 'Creates a new admin or super admin user (super admin only).'
+      operationId: 10096a41e044e3c2b354786486cd81c7
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - name
+                - email
+                - password
+                - role
+              properties:
+                name:
+                  type: string
+                  example: 'New Admin'
+                email:
+                  type: string
+                  format: email
+                  example: admin@halositek.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                role:
+                  type: string
+                  example: admin
+                  enum:
+                    - admin
+                    - super_admin
+                photo_profile:
+                  type: string
+                  format: binary
+              type: object
+      responses:
+        201:
+          description: 'Admin created successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 201
+                message: 'Admin created successfully.'
+                data:
+                  admin:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRU
+                    name: 'New Admin'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: active
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/admins/{id}':
+    get:
+      tags:
+        - 'Admin Management'
+      summary: 'Get admin detail'
+      description: 'Returns details for a specific admin user (super admin only).'
+      operationId: 2aab989138ff79237b5d6ae82aa0bdfe
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Admin retrieved successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Admin retrieved successfully.'
+                data:
+                  admin:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Admin User'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: active
         401:
           $ref: '#/components/responses/UnauthorizedError'
         403:
@@ -1697,13 +3609,470 @@ paths:
       security:
         -
           BearerAuth: []
+    put:
+      tags:
+        - 'Admin Management'
+      summary: 'Update admin'
+      description: "Updates an admin user's role or account status (super admin only)."
+      operationId: 02618f9c2624f8c00a2d7bd678cc0f89
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                role:
+                  type: string
+                  example: admin
+                  enum:
+                    - admin
+                    - super_admin
+                account_status:
+                  type: string
+                  example: active
+                  enum:
+                    - active
+                    - suspend
+              type: object
+      responses:
+        200:
+          description: 'Admin updated successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Admin updated successfully.'
+                data:
+                  admin:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRT
+                    name: 'Admin User'
+                    email: admin@halositek.com
+                    role: admin
+                    account_status: suspend
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - 'Admin Management'
+      summary: 'Delete admin'
+      description: 'Deletes an admin user (super admin only).'
+      operationId: 003112073f336036dd51e0c40a2a7c6f
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Admin deleted successfully.'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Admin deleted successfully.'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /architects:
+    get:
+      tags:
+        - Architects
+      summary: 'List architects'
+      description: 'Returns a list of architects for public browsing with optional search.'
+      operationId: 1959934f63e0c7d99ea9d206a9ec85f0
+      parameters:
+        -
+          name: page
+          in: query
+          schema:
+            type: integer
+        -
+          name: search
+          in: query
+          schema:
+            type: string
+        -
+          name: per_page
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Architect list retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Architect list retrieved successfully'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Architect User'
+                    email: architect@halositek.com
+                    headline: 'Residential Specialist'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 12
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/architects?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/architects?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security: []
+  /architects/wishlist:
+    get:
+      tags:
+        - Architects
+      summary: 'List wishlist architects'
+      description: "Returns the authenticated user's saved architect wishlist."
+      operationId: 2a365608228314d6e7fea540e31572a0
+      responses:
+        200:
+          description: 'Wishlist architects retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Wishlist architects retrieved successfully'
+                data:
+                  -
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Architect User'
+                    email: architect@halositek.com
+                    headline: 'Residential Specialist'
+                meta:
+                  current_page: 1
+                  last_page: 1
+                  per_page: 12
+                  total: 1
+                links:
+                  first_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
+                  last_page_url: 'http://localhost:8000/api/v1/architects/wishlist?page=1'
+                  next_page_url: null
+                  prev_page_url: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/architects/{id}':
+    get:
+      tags:
+        - Architects
+      summary: 'Get architect details'
+      description: 'Returns detailed information about a specific architect.'
+      operationId: 4042d88e74afc260c66c5dd582015cae
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Architect details retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Data arsitek berhasil diambil.'
+                data:
+                  id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                  name: 'Architect User'
+                  email: architect@halositek.com
+                  headline: 'Residential Specialist'
+                  total_projects: 5
+                  total_awards: 2
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  '/architects/{id}/performance':
+    get:
+      tags:
+        - Architects
+      summary: 'Get architect performance'
+      description: 'Returns aggregate performance metrics for a specific architect.'
+      operationId: 20cc550cf3b61eaa4b231e2f80fea94f
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Architect performance retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Data performa arsitek berhasil diambil.'
+                data:
+                  architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                  total_likes: 120
+                  total_saves: 32
+                  total_consultations: 8
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security: []
+  '/architects/{userId}/save':
+    post:
+      tags:
+        - Architects
+      summary: 'Save architect to wishlist'
+      description: "Saves a specific architect to the authenticated user's wishlist."
+      operationId: 01aa4e3f3427e989cf2516c3dd89f86f
+      parameters:
+        -
+          name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Architect saved to wishlist successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Architect saved to wishlist successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        409:
+          $ref: '#/components/responses/ConflictError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+    delete:
+      tags:
+        - Architects
+      summary: 'Remove architect from wishlist'
+      description: "Removes a specific architect from the authenticated user's wishlist."
+      operationId: ec27c9082ec363e91ed53ecf32a9805a
+      parameters:
+        -
+          name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: 'Architect removed from wishlist successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Architect removed from wishlist successfully'
+                data: null
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /architects/earnings:
+    get:
+      tags:
+        - Architects
+      summary: 'Get architect earnings per release payment'
+      description: 'Returns a paginated list of released payout payments (earnings) for the authenticated architect.'
+      operationId: 1f07774663b8a8755da16b48fbfb907f
+      parameters:
+        -
+          name: per_page
+          in: query
+          schema:
+            type: integer
+        -
+          name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'Earnings retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Data earnings berhasil diambil.'
+                data:
+                  total_gross_earnings: 1000000
+                  total_tax_paid: 100000
+                  total_net_earnings: 900000
+                  earnings:
+                    -
+                      consultation_id: 01J3CONS001
+                      gross_fee: 500000
+                      tax_deduction: 50000
+                      net_earning: 450000
+                      released_at: '2026-04-27T12:00:00Z'
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+      security:
+        -
+          BearerAuth: []
+  /architects/profile:
+    post:
+      tags:
+        - Architects
+      summary: 'Update authenticated architect profile'
+      description: 'Updates profile information for the authenticated architect.'
+      operationId: 1e20b4f68b72a822736fd8aafa8826db
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: 'Arsitek A'
+                email:
+                  type: string
+                  format: email
+                  example: arsitek.a@example.com
+                headline:
+                  type: string
+                  example: 'Modern Tropical Specialist'
+                  nullable: true
+                bio:
+                  type: string
+                  example: 'Berpengalaman dalam proyek residensial dan komersial.'
+                  nullable: true
+                year_of_experience:
+                  type: integer
+                  example: 8
+                  nullable: true
+                  maximum: 100
+                  minimum: 0
+                consultation_fee:
+                  type: integer
+                  example: 250000
+                  nullable: true
+                  minimum: 0
+                consultation_hours:
+                  type: integer
+                  example: 2
+                  nullable: true
+                  maximum: 24
+                  minimum: 1
+                photo_profile:
+                  type: string
+                  format: binary
+              type: object
+      responses:
+        200:
+          description: 'Architect profile updated successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Profil arsitek berhasil diperbarui.'
+                data:
+                  id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                  name: 'Arsitek A'
+                  email: arsitek.a@example.com
+                  headline: 'Modern Tropical Specialist'
+                  bio: 'Berpengalaman dalam proyek residensial dan komersial.'
+                  year_of_experience: 8
+                  consultation_fee: 250000
+                  consultation_hours: 2
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+      security:
+        -
+          BearerAuth: []
   /users:
     get:
       tags:
         - Users
       summary: 'List users'
       description: 'Returns a paginated user list for administrative usage (admin only).'
-      operationId: 47249454f1cdb4ad92ff4dd2abad233f
+      operationId: bda0424acf687003f1427ea721f28c1b
       parameters:
         -
           name: status
@@ -1772,11 +4141,11 @@ paths:
         - Users
       summary: 'Create user'
       description: 'Creates a new user account from the administrative panel.'
-      operationId: 381804010d0bc76cac24bab8ac5f1707
+      operationId: 340021bf723d83861f655c281e5ee075
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               required:
                 - name
@@ -1807,6 +4176,9 @@ paths:
                   enum:
                     - active
                     - suspend
+                photo_profile:
+                  type: string
+                  format: binary
               type: object
       responses:
         201:
@@ -1842,7 +4214,7 @@ paths:
         - Users
       summary: 'Get user detail'
       description: 'Returns details for a specific user by id.'
-      operationId: 90ca44c038360e66084588a1a5951520
+      operationId: af3120a64321c6ec2bc595818e0b06f0
       parameters:
         -
           name: id
@@ -1883,7 +4255,7 @@ paths:
         - Users
       summary: 'Update user status'
       description: "Updates a target user's account status (for example: active or suspend)."
-      operationId: e734c66a7d375609edee2154bc5f7b47
+      operationId: 075c395067210a524455ef4aae3f09dd
       parameters:
         -
           name: id
@@ -1940,7 +4312,7 @@ paths:
         - Users
       summary: 'Delete user'
       description: 'Deletes a user account by id.'
-      operationId: 9daa558fb80f5a3e2b490a3a5b05a716
+      operationId: 3ab1c2fff568ea31667b8a6b3d769892
       parameters:
         -
           name: id
@@ -2335,6 +4707,24 @@ components:
         user_id:
           type: string
           example: 01J2USERA
+        role:
+          type: string
+          example: assistant
+          nullable: true
+          enum:
+            - user
+            - assistant
+        type:
+          type: string
+          example: text
+          nullable: true
+          enum:
+            - text
+            - image
+        content:
+          type: string
+          example: 'Ini jawaban AI konsultasi.'
+          nullable: true
         body:
           type: string
           example: 'Halo, kabar kamu gimana?'
@@ -2555,6 +4945,31 @@ components:
                     example: null
                     nullable: true
                 type: object
+    ServiceUnavailableError:
+      description: 'Service Unavailable - dependent service is temporarily unavailable.'
+      content:
+        application/json:
+          schema:
+            type: object
+            allOf:
+              -
+                $ref: '#/components/schemas/ApiError'
+              -
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  status_code:
+                    type: integer
+                    example: 503
+                  message:
+                    type: string
+                    example: 'Service unavailable.'
+                  errors:
+                    type: object
+                    example: null
+                    nullable: true
+                type: object
   securitySchemes:
     BearerAuth:
       type: http
@@ -2563,11 +4978,11 @@ components:
       scheme: bearer
 tags:
   -
-    name: Chat
-    description: Chat
+    name: 'AI Chatbot Management'
+    description: 'AI Chatbot Management'
   -
-    name: Architects
-    description: Architects
+    name: Analytics
+    description: Analytics
   -
     name: Auth
     description: Auth
@@ -2578,8 +4993,29 @@ tags:
     name: Awards
     description: Awards
   -
+    name: 'Consultation Management'
+    description: 'Consultation Management'
+  -
+    name: 'Consultation Report'
+    description: 'Consultation Report'
+  -
+    name: Chat
+    description: Chat
+  -
+    name: 'Consultation Payment'
+    description: 'Consultation Payment'
+  -
+    name: Dashboard
+    description: Dashboard
+  -
     name: FAQ
     description: FAQ
   -
     name: Projects
     description: Projects
+  -
+    name: 'Admin Management'
+    description: 'Admin Management'
+  -
+    name: Architects
+    description: Architects

@@ -2,13 +2,15 @@
 
 namespace App\Actions\Chat;
 
-use App\DTOs\Chat\SendMessageDTO;
+use App\DTOs\Consultation\SendMessageDTO;
 use App\Events\MessageSent;
+use App\Models\Consultation;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
 use App\Notifications\NewMessageNotification;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Validation\ValidationException;
 
 final class SendMessageAction
 {
@@ -22,11 +24,22 @@ final class SendMessageAction
             throw new AuthorizationException('Anda tidak memiliki akses ke percakapan ini.');
         }
 
+        $consultation = $conversation->consultation_id
+            ? Consultation::find((string) $conversation->consultation_id)
+            : null;
+
+        if ($consultation instanceof Consultation && ! $consultation->isSessionActive()) {
+            throw ValidationException::withMessages([
+                'conversation_id' => ['Sesi konsultasi sudah berakhir, chat hanya dapat dibaca.'],
+            ]);
+        }
+
         $message = Message::create([
             'conversation_id' => (string) $conversation->getKey(),
             'user_id' => $senderId,
             'body' => $dto->body,
             'attachment' => $dto->attachment,
+            'type' => $dto->attachment ? Message::TYPE_IMAGE : Message::TYPE_TEXT,
             'read_at' => null,
         ]);
 

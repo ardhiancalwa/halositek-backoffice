@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Consultation\ConversationController;
 use App\Http\Controllers\Api\Consultation\MessageController;
 use App\Http\Controllers\Api\Consultation\PaymentController;
 use App\Http\Controllers\Api\Consultation\PaymentWebhookController;
+use App\Http\Controllers\Api\Dashboard\DashboardController;
 use App\Http\Controllers\Api\Faq\FaqController;
 use App\Http\Controllers\Api\Project\ProjectController;
 use App\Http\Controllers\Api\User\AdminController;
@@ -98,6 +99,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/architects/earnings', [ArchitectController::class, 'earnings']);
         Route::put('/architects/profile', [ArchitectController::class, 'updateProfile'])->middleware('role:architect');
         Route::post('/architects/profile', [ArchitectController::class, 'updateProfile'])->middleware('role:architect');
+
+        // Dashboard
+        Route::prefix('/dashboard')->group(function () {
+            Route::get('/summary', [DashboardController::class, 'summary'])->middleware('role:user');
+            Route::get('/design/featured', [DashboardController::class, 'featuredDesign'])->middleware('role:user,architect');
+            Route::get('/design/recommend', [DashboardController::class, 'recommendDesign'])->middleware('role:user');
+        });
 
         // Architect wishlist
         Route::get('/architects/wishlist', [ArchitectController::class, 'wishlist']);

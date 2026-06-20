@@ -2238,6 +2238,7 @@ paths:
                   order_id: CONS-20260515231400-ABCD1234
                   status: pending
                   snap_token: snap-token-123
+                  transaction_id: transaction-id-123
                   redirect_url: 'https://app.sandbox.midtrans.com/snap/v2/vtweb/snap-token-123'
                   consultation_details:
                     architect_id: 01J3ARCHITECT001
@@ -2453,6 +2454,128 @@ paths:
           $ref: '#/components/responses/ForbiddenError'
         422:
           $ref: '#/components/responses/ValidationError'
+  /dashboard/summary:
+    get:
+      tags:
+        - Dashboard
+      summary: 'Get user dashboard summary'
+      description: 'Returns the total saved designs, saved architects, and total consultations for the authenticated user.'
+      operationId: e4d6bb5ce6fe493645062f01fe557cd8
+      responses:
+        200:
+          description: 'Dashboard summary retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Dashboard summary retrieved successfully.'
+                data:
+                  total_saved_designs: 5
+                  total_saved_architects: 3
+                  total_consultations: 2
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /dashboard/design/featured:
+    get:
+      tags:
+        - Dashboard
+      summary: 'Get featured design'
+      description: 'Returns the single most popular design from the last 7 days based on likes and saves count, optionally filtered by style.'
+      operationId: 3ecd4ea51021d38e05dbbc22c744e85f
+      parameters:
+        -
+          name: style
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - all
+              - modern
+              - traditional
+              - minimalist
+              - futuristik
+              - industrial
+      responses:
+        200:
+          description: 'Featured design retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Featured design retrieved successfully.'
+                data:
+                  design:
+                    id: 01HZX9M1F45M2Z6K7T9K7Y8QRP
+                    architect_id: 01HZX9M1F45M2Z6K7T9K7Y8QRA
+                    name: 'Modern House'
+                    style: modern
+                    likes_count: 12
+                    saves_count: 8
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        422:
+          $ref: '#/components/responses/ValidationError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
+  /dashboard/design/recommend:
+    get:
+      tags:
+        - Dashboard
+      summary: 'Get recommended designs for user'
+      description: 'Returns up to 2 recommended designs based on the styles of designs the user has saved, ranked by the highest likes_count. Only approved designs that the user has not yet saved are returned.'
+      operationId: ee082060c4eb2e49cd2e0bcb192bffd2
+      responses:
+        200:
+          description: 'Recommended designs retrieved successfully'
+          content:
+            application/json:
+              schema: []
+              example:
+                success: true
+                status_code: 200
+                message: 'Recommended designs retrieved successfully.'
+                data:
+                  designs:
+                    -
+                      id: uuid-1
+                      name: 'Modern Villa'
+                      style: modern
+                      likes_count: 25
+                    -
+                      id: uuid-2
+                      name: 'Minimalist House'
+                      style: minimalist
+                      likes_count: 18
+        401:
+          $ref: '#/components/responses/UnauthorizedError'
+        403:
+          $ref: '#/components/responses/ForbiddenError'
+        404:
+          $ref: '#/components/responses/NotFoundError'
+        500:
+          $ref: '#/components/responses/ServerError'
+      security:
+        -
+          BearerAuth: []
   /faqs:
     get:
       tags:
@@ -4881,6 +5004,9 @@ tags:
   -
     name: 'Consultation Payment'
     description: 'Consultation Payment'
+  -
+    name: Dashboard
+    description: Dashboard
   -
     name: FAQ
     description: FAQ
